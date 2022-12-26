@@ -1,0 +1,187 @@
+<%- include ("../../partials/header.ejs") %> <%- include
+("../../partials/navbar.ejs") %>
+
+<body>
+    <div class="container">
+      <hr />
+      <h2>Mortes</h2>
+  
+      <hr />
+      <div class="row row-cols-1 row-cols-md-2 g-4">
+
+        <div class="col-2">
+            <div class="card text-center">
+                <a class="btn btn-secondary form-control" href="/admin/estoque"
+                >Estoque</a
+              >
+                </div>
+            </div>
+
+        <div class="col-2">
+            <div class="card text-center">
+                <a class="btn btn-primary form-control" href="/admin/estoque/newMorte"
+                >Lançar Morte</a
+              >
+                </div>
+            </div>
+
+   <div class="col-4">
+    <div class="card text-center">
+       <div class="dropdown">
+<button class="btn dropdown-toggle form-control" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+Investidor
+</button>
+<ul class="dropdown-menu">
+  <li >
+    <a class="dropdown-item"  href="/admin/estoque/morte">TODOS</a>
+  </li>
+ <% investidores.forEach(investidor => { %>
+<li >
+        <a class="dropdown-item"  href="/morte/<%= investidor.slug %>"><%= investidor.name %></a>
+    </li>
+ <% }) %>
+</ul>
+</div>
+
+    </div>
+   </div>
+    </div>
+<hr/>
+
+<div  class="table1 text-center">
+<table id="tab" data-type="table-menu" class="table table-bordered">
+    <thead>
+       
+            
+      <tr id="table-header">
+        <th>Data</th>
+        <th>Mortes</th>
+      </tr>
+    </thead>
+    <tbody id="demo">
+        <% mortes.forEach(morte => { %>
+            <tr class="pesquisar" href="/<%= morte.slug %>">
+        <td><%= morte.data %></td>
+        <td><%= morte.quantidade %></td>
+        <td>
+            <a
+              href="/admin/estoque/edit/<%= morte.id %>"
+              class="btn btn-warning"
+              >Editar</a
+            >
+            <form
+              method="POST"
+              action="/morte/delete"
+              style="display: inline;"
+              onsubmit="confirmarDelecao(event, this)"
+            >
+              <input type="hidden" name="id" value="<%= morte.id %>" />
+              <button class="btn btn-danger">Deletar</button>
+            </form>
+          </td>
+      </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</div>
+<hr/>
+
+<div class="dashboard">
+    <canvas id="myChart"></canvas>
+  </div>
+
+      </div>
+      </body>
+
+
+<%- include ("../../partials/footer.ejs") %>
+
+
+<!-- script dashboard   -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+
+   const data = {
+  labels: [
+    'Red',
+    'Blue',
+    'Yellow'
+  ],
+  datasets: [{
+    label: 'My First Dataset',
+    data: [300, 50, 100],
+    backgroundColor: [
+      'rgb(255, 99, 132)',
+      'rgb(54, 162, 235)',
+      'rgb(255, 205, 86)'
+    ],
+    hoverOffset: 4
+  }]
+};
+
+
+   const config = {
+  type: 'doughnut',
+  data: data,
+};
+
+ </script>
+
+
+<script>
+    const myChart = new Chart(document.getElementById("myChart"), config);
+  </script>
+
+
+<script>
+  //delete Script
+  function confirmarDelecao(event, form) {
+    event.preventDefault();
+    var decision = confirm("Você quer deletar esta Compra?");
+    if (decision) {
+      form.submit();
+    }
+  }
+
+  ////////////////////////////
+  // search script
+  const inputSearch = document.querySelector("#search");
+  const tableMenu = document.querySelector("[data-type='table-menu']");
+
+  const trs = Array.from(tableMenu.querySelectorAll("tbody tr"));
+  const trsPesquisar = Array.from(
+    tableMenu.querySelectorAll("tr.pesquisar")
+  );
+
+  inputSearch.addEventListener("input", function() {
+    const str = this.value;
+    if (str) {
+      filterData(str);
+    } else {
+      showAllItems();
+    }
+  });
+
+  function showAllItems() {
+    trs.forEach((tr) => tr.classList.remove("hide"));
+  }
+
+  function filterData(str) {
+    showAllItems();
+    trsPesquisar.forEach((trPesquisar) => {
+      let found = false;
+
+      for (let i=0; i < trs.length; i++) {
+        let tr = trs[i];
+        if (tr.textContent.toLowerCase().includes(str.toLowerCase())) {
+          found = true;
+          tr.classList.remove("hide");
+        } else {
+          tr.classList.add("hide");
+        }
+      }
+    });
+  }
+  /////////////////////////////////////////////////
+</script>

@@ -1,0 +1,62 @@
+<%- include ("../../partials/header.ejs") %> <%- include
+("../../partials/navbar.ejs") %>
+
+<body>
+    <div class="container">
+      <div class="card">
+        <div class="card-header">
+      <h2>Editar Morte</h2>
+    </div>
+      <hr />
+      <div class="card-body">
+        <form method="POST" action="/morte/update">
+            <div class="input--with-addon currency-input">
+          <label>Nome</label>
+           <input type="hidden" value="<%= morte.id %>" name="id" />
+          <select name="investidor" class="form-control">
+                    <% investidores.forEach((investidor) => { %>
+                      <% if (investidor.id == morte.investidoreId) { %>
+                        <option value="<%= investidor.id %>" selected><%= investidor.name %></option>
+                        <% } else { %>
+                          <option value="<%= investidor.id %>"><%= investidor.name %></option>
+                          <% } %> 
+                       <% }) %> 
+                  </select>
+                  </div>
+          <br />
+
+          <div class="input--with-addon currency-input">
+          <label>Data Morte</label>
+          <input
+            class="form-control"
+            type="date"
+            name="data"
+            value="<%= morte.data %>"
+            required
+          />
+          </div><br />
+
+          <div class="input--with-addon currency-input">
+            <label>Quantidade</label>
+            <div class="input__container numeral-input">
+              <input
+                required="required"
+                type="text"
+                name="quantidade"
+                value="<%= morte.quantidade %>"
+                class="input form-control form-control-danger"
+              /><!---->
+            </div>
+            <!----><!---->
+          </div>
+          <br />       
+          <button class="btn btn-success">Atualizar</button>
+        </form>
+      </div>
+
+      </div>
+      </div>
+      </body>
+
+
+<%- include ("../../partials/footer.ejs") %>

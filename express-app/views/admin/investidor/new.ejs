@@ -1,0 +1,220 @@
+<%- include ("../../partials/header.ejs") %> <%- include
+("../../partials/navbar.ejs") %>
+
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="card-header">
+              <h2>Novo Investidor</h2>
+            </div>
+            <div class="card-body">
+              <form method="POST" action="/investidor/save">
+                  <div class="input--with-addon currency-input">
+                <label>Nome </label>
+                <div class="input__container text-input">
+                <input
+                  class="form-control"
+                  type="text"
+                  autocomplete="off"
+                  name="name"
+                  placeholder=""
+                  required />
+                  </div>
+                  </div>
+                <br />
+                <div class="input--with-addon currency-input">
+                  <label>Telefone</label>
+                  <div class="input__container numeral-input">
+                    <input
+                      type="phone"
+                      autocomplete="off"
+                      name="phone"
+                      id="phone"
+                      placeholder="+55"
+                      maxlength="15"
+                      required
+                      class="input form-control form-control-danger"
+                    /><!---->
+                  </div>
+                  <!----><!---->
+                </div>
+                <br>
+                <div class="input--with-addon currency-input">
+                    <label>E-mail</label>
+                    <div class="input__container text-input">
+                      <input
+
+                        type="text"
+                        autocomplete="off"
+                        name="email"
+                        placeholder=""
+                        required
+                        class="input form-control form-control-danger"
+                      /><!---->
+                    </div>
+                    <!----><!---->
+                  </div>
+                <br />
+                <div class="input--with-addon currency-input">
+                    <label>CPF</label>
+                    <div class="input__container text-input">
+                      <input
+
+                        type="text"
+                        autocomplete="off"
+                        name="cpf"
+                        id="cpf"
+                        placeholder=""
+                        required
+                        maxlength="14"
+                        class="input form-control form-control-danger"
+                      /><!---->
+                    </div>
+                    <!----><!---->
+                  </div>
+                <br />
+                <div class="input--with-addon currency-input">
+                    <label>Cep</label>
+                    <div class="input__container number-input">
+                      <input
+
+                        type="text"
+                        autocomplete="off"
+                        name="cep"
+                        id="cep"
+                        maxlength="9"
+                        placeholder=""
+                        class="input form-control form-control-danger"
+                      /><!---->
+                    </div>
+                    <!----><!---->
+                  </div>
+                <br />
+                <div class="input--with-addon currency-input">
+                    <label>Logradouro</label>
+                    <div class="input__container text-input">
+                      <input
+
+                        type="text"
+                        name="logradouro"
+                        placeholder=""
+                        required
+                        class="input form-control form-control-danger"
+                      /><!---->
+                    </div>
+                    <!----><!---->
+                  </div>
+                  <br>
+                  <div class="input--with-addon currency-input">
+                    <label>Número</label>
+                    <div class="input__container number-input">
+                      <input
+
+                        type="number"
+                        name="number"
+                        placeholder=""
+                        required
+                        class="input form-control form-control-danger"
+                      /><!---->
+                    </div>
+                    <!----><!---->
+                  </div>
+                  <br>
+                  <div class="input--with-addon currency-input">
+                    <label>Complemento</label>
+                    <textarea
+                      class="form-control"
+                      name="obs"
+                      required
+                    ></textarea
+                    >
+                    </div>
+                    <br />
+                  <div class="input--with-addon currency-input">
+                    <label>UF</label>
+                    <div class="input__container text-input">
+                      <input
+
+                        type="text"
+                        name="uf"
+                        placeholder=""
+                        required
+                        class="input form-control form-control-danger"
+                      /><!---->
+                    </div>
+                    <!----><!---->
+                  </div>
+                <br />
+                <div class="input--with-addon currency-input">
+                    <label>Cidade</label>
+                    <div class="input__container text-input">
+                      <input
+
+                        type="text"
+                        name="cidade"
+                        placeholder=""
+                        required
+                        class="input form-control form-control-danger"
+                      /><!---->
+                    </div>
+                    <!----><!---->
+                  </div>
+                <br />
+
+                <button class="btn btn-success">Salvar</button>
+              </form>
+            </div>
+          </div>
+      </div>
+      </body>
+
+<%- include ("../../partials/footer.ejs") %>
+
+<!--script format cpf-->
+<script>
+  const input = document.querySelector('#cpf');
+
+  input.addEventListener('keypress', () => {
+    let inputlength = input.value.length;
+
+    if (inputlength === 3 || inputlength === 7) {
+      input.value += '.'
+    } else if(inputlength === 11){
+      input.value += '-'
+    }
+  })
+
+</script>
+<!--script format phone-->
+<script>
+  const phone = document.querySelector('#phone');
+
+  phone.addEventListener('keypress', () => {
+    let inputlength = phone.value.length;
+
+    if (inputlength === 0) {
+      phone.value += '('
+    } else if(inputlength === 3){
+      phone.value += ')'
+    }
+    if (inputlength === 3) {
+      phone.value += ' '
+    }else if(inputlength === 10){
+      phone.value += '-'
+    }
+  })
+
+</script>
+<!--script format CEP-->
+<script>
+  const cep = document.querySelector('#cep');
+
+  cep.addEventListener('keypress', () => {
+    let inputlength = cep.value.length;
+
+    if (inputlength === 6) {
+      cep.value += '-'
+    }
+  })
+
+</script>

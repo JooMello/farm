@@ -1,0 +1,175 @@
+<%- include ("../../partials/header.ejs") %> <%- include
+("../../partials/navbar.ejs") %>
+
+<body>
+    <div class="container">
+      <hr />
+      <h2>Vendas</h2>
+  
+      <hr />
+      <div class="row row-cols-1 row-cols-md-2 g-4">
+
+        <div class="col-3">
+          <div class="card">
+      <a class="btn btn-success form-control" href="/admin/venda/new"
+      >Nova Venda</a>
+    </div>
+    </div>
+
+   <div class="col-4">
+    <div class="card text-center">
+       <div class="dropdown">
+<button class="btn dropdown-toggle form-control" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+Investidor
+</button>
+<ul class="dropdown-menu">
+  <li >
+    <a class="dropdown-item"  href="/admin/venda">TODOS</a>
+  </li>
+ <% investidores.forEach(investidor => { %>
+<li >
+        <a class="dropdown-item"  href="/venda/<%= investidor.id %>"><%= investidor.name %></a>
+    </li>
+ <% }) %>
+</ul>
+</div>
+
+    </div>
+   </div>
+
+    <div class="col-2">
+    <div class="card">
+      <!--Barra de Pesquisa-->
+      <form class="form-search">
+        <input
+          class="form-control"
+          type="text"
+          name="search"
+          id="search"
+          placeholder="Pesquisar..."
+        />
+      </form>
+    </div>
+     </div>
+
+    </div>
+<hr/>
+    <table id="tab" data-type="table-menu" class="table table-bordered">
+      <thead>
+        <tr id="table-header">
+          <th>Nome</th>
+          <th>Data Venda</th>
+          <th>Quantidade</th>
+          <th>Valor Unitário</th>
+          <th>Valor Venda</th>
+          <th>Dolar</th>
+          <th>Venda - Dolar</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody id="demo">
+        <% vendas.forEach(venda => { %>
+          <tr class="pesquisar" href="/<%= venda.id %>">
+          <td><%= venda.investidore.name %></td>
+          <td id="formatData"><%= venda.data %></td>
+          <td><%= venda.quantidade %></td>
+          <td><%= venda.unitario %></td>
+          <td><%= venda.total %></td>
+          <td><%= venda.dolar %></td>
+          <td><%= venda.amount %></td>
+          <td>
+            <a
+              href="/admin/venda/edit/<%= venda.id %>"
+              class="btn btn-warning"
+              >Editar</a
+            >
+            <form
+              method="POST"
+              action="/venda/delete"
+              style="display: inline;"
+              onsubmit="confirmarDelecao(event, this)"
+            >
+              <input type="hidden" name="id" value="<%= venda.id %>" />
+              <button class="btn btn-danger">Deletar</button>
+            </form>
+          </td>
+        </tr>
+        <% }) %>
+      </tbody>
+    </table>
+    <div  class="table1 text-center">
+      <h2>TOTAL</h2>
+      <table id="tab" data-type="table-menu" class="table table-bordered">
+        <thead>
+          <tr id="table-header">
+            <th>Nº de Animais Vendidos</th>
+            <th>Valor Venda</th>
+            <th>Venda - Dolar</th>
+          </tr>
+        </thead>
+        <tbody id="demo">
+            <tr class="pesquisar">
+            <td><%= quantidade %></td>
+            <td><%= TotalVenda %></td>
+            <td><%= TotalVendaDolar %></td>
+          </tr>
+        </tbody>
+      </table>
+        </div>
+      </div>
+      </body>
+
+
+<%- include ("../../partials/footer.ejs") %>
+
+<script>
+  //delete Script
+  function confirmarDelecao(event, form) {
+    event.preventDefault();
+    var decision = confirm("Você quer deletar esta Venda?");
+    if (decision) {
+      form.submit();
+    }
+  }
+
+  ////////////////////////////
+  // search script
+  const inputSearch = document.querySelector("#search");
+  const tableMenu = document.querySelector("[data-type='table-menu']");
+
+  const trs = Array.from(tableMenu.querySelectorAll("tbody tr"));
+  const trsPesquisar = Array.from(
+    tableMenu.querySelectorAll("tr.pesquisar")
+  );
+
+  inputSearch.addEventListener("input", function() {
+    const str = this.value;
+    if (str) {
+      filterData(str);
+    } else {
+      showAllItems();
+    }
+  });
+
+  function showAllItems() {
+    trs.forEach((tr) => tr.classList.remove("hide"));
+  }
+
+  function filterData(str) {
+    showAllItems();
+    trsPesquisar.forEach((trPesquisar) => {
+      let found = false;
+
+      for (let i=0; i < trs.length; i++) {
+        let tr = trs[i];
+        if (tr.textContent.toLowerCase().includes(str.toLowerCase())) {
+          found = true;
+          tr.classList.remove("hide");
+        } else {
+          tr.classList.add("hide");
+        }
+      }
+    });
+  }
+  /////////////////////////////////////////////////
+</script>

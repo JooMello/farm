@@ -1,0 +1,117 @@
+<%- include ("../../partials/header.ejs") %> <%- include
+("../../partials/navbar.ejs") %>
+
+<body>
+    <div class="container">
+      <div class="card">
+        <div class="card-header">
+      <h2>Editar Venda</h2>
+    </div>
+      <hr />
+      <div class="card-body">
+        <form method="POST" action="/venda/update">
+            <div class="input--with-addon currency-input">
+          <label>Nome</label>
+           <input type="hidden" value="<%= venda.id %>" name="id" />
+          <select name="investidor" class="form-control">
+                    <% investidores.forEach((investidor) => { %>
+                      <% if (investidor.id == venda.investidoreId) { %>
+                        <option value="<%= investidor.id %>" selected><%= investidor.name %></option>
+                        <% } else { %>
+                          <option value="<%= investidor.id %>"><%= investidor.name %></option>
+                          <% } %> 
+                       <% }) %> 
+                  </select>
+                  </div>
+          <br />
+
+          <div class="input--with-addon currency-input">
+          <label>Data Venda</label>
+          <input
+            class="form-control"
+            type="date"
+            name="data"
+            value="<%= venda.data %>"
+            required
+          />
+          </div><br />
+
+          <div class="input--with-addon currency-input">
+            <label>Quantidade</label>
+            <div class="input__container numeral-input">
+              <input
+                required="required"
+                type="text"
+                name="quantidade"
+                value="<%= venda.quantidade %>"
+                class="input form-control form-control-danger"
+              /><!---->
+            </div>
+            <!----><!---->
+          </div>
+          <br />
+          <div class="input--with-addon currency-input">
+            <label>Valor Unitário</label>
+            <div class="input__container numeral-input">
+              <input
+                required="required"
+                type="text"
+                name="unitario"
+                value="<%= venda.unitario %>"
+                class="input form-control form-control-danger"
+              /><!---->
+            </div>
+            <!----><!---->
+          </div>
+          <br />
+          <div class="input--with-addon currency-input">
+            <label>Valor Venda</label>
+            <div class="input__container numeral-input">
+              <input
+                required="required"
+                type="text"
+                name="total"
+                value="<%= venda.total %>"
+                class="input form-control form-control-danger"
+              /><!---->
+            </div>
+            <!----><!---->
+          </div>
+          <br />
+          <div class="input--with-addon currency-input">
+            <label>Dolar</label>
+            <div class="input__container numeral-input">
+              <input
+                required="required"
+                type="text"
+                name="dolar"
+                value="<%= venda.dolar %>"
+                class="input form-control form-control-danger"
+              /><!---->
+            </div>
+            <!----><!---->
+          </div>
+          <br />
+          <div class="input--with-addon currency-input">
+            <label>Venda - Dolar</label>
+            <div class="input__container numeral-input">
+              <input
+                required="required"
+                type="text"
+                name="amount"
+                value="<%= venda.amount %>"
+                class="input form-control form-control-danger"
+              /><!---->
+            </div>
+            <!----><!---->
+          </div>
+          <br />
+          <button class="btn btn-success">Atualizar</button>
+        </form>
+      </div>
+      </div>
+      </div>
+      </body>
+
+
+<%- include ("../../partials/footer.ejs") %>

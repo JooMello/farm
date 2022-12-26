@@ -1,0 +1,143 @@
+<%- include ("../../partials/header.ejs") %> <%- include
+("../../partials/navbar.ejs") %>
+
+<body>
+    <div class="container">
+      <hr />
+      <h2>Investidores</h2>
+  
+      <hr />
+      <div class="row row-cols-1 row-cols-md-2 g-4">
+
+        <div class="col-3">
+          <div class="card">
+      <a class="btn btn-primary" href="/admin/investidor/new"
+      >Novo Investidor</a
+    >
+    </div>
+    </div>
+  
+
+
+    <div class="col-2">
+      <div class="card">
+        <!--Barra de Pesquisa-->
+        <form class="form-search">
+          <input
+            class="form-control"
+            type="text"
+            name="search"
+            id="search"
+            placeholder="Pesquisar..."
+          />
+        </form>
+      </div>
+       </div>
+       </div>
+    <hr />
+    
+
+    <table id="tab" data-type="table-menu" class="table table-bordered">
+      <thead>
+        <tr id="table-header">
+          <th>Nome</th>
+          <th>Telefone</th>
+          <th>E-mail</th>
+          <th>CPF / CNPJ</th>
+          <th>Cep</th>
+          <th>Logradouro</th>
+          <th>UF</th>
+          <th>Cidade</th>
+          <th>Número</th>
+        </tr>
+      </thead>
+      <tbody id="demo">
+        <% investidores.forEach(investidor => { %>
+        <tr  class="pesquisar"  href="/<%= investidor.id %>">
+          <td ><a class="dropdown-item" href="/investidor/<%= investidor.id %>"><%= investidor.name %></a></td>
+          <td><%= investidor.phone %></td>
+          <td><%= investidor.email %></td>
+          <td><%= investidor.cpf %></td>
+          <td><%= investidor.cep %></td>
+          <td><%= investidor.logradouro %></td>
+          <td><%= investidor.uf %></td>
+          <td><%= investidor.cidade %></td>
+          <td><%= investidor.number %></td>
+          <td>
+            <a
+              href="/admin/investidor/edit/<%= investidor.id %>"
+              class="btn btn-warning"
+              >Editar</a
+            >
+            <form
+              method="POST"
+              action="/investidor/delete"
+              style="display: inline;"
+              onsubmit="confirmarDelecao(event, this)"
+            >
+              <input type="hidden" name="id" value="<%= investidor.id %>" />
+              <button class="btn btn-danger">Deletar</button>
+            </form>
+          </td>
+        </tr>
+        <% }) %>
+      </tbody>
+    </table>
+
+      </div>
+      </body>
+
+
+<%- include ("../../partials/footer.ejs") %>
+
+<script>
+  //delete Script
+  function confirmarDelecao(event, form) {
+    event.preventDefault();
+    var decision = confirm("Você quer deletar este Investidor?");
+    if (decision) {
+      form.submit();
+    }
+  }
+
+  ////////////////////////////
+  // search script
+  const inputSearch = document.querySelector("#search");
+  const tableMenu = document.querySelector("[data-type='table-menu']");
+
+  const trs = Array.from(tableMenu.querySelectorAll("tbody tr"));
+  const trsPesquisar = Array.from(
+    tableMenu.querySelectorAll("tr.pesquisar")
+  );
+
+  inputSearch.addEventListener("input", function() {
+    const str = this.value;
+    if (str) {
+      filterData(str);
+    } else {
+      showAllItems();
+    }
+  });
+
+  function showAllItems() {
+    trs.forEach((tr) => tr.classList.remove("hide"));
+  }
+
+  function filterData(str) {
+    showAllItems();
+    trsPesquisar.forEach((trPesquisar) => {
+      let found = false;
+
+      for (let i=0; i < trs.length; i++) {
+        let tr = trs[i];
+        if (tr.textContent.toLowerCase().includes(str.toLowerCase())) {
+          found = true;
+          tr.classList.remove("hide");
+        } else {
+          tr.classList.add("hide");
+        }
+      }
+    });
+  }
+  /////////////////////////////////////////////////
+</script>

@@ -1,0 +1,111 @@
+<%- include ("../../partials/header.ejs") %> <%- include
+("../../partials/navbar.ejs") %>
+
+<body>
+    <div class="container">
+      <hr />
+      <h2>Caixa</h2>
+  
+      <hr />
+      <div class="row row-cols-1 row-cols-md-2 g-4">
+
+        <div class="col-3">
+          <div class="card">
+      <a class="btn btn-primary" href="/admin/investidor/newR/<%= investidor.id %>"
+      >Sacar</a
+    >
+    </div>
+    </div>
+
+    <div class="col-4">
+        <div class="card text-center">
+           <div class="dropdown">
+    <a class="btn form-control" type="button" 
+     href="/admin/investidor">TODOS
+
+    </a>
+
+    </div>
+    
+        </div>
+       </div>
+       </div>
+       <hr />
+    <table id="tab" data-type="table-menu" class="table table-bordered">
+      <thead>
+        <tr id="table-header">
+          <th>Nome</th>
+          <th>Capital Investido</th>
+          <th>Lucro sobre Investimento</th>
+          <th>Retirado</th>
+          <th>Total</th>
+        </tr>
+      </thead>
+      <tbody id="demo">
+        <tr  class="pesquisar"  href="/<%= investidor.id %>">
+          <td><%= investidor.name %></td>
+          <td><%= CapitalInvestido %></td>
+          <td><%= Lucro %></td>
+          <td><%= CapitalRetirado %></td>
+          <td><%= total %></td>
+        </tr>
+      </tbody>
+    </table>
+
+      </div>
+      </body>
+
+
+<%- include ("../../partials/footer.ejs") %>
+
+<script>
+  //delete Script
+  function confirmarDelecao(event, form) {
+    event.preventDefault();
+    var decision = confirm("Você quer deletar este Investidor?");
+    if (decision) {
+      form.submit();
+    }
+  }
+
+  ////////////////////////////
+  // search script
+  const inputSearch = document.querySelector("#search");
+  const tableMenu = document.querySelector("[data-type='table-menu']");
+
+  const trs = Array.from(tableMenu.querySelectorAll("tbody tr"));
+  const trsPesquisar = Array.from(
+    tableMenu.querySelectorAll("tr.pesquisar")
+  );
+
+  inputSearch.addEventListener("input", function() {
+    const str = this.value;
+    if (str) {
+      filterData(str);
+    } else {
+      showAllItems();
+    }
+  });
+
+  function showAllItems() {
+    trs.forEach((tr) => tr.classList.remove("hide"));
+  }
+
+  function filterData(str) {
+    showAllItems();
+    trsPesquisar.forEach((trPesquisar) => {
+      let found = false;
+
+      for (let i=0; i < trs.length; i++) {
+        let tr = trs[i];
+        if (tr.textContent.toLowerCase().includes(str.toLowerCase())) {
+          found = true;
+          tr.classList.remove("hide");
+        } else {
+          tr.classList.add("hide");
+        }
+      }
+    });
+  }
+  /////////////////////////////////////////////////
+</script>

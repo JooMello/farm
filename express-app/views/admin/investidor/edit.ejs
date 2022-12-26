@@ -1,0 +1,143 @@
+<%- include ("../../partials/header.ejs") %> <%- include
+("../../partials/navbar.ejs") %>
+
+<body>
+    <div class="container"> 
+      <div class="card">
+        <div class="card-header">
+      <h2>Atualizar Investidor</h2>
+    </div>
+      <hr />
+
+      <div class="card-body">
+        <form method="POST" action="/investidor/update">
+            <div class="input--with-addon currency-input">
+          <label>Nome</label>
+           <input type="hidden" value="<%= investidor.id %>" name="id" />
+          <input
+          class="form-control"
+          type="text"
+          name="name"
+            value="<%= investidor.name %>"
+            required/>
+          </div>
+          <br />
+
+          <div class="input--with-addon currency-input">
+          <label>Telefone</label>
+          <input
+            class="form-control"
+            type="texto"
+            name="phone"
+            placeholder="+55"
+            value="<%= investidor.phone %>"
+            required
+          />
+          </div><br />
+
+          <div class="input--with-addon currency-input">
+            <label>E-mail</label>
+            <div class="input__container numeral-input">
+              <input
+                required="required"
+                type="text"
+                name="email"
+                value="<%= investidor.email %>"
+                class="input form-control form-control-danger"
+              /><!---->
+            </div>
+            <!----><!---->
+          </div>
+          <br />
+          <div class="input--with-addon currency-input">
+            <label>CPF</label>
+            <div class="input__container numeral-input">
+              <input
+                required="required"
+                type="text"
+                name="cpf"
+                value="<%= investidor.cpf %>"
+                class="input form-control form-control-danger"
+              /><!---->
+            </div>
+            <!----><!---->
+          </div>
+          <br />
+          <div class="input--with-addon currency-input">
+            <label>Logradouro</label>
+            <div class="input__container numeral-input">
+              <input
+                required="required"
+                type="text"
+                name="logradouro"
+                value="<%= investidor.logradouro %>"
+                class="input form-control form-control-danger"
+              /><!---->
+            </div>
+            <!----><!---->
+          </div>
+          <br />
+          <div class="input--with-addon currency-input">
+            <label>UF</label>
+            <div class="input__container numeral-input">
+              <input
+                required="required"
+                type="text"
+                name="uf"
+                value="<%= investidor.uf %>"
+                class="input form-control form-control-danger"
+              /><!---->
+            </div>
+            <!----><!---->
+          </div>
+          <br />
+          <div class="input--with-addon currency-input">
+            <label>Cidade</label>
+            <div class="input__container numeral-input">
+              <input
+                required="required"
+                type="text"
+                name="cidade"
+                value="<%= investidor.cidade %>"
+                class="input form-control form-control-danger"
+              /><!---->
+            </div>
+            <!----><!---->
+          </div>
+          <br />
+          <div class="input--with-addon currency-input">
+            <label>Número</label>
+            <div class="input__container numeral-input">
+              <input
+                required="required"
+                type="text"
+                name="number"
+                value="<%= investidor.number %>"
+                class="input form-control form-control-danger"
+              /><!---->
+            </div>
+            <!----><!---->
+          </div>
+          <br />
+          <div class="input--with-addon currency-input">
+          <label>Observações</label>
+          <textarea
+            class="form-control"
+            name="obs"
+            value="<%- investidor.obs %>"
+            required
+          ><%- investidor.obs %></textarea> 
+</div>
+            
+          <br />
+          <button class="btn btn-success">Atualizar</button>
+        </form>
+      </div>
+      </div>
+      </div>
+      </body>
+
+
+
+
+<%- include ("../../partials/footer.ejs") %>

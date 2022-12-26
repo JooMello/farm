@@ -1,0 +1,161 @@
+<%- include ("../../partials/header.ejs") %> <%- include
+("../../partials/navbar.ejs") %>
+
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="card-header">
+              <h2>Novo Compra</h2>
+            </div>
+            <div class="card-body">
+              <form method="POST" action="/compra/save">
+                  <div class="input--with-addon currency-input">
+                <label>Nome </label>
+                <div class="input__container text-input">
+                  <select name="investidor" class="form-control">
+                    <% investidores.forEach((investidor) => { %>
+                      <option value="<%= investidor.id %>"><%= investidor.name %></option>
+                      <% }) %> 
+                  </select>
+                  </div>
+                  </div>
+                <br />
+                <div class="input--with-addon currency-input">
+                  <label>Data Compra</label>
+                  <div class="input__container numeral-input">
+                    <input
+                      type="date"
+                      name="data"
+                      required
+                      class="input form-control form-control-danger"
+                    /><!---->
+                  </div>
+                  <!----><!---->
+                </div>
+                <br>
+                <div class="input--with-addon currency-input">
+                    <label>Quantidade</label>
+                    <div class="input__container text-input">
+                      <input
+                        type="text"
+                        name="quantidade"      
+                        id="quantidade"
+                        required     
+                        class="input form-control form-control-danger"
+                      /><!---->
+                    </div>
+                    <!----><!---->
+                  </div>
+                <br />
+                <div class="input--with-addon currency-input">
+                    <label>Valor Unitário</label>
+                    <div class="input__container text-input">
+                      <input
+                        type="text"
+                        name="unitario"
+                        id="unitario"
+                        required
+                        class="input form-control form-control-danger"
+                      /><!---->
+                    </div>
+                    <!----><!---->
+                  </div>
+                <br />
+                <div class="input--with-addon currency-input">
+                    <label>Valor Compra</label>
+                    <div class="input__container number-input">
+                      <input
+                        type="text"
+                        name="total"
+                        id="total"
+                        required
+                        class="input form-control form-control-danger"
+                      /><!---->
+                    </div>
+                    <!----><!---->
+                  </div>
+                <br />
+                <div class="input--with-addon currency-input">
+                    <label>Dolar</label>
+                    <div class="input__container text-input">
+                      <input
+                        type="text"
+                        name="dolar"
+                        id="dolar"
+                        value="<%= cotacaoDolar %>"
+                        required
+                        class="input form-control form-control-danger"
+                      /><!---->
+                    </div>
+                    <!----><!---->
+                  </div>
+                  <br>
+                  <div class="input--with-addon currency-input">
+                    <label>Compra - Dolar</label>
+                    <div class="input__container text-input">
+                      <input
+                        type="text"
+                        name="amount"
+                        id="amount"
+                        required
+                        class="input form-control form-control-danger"
+                      /><!---->
+                    </div>
+                    <!----><!---->
+                  </div>
+                <br />
+                <button class="btn btn-success">Salvar</button>
+              </form>
+            </div>
+          </div>
+      </div>
+      </body>
+
+
+<%- include ("../../partials/footer.ejs") %>
+
+<!-- script pegar valores (quantidade, unitario) multiplicar e apresentar no input total.
+Pega valor total da compra divide pelo dolar diario
+-->
+<script>
+
+      //filtragem de dados, por peridodo que eles foram adicionados no BD
+  //formatar numeros em valores decimais (.toLocaleFixed(2))
+  Number.prototype.toLocaleFixed = function (n) {
+    return this.toLocaleString(undefined, {
+      minimumFractionDigits: n,
+      maximumFractionDigits: n
+    });
+  };
+
+quantidade.addEventListener('input', event => {
+    var quantidadeValue = event.target.value
+
+  unitario.addEventListener('input', event => {
+    var unitarioValue = event.target.value
+  
+    var totalValue = (Number(quantidadeValue) * Number(unitarioValue))
+    document.getElementById('total').value = Number(totalValue).toLocaleFixed(2);
+
+    var dolar = <%= cotacao %>;
+
+    var totalDolarValue = ((totalValue) / (dolar))
+    document.getElementById('amount').value = Number(totalDolarValue).toLocaleFixed(2);
+    })
+  })
+</script>
+
+<!--script format Valor Unutario-->
+<script>
+  const unitario = document.querySelector('#unitario');
+
+  unitario.addEventListener('keypress', () => {
+    let inputlength = unitario.value.length;
+
+    if (inputlength === 4) {
+      unitario.value += '.'
+    }
+  })
+
+</script>
+

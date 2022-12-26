@@ -1,0 +1,63 @@
+<%- include ("../../partials/header.ejs") %> <%- include
+("../../partials/navbar.ejs") %>
+
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="card-header">
+              <h2>Sacar</h2>
+            </div>
+            <div class="card-body">
+              <form method="POST" action="/saque/save">
+              
+                <div class="input--with-addon currency-input">
+                  <label>Nome </label>
+                  <div class="input__container text-input">
+                    <select name="investidor" class="form-control">
+                  
+                        <option value="<%= investidor.id %>"><%= investidor.name %></option>
+
+                    </select>
+                    </div>
+                    </div>
+                    <br />
+                  <div class="input--with-addon currency-input">
+                    <label>Data</label>
+                    <div class="input__container text-input">
+                      <input
+
+                        type="date"
+                        name="data"
+                        placeholder=""
+                        required
+                        class="input form-control form-control-danger"
+                      /><!---->
+                    </div>
+                    <!----><!---->
+                  </div>
+                <br />
+                <div class="input--with-addon currency-input">
+                    <label>Valor</label>
+                    <div class="input__container text-input">
+                      <input
+
+                        type="text"
+                        name="valor"
+                        placeholder=""
+                        required
+                        class="input form-control form-control-danger"
+                      /><!---->
+                    </div>
+                    <!----><!---->
+                  </div>
+                <br />
+                <button class="btn btn-success">Salvar</button>
+              </form>
+            </div>
+          </div>
+      </div>
+
+      </body>
+
+
+<%- include ("../../partials/footer.ejs") %>
