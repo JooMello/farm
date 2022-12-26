@@ -43,6 +43,7 @@
 
                         type="text"
                         name="valor"
+                        id="valor"
                         placeholder=""
                         required
                         class="input form-control form-control-danger"
@@ -61,3 +62,18 @@
 
 
 <%- include ("../../partials/footer.ejs") %>
+
+
+<!--script format Valor Unutario-->
+<script>
+  const valor = document.querySelector('#valor');
+
+  valor.addEventListener('keypress', () => {
+    let inputlength = valor.value.length;
+
+    if (inputlength === 4) {
+      valor.value += '.'
+    }
+  })
+
+</script>

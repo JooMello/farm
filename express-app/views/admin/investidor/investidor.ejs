@@ -31,7 +31,7 @@
        </div>
        </div>
        <hr />
-    <table id="tab" data-type="table-menu" class="table table-bordered">
+    <table id="tab" data-type="table-menu" class="table table-bordered text-center">
       <thead>
         <tr id="table-header">
           <th>Nome</th>
@@ -46,7 +46,7 @@
           <td><%= investidor.name %></td>
           <td><%= CapitalInvestido %></td>
           <td><%= Lucro %></td>
-          <td><%= CapitalRetirado %></td>
+          <td ><a class="dropdown-item" href="/admin/investidor/saque/<%= investidor.id %>"><%= CapitalRetirado %></a></td>
           <td><%= total %></td>
         </tr>
       </tbody>

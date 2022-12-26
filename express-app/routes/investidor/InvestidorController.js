@@ -255,6 +255,35 @@ router.post('/saque/save',  (req, res) => {
   });
 });
 
+//Investidores 
+router.get('/admin/investidor/saque/:id', (req, res) => {
+  var id = req.params.id;
+      Investidor.findAll().then((investidores) => {
+        Saque.findAll({
+          where:{
+            investidoreId: id,
+          },
+          include: [{
+            model: Investidor,
+          }],
+          order: [
+            ["createdAt", "DESC"]
+          ],
+           raw: true,
+          nest: true,
+        }).then((saques) => {
+        Investidor.findByPk(id)
+.then( async (investidor) => {
+    res.render("admin/investidor/saque",{
+      investidores: investidores,
+      investidor: investidor,
+      saques: saques,
+    })
+})
+        })
+})
+});
+
 
 
 module.exports = router;

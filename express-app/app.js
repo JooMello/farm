@@ -443,6 +443,36 @@ app.get('/morte/:id', async (req, res) => {
 })
 
 
+app.get('/dc/:id', async (req, res, next) => {
+  var id = req.params.id;
+  DC.findAll({
+    include: [{
+        model: Investidor,
+      }],
+      where:{
+        investidoreId:id,
+      },
+  }).then((dcs) => {
+  Investidor.findAll().then(async(investidores) => {
+      //////////////////////Capital Investidor
+      var amountT = await DC.findOne({
+        attributes: [sequelize.fn("sum", sequelize.col("valor"))],
+        where:{
+          investidoreId:id,
+        },
+        raw: true
+      });
+      var Total = (Number(amountT['sum(`valor`)'])).toLocaleFixed(2);
+  
+    res.render('admin/dc/index', {
+      dcs: dcs,
+      investidores: investidores,
+      Total,
+    });
+  })
+})
+})
+
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
     next(createError(404));

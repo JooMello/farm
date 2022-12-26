@@ -31,24 +31,39 @@
        </div>
        </div>
        <hr />
-    <table id="tab" data-type="table-menu" class="table table-bordered">
+    <table id="tab" data-type="table-menu" class="table table-bordered text-center">
       <thead>
         <tr id="table-header">
           <th>Nome</th>
-          <th>Capital Investido</th>
-          <th>Lucro sobre Investimento</th>
-          <th>Retirado</th>
-          <th>Total</th>
+          <th>Data</th>
+          <th>Valor</th>
+          <th>Ações</th>
         </tr>
       </thead>
       <tbody id="demo">
-        <tr  class="pesquisar"  href="/<%= investidor.id %>">
-          <td><%= investidor.name %></td>
-          <td><%= CapitalInvestido %></td>
-          <td><%= Lucro %></td>
-          <td><%= CapitalRetirado %></td>
-          <td><%= total %></td>
+        <% saques.forEach(saque => { %>
+        <tr  class="pesquisar"  href="/<%= saque.id %>">
+          <td><%= saque.investidore.name %></td>
+          <td><%= saque.data %></td>
+          <td><%= saque.valor %></td>
+          <td>
+            <a
+              href="/admin/saque/edit/<%= saque.id %>"
+              class="btn btn-warning"
+              >Editar</a
+            >
+            <form
+              method="POST"
+              action="/saque/delete"
+              style="display: inline;"
+              onsubmit="confirmarDelecao(event, this)"
+            >
+              <input type="hidden" name="id" value="<%= saque.id %>" />
+              <button class="btn btn-danger">Deletar</button>
+            </form>
+          </td>
         </tr>
+        <% }) %>
       </tbody>
     </table>
 
@@ -62,7 +77,7 @@
   //delete Script
   function confirmarDelecao(event, form) {
     event.preventDefault();
-    var decision = confirm("Você quer deletar este Investidor?");
+    var decision = confirm("Você quer deletar este Saque?");
     if (decision) {
       form.submit();
     }

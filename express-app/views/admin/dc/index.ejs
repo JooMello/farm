@@ -39,7 +39,7 @@ Investidor
     </div>
 <hr/>
 <div  class="table1 text-center">
-<table id="tab" data-type="table-menu" class="table table-bordered">
+<table id="tab" data-type="table-menu" class="table table-bordered text-center">
     <thead>
         <tr id="table-header">
         <th>Nome</th>
@@ -75,8 +75,77 @@ Investidor
   </table>
 </div>
 <hr/>
+<div  class="table1 text-center">
+  <table id="tab" data-type="table-menu" class="table table-bordered text-center">
+    <thead>
+      <tr id="table-header">
+        <th>Total</th>
+      </tr>
+    </thead>
+    <tbody id="demo">
+        <tr class="pesquisar">
+        <td><%= Total %></td>
+      </tr>
+    </tbody>
+  </table>
+    </div>
       </div>
       </body>
 <%- include ("../../partials/footer.ejs") %>
+
+
+<script>
+  //delete Script
+  function confirmarDelecao(event, form) {
+    event.preventDefault();
+    var decision = confirm("Você quer deletar esta Compra?");
+    if (decision) {
+      form.submit();
+    }
+  }
+
+  ////////////////////////////
+  // search script
+  const inputSearch = document.querySelector("#search");
+  const tableMenu = document.querySelector("[data-type='table-menu']");
+
+  const trs = Array.from(tableMenu.querySelectorAll("tbody tr"));
+  const trsPesquisar = Array.from(
+    tableMenu.querySelectorAll("tr.pesquisar")
+  );
+
+  inputSearch.addEventListener("input", function() {
+    const str = this.value;
+    if (str) {
+      filterData(str);
+    } else {
+      showAllItems();
+    }
+  });
+
+  function showAllItems() {
+    trs.forEach((tr) => tr.classList.remove("hide"));
+  }
+
+  function filterData(str) {
+    showAllItems();
+    trsPesquisar.forEach((trPesquisar) => {
+      let found = false;
+
+      for (let i=0; i < trs.length; i++) {
+        let tr = trs[i];
+        if (tr.textContent.toLowerCase().includes(str.toLowerCase())) {
+          found = true;
+          tr.classList.remove("hide");
+        } else {
+          tr.classList.add("hide");
+        }
+      }
+    });
+  }
+  /////////////////////////////////////////////////
+</script>
+
+
 
 
