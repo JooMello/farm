@@ -64,16 +64,18 @@
 <%- include ("../../partials/footer.ejs") %>
 
 
-<!--script format Valor Unutario-->
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js" type="text/javascript"></script>
+<script src="https://plentz.github.io/jquery-maskmoney/javascripts/jquery.maskMoney.min.js" type="text/javascript"></script>
+
+
+
 <script>
-  const valor = document.querySelector('#valor');
+jQuery(function() {
+    
+    jQuery("#valor").maskMoney({
+	thousands:'.', 
+	decimal:','
+})
 
-  valor.addEventListener('keypress', () => {
-    let inputlength = valor.value.length;
-
-    if (inputlength === 4) {
-      valor.value += '.'
-    }
-  })
-
+});
 </script>

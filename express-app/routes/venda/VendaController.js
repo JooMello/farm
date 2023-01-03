@@ -60,7 +60,7 @@ router.get('/admin/venda', async (req, res, next) => {
            
             raw: true
           });
-          var TotalVenda = (Number(amountT['sum(`total`)']) * Number(1000)).toLocaleFixed(2);
+          var TotalVenda = (Number(amountT['sum(`total`)'])).toLocaleFixed(2);
       
           
           //////////////////////Total Venda em dolar
@@ -69,7 +69,7 @@ router.get('/admin/venda', async (req, res, next) => {
      
       raw: true
     });
-    var TotalVendaDolar = (Number(amountD['sum(`amount`)']) * Number(1000)).toLocaleFixed(2);
+    var TotalVendaDolar = (Number(amountD['sum(`amount`)'])).toLocaleFixed(2);
 
 
 
@@ -114,14 +114,19 @@ router.post('/venda/save',  (req, res) => {
   var amount = req.body.amount;
   var investidor = req.body.investidor;
 
+  var unitarioFloat = unitario.replace(".", "").replace(",", ".")
+  var totalFloat = total.replace(".", "").replace(",", ".")
+  var dolarFloat = dolar.replace(".", "").replace(",", ".")
+  var amountFloat = amount.replace(".", "").replace(",", ".")
+
    Venda.create(
    {
     data: data,
     quantidade: quantidade,
-    unitario: unitario,
-    total: total,
-    dolar: dolar,
-    amount: amount,
+    unitario: unitarioFloat,
+    total: totalFloat,
+    dolar: dolarFloat,
+    amount: amountFloat,
     investidoreId: investidor
   })
   .then(() => {

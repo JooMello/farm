@@ -10,6 +10,7 @@ const {
 const Compra = require("../compra/Compra");
 const Venda = require("../venda/Venda");
 const Saque = require('./Saque');
+const DC = require("../debitoCredito/DC");
 
 var app = express();
 
@@ -166,6 +167,8 @@ router.get('/investidor/:id', (req, res) => {
           model: Compra
         },{
           model: Saque
+        },{
+          model: DC
         },],
         raw: true,
         nest: true,
@@ -181,7 +184,7 @@ router.get('/investidor/:id', (req, res) => {
       },
       raw: true
     });
-  var amountVT = (Number(amountVv['sum(`total`)']) * Number(1000))
+  var amountVT = (Number(amountVv['sum(`total`)']))
 
             //////////////////////Capital Investidor
   var amountT = await Compra.findOne({
@@ -191,8 +194,8 @@ router.get('/investidor/:id', (req, res) => {
               },
               raw: true
             });
-  var CapitalInvestidoT = (Number(amountT['sum(`total`)']) * Number(1000))
-  var CapitalInvestido = (Number(amountT['sum(`total`)']) * Number(1000)).toLocaleFixed(2);
+  var CapitalInvestidoT = (Number(amountT['sum(`total`)']))
+  var CapitalInvestido = (Number(amountT['sum(`total`)'])).toLocaleFixed(2);
 
              ///Lucro sobre Investimento
   var LucroN = (Number(amountVT) - Number(CapitalInvestidoT));
@@ -209,14 +212,25 @@ router.get('/investidor/:id', (req, res) => {
   var CapitalRetiradoT = (Number(amountR['sum(`valor`)']))
   var CapitalRetirado = (Number(amountR['sum(`valor`)'])).toLocaleFixed(2);
 
+      //////////////////////Capital Investidor
+      var amountDC = await DC.findOne({
+        attributes: [sequelize.fn("sum", sequelize.col("valor"))],
+        where: {
+          investidoreId: id,
+        },
+        raw: true
+      });
+      var debitoCreditoD = (Number(amountDC['sum(`valor`)']))
+      var debitoCredito = (Number(amountDC['sum(`valor`)'])).toLocaleFixed(2);
+
       /////total
-  var total = (Number(CapitalInvestidoT) + Number(LucroN) - Number(CapitalRetiradoT)).toLocaleFixed(2);
+  var total = (Number(CapitalInvestidoT) + Number(LucroN) + Number(debitoCreditoD) - Number(CapitalRetiradoT)).toLocaleFixed(2);
 
 
       res.render("admin/investidor/investidor",{
         investidores: investidores,
         investidor: investidor,
-        CapitalInvestido, Lucro, CapitalRetirado, total,
+        CapitalInvestido, Lucro, CapitalRetirado, total, debitoCredito,
       })
   })
 })
@@ -243,11 +257,12 @@ router.post('/saque/save',  (req, res) => {
   var data = req.body.data;
   var valor = req.body.valor;
   var investidor = req.body.investidor;
+  var valorFloat = valor.replace(".", "").replace(",", ".")
 
   Saque.create(
    {
     data: data,
-    valor: valor,
+    valor: valorFloat,
     investidoreId: investidor,
   })
   .then(() => {

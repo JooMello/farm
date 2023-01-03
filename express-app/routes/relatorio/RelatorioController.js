@@ -47,8 +47,8 @@ router.get('/admin/relatorios', async (req, res, next) => {
      
       raw: true
     });
-    var amountVT = (Number(amountVv['sum(`total`)']) * Number(1000))
-    var amountV = (Number(amountVv['sum(`total`)']) * Number(1000)).toLocaleFixed(2);
+    var amountVT = (Number(amountVv['sum(`total`)']))
+    var amountV = (Number(amountVv['sum(`total`)'])).toLocaleFixed(2);
       
           //////////////////////Capital Investidor
     var amountT = await Compra.findOne({
@@ -56,8 +56,8 @@ router.get('/admin/relatorios', async (req, res, next) => {
      
       raw: true
     });
-    var CapitalInvestidoT = (Number(amountT['sum(`total`)']) * Number(1000))
-    var CapitalInvestido = (Number(amountT['sum(`total`)']) * Number(1000)).toLocaleFixed(2);
+    var CapitalInvestidoT = (Number(amountT['sum(`total`)']))
+    var CapitalInvestido = (Number(amountT['sum(`total`)'])).toLocaleFixed(2);
 
     ///Investimento sobre a Venda
     var InvVenda = ((Number(CapitalInvestidoT) / Number(amountVT)) * (100)).toLocaleFixed(2);

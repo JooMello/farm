@@ -1,10 +1,11 @@
-const express = require("express"),
-    path = require("path"),
-    logger = require("morgan"),
-    cookieParser = require("cookie-parser"),
-    bodyParser = require("body-parser"),
-    routes = require("./routes"),
-    app = express();
+const express = require("express");
+var request = require("request");
+var path = require('path');
+var logger = require("morgan");
+var cookieParser = require("cookie-parser");
+var bodyParser = require("body-parser");
+var routes = require("./routes");
+var app = express();
 
 
 const sequelize = require("sequelize");
@@ -30,14 +31,14 @@ const DC = require('./routes/debitoCredito/DC');
 
 
 //view engine setup
-app.set("views", path.join(__dirname, "views"));
+app.set("views", path.join(__dirname, "/views"));
 app.set("view engine", "ejs");
 
 app.use(logger("dev"));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, "public")));
+app.use(express.static(path.join(__dirname, "/public")));
 
 app.use("/", routes);
 app.use('/', investidorRouter);
@@ -91,8 +92,8 @@ app.get('/compra/:id', (req, res) => {
             },
             raw: true
           });
-          var CapitalInvestidoT = (Number(amountT['sum(`total`)']) * Number(1000))
-          var CapitalInvestido = (Number(amountT['sum(`total`)']) * Number(1000)).toLocaleFixed(2);
+          var CapitalInvestidoT = (Number(amountT['sum(`total`)']))
+          var CapitalInvestido = (Number(amountT['sum(`total`)'])).toLocaleFixed(2);
       
           
           //////////////////////Capital Investidor em dolar
@@ -103,8 +104,8 @@ app.get('/compra/:id', (req, res) => {
       },
       raw: true
     });
-    var CapitalInvestidoD = (Number(amountD['sum(`amount`)']) * Number(1000))
-    var CapitalInvestidoDolar = (Number(amountD['sum(`amount`)']) * Number(1000)).toLocaleFixed(2);
+    var CapitalInvestidoD = (Number(amountD['sum(`amount`)']))
+    var CapitalInvestidoDolar = (Number(amountD['sum(`amount`)'])).toLocaleFixed(2);
 
 
 
@@ -153,7 +154,7 @@ app.get('/venda/:id', (req, res) => {
             },
             raw: true
           });
-          var TotalVenda = (Number(amountT['sum(`total`)']) * Number(1000)).toLocaleFixed(2);
+          var TotalVenda = (Number(amountT['sum(`total`)'])).toLocaleFixed(2);
       
           
           //////////////////////Total Venda em dolar
@@ -164,7 +165,7 @@ app.get('/venda/:id', (req, res) => {
       },
       raw: true
     });
-    var TotalVendaDolar = (Number(amountD['sum(`amount`)']) * Number(1000)).toLocaleFixed(2);
+    var TotalVendaDolar = (Number(amountD['sum(`amount`)'])).toLocaleFixed(2);
 
 
       res.render("admin/venda/index",{
@@ -225,8 +226,8 @@ app.get('/relatorio/:id', async (req, res) => {
       },
       raw: true
     });
-    var amountVT = (Number(amountVv['sum(`total`)']) * Number(1000))
-    var amountV = (Number(amountVv['sum(`total`)']) * Number(1000)).toLocaleFixed(2);
+    var amountVT = (Number(amountVv['sum(`total`)']))
+    var amountV = (Number(amountVv['sum(`total`)'])).toLocaleFixed(2);
       
           //////////////////////Capital Investidor
     var amountT = await Compra.findOne({
@@ -236,8 +237,8 @@ app.get('/relatorio/:id', async (req, res) => {
     },
       raw: true
     });
-    var CapitalInvestidoT = (Number(amountT['sum(`total`)']) * Number(1000) )
-    var CapitalInvestido = (Number(amountT['sum(`total`)']) * Number(1000)).toLocaleFixed(2);
+    var CapitalInvestidoT = (Number(amountT['sum(`total`)']) )
+    var CapitalInvestido = (Number(amountT['sum(`total`)'])).toLocaleFixed(2);
 
     ///Investimento sobre a Venda
     var InvVenda = ((Number(CapitalInvestidoT) / Number(amountVT)) * (100)).toLocaleFixed(2);

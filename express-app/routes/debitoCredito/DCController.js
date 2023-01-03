@@ -10,6 +10,15 @@ const Venda = require('../venda/Venda');
 const DC = require('./DC');
 
 
+ //filtragem de dados, por peridodo que eles foram adicionados no BD
+  //formatar numeros em valores decimais (.toLocaleFixed(2))
+  Number.prototype.toLocaleFixed = function (n) {
+    return this.toLocaleString(undefined, {
+      minimumFractionDigits: n,
+      maximumFractionDigits: n
+    });
+  };
+
 router.get('/admin/dc', async (req, res, next) => {
     DC.findAll({
       include: [{
@@ -48,11 +57,13 @@ router.post('/dc/save',  (req, res) => {
   var data = req.body.data;
   var valor = req.body.valor;
   var investidor = req.body.investidor;
+  
+  var valorFloat = valor.replace(".", "").replace(",", ".")
 
    DC.create(
    {
     data: data,
-    valor: valor,
+    valor: valorFloat,
     investidoreId: investidor
   })
   .then(() => {

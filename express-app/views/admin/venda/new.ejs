@@ -114,6 +114,7 @@
 
 <%- include ("../../partials/footer.ejs") %>
 
+
 <!-- script pegar valores (quantidade, unitario) multiplicar e apresentar no input total.
 Pega valor total da compra divide pelo dolar diario
 -->
@@ -134,7 +135,10 @@ var quantidadeValue = event.target.value
 unitario.addEventListener('input', event => {
 var unitarioValue = event.target.value
 
-var totalValue = (Number(quantidadeValue) * Number(unitarioValue))
+var unitarioFloat = unitarioValue.replace(".", "").replace(",", ".")
+
+
+var totalValue = (Number(quantidadeValue) * Number(unitarioFloat))
 document.getElementById('total').value = Number(totalValue).toLocaleFixed(2);
 
 var dolar = <%= cotacao %>;
@@ -145,17 +149,5 @@ document.getElementById('amount').value = Number(totalDolarValue).toLocaleFixed(
 })
 </script>
 
-<!--script format Valor Unutario-->
-<script>
-const unitario = document.querySelector('#unitario');
 
-unitario.addEventListener('keypress', () => {
-let inputlength = unitario.value.length;
-
-if (inputlength === 4) {
-  unitario.value += '.'
-}
-})
-
-</script>
 

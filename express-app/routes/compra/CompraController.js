@@ -10,6 +10,14 @@ const Investidor = require("../investidor/Investidor")
 
 
 
+//filtragem de dados, por peridodo que eles foram adicionados no BD
+  //formatar numeros em valores decimais (.toLocaleFixed(2))
+  Number.prototype.toLocaleFixed = function (n) {
+    return this.toLocaleString(undefined, {
+      minimumFractionDigits: n,
+      maximumFractionDigits: n
+    });
+  };
 
 // https://docs.awesomeapi.com.br/
 
@@ -61,7 +69,7 @@ router.get('/admin/compra', async (req, res, next) => {
            
             raw: true
           });
-          var CapitalInvestido = (Number(amountT['sum(`total`)']) * Number(1000)).toLocaleFixed(2);
+          var CapitalInvestido = (Number(amountT['sum(`total`)'])).toLocaleFixed(2);
       
           
           //////////////////////Capital Investidor em dolar
@@ -70,7 +78,7 @@ router.get('/admin/compra', async (req, res, next) => {
      
       raw: true
     });
-    var CapitalInvestidoDolar = (Number(amountD['sum(`amount`)']) * Number(1000)).toLocaleFixed(2);
+    var CapitalInvestidoDolar = (Number(amountD['sum(`amount`)'])).toLocaleFixed(2);
 
 
 
@@ -114,14 +122,20 @@ router.post('/compra/save',  (req, res) => {
   var amount = req.body.amount;
   var investidor = req.body.investidor;
 
+  var unitarioFloat = unitario.replace(".", "").replace(",", ".")
+  var totalFloat = total.replace(".", "").replace(",", ".")
+  var dolarFloat = dolar.replace(".", "").replace(",", ".")
+  var amountFloat = amount.replace(".", "").replace(",", ".")
+
+
    Compra.create(
    {
     data: data,
     quantidade: quantidade,
-    unitario: unitario,
-    total: total,
-    dolar: dolar,
-    amount: amount,
+    unitario: unitarioFloat,
+    total: totalFloat,
+    dolar: dolarFloat,
+    amount: amountFloat,
     investidoreId: investidor
   })
   .then(() => {

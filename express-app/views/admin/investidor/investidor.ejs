@@ -37,6 +37,7 @@
           <th>Nome</th>
           <th>Capital Investido</th>
           <th>Lucro sobre Investimento</th>
+          <th>Débito / Crédito</th>
           <th>Retirado</th>
           <th>Total</th>
         </tr>
@@ -46,6 +47,7 @@
           <td><%= investidor.name %></td>
           <td><%= CapitalInvestido %></td>
           <td><%= Lucro %></td>
+          <td><a class="dropdown-item" href="/dc/<%= investidor.id %>"><%= debitoCredito %></a></td>
           <td ><a class="dropdown-item" href="/admin/investidor/saque/<%= investidor.id %>"><%= CapitalRetirado %></a></td>
           <td><%= total %></td>
         </tr>

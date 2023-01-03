@@ -52,7 +52,7 @@ Investidor
             <tr class="pesquisar" href="/<%= dc.id %>">
         <td><%= dc.investidore.name %></td>
         <td><%= dc.data %></td>
-        <td><%= dc.valor %></td>
+        <td id="valor"><%= dc.valor %></td>
         <td>
             <a
               href="/admin/dc/edit/<%= dc.id %>"
@@ -75,7 +75,7 @@ Investidor
   </table>
 </div>
 <hr/>
-<div  class="table1 text-center">
+<div  class="table2 text-center">
   <table id="tab" data-type="table-menu" class="table table-bordered text-center">
     <thead>
       <tr id="table-header">
@@ -145,6 +145,7 @@ Investidor
   }
   /////////////////////////////////////////////////
 </script>
+
 
 
 
