@@ -1,4 +1,5 @@
 <%- include ("../../partials/header.ejs") %> <%- include
+
 ("../../partials/navbar.ejs") %>
 
 <body>
@@ -7,7 +8,7 @@
       <h2>Investidores</h2>
   
       <hr />
-      <div class="row row-cols-1 row-cols-md-2 g-4">
+      <div class="row g-4">
 
         <div class="col-3">
           <div class="card">
@@ -16,10 +17,7 @@
     >
     </div>
     </div>
-  
-
-
-    <div class="col-2">
+    <div class="col-3">
       <div class="card">
         <!--Barra de Pesquisa-->
         <form class="form-search">
@@ -36,37 +34,40 @@
        </div>
     <hr />
     
-
-    <table id="tab" data-type="table-menu" class="table table-bordered text-center">
-      <thead>
-        <tr id="table-header">
-          <th>Nome</th>
-          <th>Telefone</th>
-          <th>E-mail</th>
-          <th>CPF / CNPJ</th>
-          <th>Cep</th>
-          <th>Logradouro</th>
-          <th>UF</th>
-          <th>Cidade</th>
-          <th>Número</th>
+    <div  class="table-responsive-xxl">
+    <table data-type="table-menu" id="tab" class="table table-hover table-sm ">
+      <thead class="table-striped">
+        <tr>
+          <th scope="col">Nome</th>
+          <th scope="col">Telefone</th>
+          <th scope="col">E-mail</th>
+          <th scope="col">CPF</th>
+          <th scope="col">Cep</th>
+          <th scope="col">Logradouro</th>
+          <th scope="col">Número</th>
+          <th scope="col">Complemento</th>
+          <th scope="col">Cidade</th>
+          <th scope="col">UF</th>
+          <th scope="col">Ações</th>
         </tr>
       </thead>
-      <tbody id="demo">
+      <tbody  id="demo">
         <% investidores.forEach(investidor => { %>
-        <tr  class="pesquisar"  href="/<%= investidor.id %>">
-          <td ><a class="dropdown-item" href="/investidor/<%= investidor.id %>"><%= investidor.name %></a></td>
-          <td><%= investidor.phone %></td>
+        <tr class="pesquisar">
+          <td scope="row"><a class="dropdown-item" href="/investidor/<%= investidor.id %>"><%= investidor.name %></a></td>
+          <td class="td"><%= investidor.phone %></td>
           <td><%= investidor.email %></td>
           <td><%= investidor.cpf %></td>
           <td><%= investidor.cep %></td>
           <td><%= investidor.logradouro %></td>
-          <td><%= investidor.uf %></td>
-          <td><%= investidor.cidade %></td>
           <td><%= investidor.number %></td>
+          <td><%= investidor.obs %></td>
+          <td><%= investidor.cidade %></td>
+          <td><%= investidor.uf %></td>
           <td>
             <a
               href="/admin/investidor/edit/<%= investidor.id %>"
-              class="btn btn-warning"
+              class="btn btn-warning btn-sm"
               >Editar</a
             >
             <form
@@ -76,14 +77,14 @@
               onsubmit="confirmarDelecao(event, this)"
             >
               <input type="hidden" name="id" value="<%= investidor.id %>" />
-              <button class="btn btn-danger">Deletar</button>
+              <button class="btn btn-danger btn-sm">Deletar</button>
             </form>
           </td>
         </tr>
         <% }) %>
       </tbody>
     </table>
-
+    </div>
       </div>
       </body>
 
