@@ -2,6 +2,7 @@
 ("../../partials/navbar.ejs") %>
 
 <body>
+  <br />  
     <div class="container">
       <br/>
       <div class="card">
@@ -11,7 +12,7 @@
       <hr />
       <div class="card-body">
         <form method="POST" action="/compra/update">
-            <div class="input--with-addon currency-input">
+          <div class="input--with-addon currency-input">
           <label>Nome</label>
            <input type="hidden" value="<%= compra.id %>" name="id" />
           <select name="investidor" class="form-control">
@@ -23,7 +24,7 @@
                           <% } %> 
                        <% }) %> 
                   </select>
-                  </div>
+          </div>
           <br />
           <div class="input--with-addon currency-input">
           <label>Data Compra</label>
@@ -111,6 +112,7 @@
       </div>
 
       </div>
+      <br />  
       </div>
       </body>
 

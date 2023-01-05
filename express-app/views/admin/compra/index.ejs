@@ -5,7 +5,6 @@
     <div class="container">
       <hr />
       <h2>Compras</h2>
-  
       <hr />
       <div class="row g-2">
         <div class="col-3">
@@ -58,7 +57,7 @@ Investidor
 <hr/>
 <div  class="table-responsive-xxl">
     <table id="tab" data-type="table-menu"  class="table table-hover table-bordered table-sm text-center">
-      <thead class="thead-light">
+      <thead >
         <tr id="table-header">
           <th>Nome</th>
           <th>Data Compra</th>
@@ -73,7 +72,7 @@ Investidor
       <tbody id="demo">
         <% compras.forEach(compra => { %>
           <tr class="pesquisar" href="/<%= compra.id %>">
-          <td scope="row"><%= compra.investidore.name %></td>
+          <td><%= compra.investidore.name %></td>
           <td id="formatData"><%= compra.data %></td>
           <td><%= compra.quantidade %></td>
           <td><%= compra.unitario %></td>

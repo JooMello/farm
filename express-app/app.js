@@ -69,6 +69,9 @@ app.get('/compra/:id', (req, res) => {
         where:{
           investidoreId:id,
         },
+        order: [
+          ["createdAt", "DESC"]
+        ],
          raw: true,
         nest: true,
       }).then((compras) => {
@@ -132,6 +135,9 @@ app.get('/venda/:id', (req, res) => {
           where:{
             investidoreId:id,
           },
+          order: [
+            ["createdAt", "DESC"]
+          ],
            raw: true,
           nest: true,
         }).then((vendas) => {
@@ -429,6 +435,11 @@ app.get('/morte/:id', async (req, res) => {
       where:{
         investidoreId:id,
       },
+      order: [
+        ["createdAt", "DESC"]
+      ],
+       raw: true,
+      nest: true,
   }).then((mortes) => {
       Investidor.findAll().then((investidores) => {
     res.render("admin/estoque/morte",{
@@ -453,6 +464,11 @@ app.get('/dc/:id', async (req, res, next) => {
       where:{
         investidoreId:id,
       },
+      order: [
+        ["createdAt", "DESC"]
+      ],
+       raw: true,
+      nest: true,
   }).then((dcs) => {
   Investidor.findAll().then(async(investidores) => {
       //////////////////////Capital Investidor

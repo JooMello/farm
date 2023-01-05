@@ -7,7 +7,7 @@
       <h2>Vendas</h2>
   
       <hr />
-      <div class="row row-cols-1 row-cols-md-2 g-4">
+      <div class="row g-2">
 
         <div class="col-3">
           <div class="card">
@@ -16,7 +16,7 @@
     </div>
     </div>
 
-   <div class="col-4">
+   <div class="col-2">
     <div class="card text-center">
        <div class="dropdown">
 <button class="btn dropdown-toggle form-control" type="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -37,7 +37,7 @@ Investidor
     </div>
    </div>
 
-    <div class="col-2">
+    <div class="col-3">
     <div class="card">
       <!--Barra de Pesquisa-->
       <form class="form-search">
@@ -54,8 +54,9 @@ Investidor
 
     </div>
 <hr/>
-    <table id="tab" data-type="table-menu" class="table table-bordered text-center">
-      <thead>
+<div  class="table-responsive-xxl">
+    <table id="tab" data-type="table-menu"  class="table table-hover table-bordered table-sm text-center">
+      <thead class="thead-light">
         <tr id="table-header">
           <th>Nome</th>
           <th>Data Venda</th>
@@ -80,7 +81,7 @@ Investidor
           <td>
             <a
               href="/admin/venda/edit/<%= venda.id %>"
-              class="btn btn-warning"
+              class="btn btn-warning btn-sm"
               >Editar</a
             >
             <form
@@ -90,7 +91,7 @@ Investidor
               onsubmit="confirmarDelecao(event, this)"
             >
               <input type="hidden" name="id" value="<%= venda.id %>" />
-              <button class="btn btn-danger">Deletar</button>
+              <button class="btn btn-danger btn-sm">Deletar</button>
             </form>
           </td>
         </tr>
@@ -115,6 +116,7 @@ Investidor
           </tr>
         </tbody>
       </table>
+        </div>
         </div>
       </div>
       </body>

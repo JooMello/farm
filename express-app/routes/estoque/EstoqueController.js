@@ -101,6 +101,11 @@ router.get('/admin/estoque/morte', async (req, res, next) => {
       include: [{
           model: Investidor,
         }],
+        order: [
+          ["data", "DESC"]
+        ],
+        raw: true,
+        nest: true,
     }).then((mortes) => {
     Investidor.findAll().then((investidores) => {
       res.render('admin/estoque/morte', {

@@ -48,7 +48,7 @@ router.get('/admin/compra', async (req, res, next) => {
       model: Investidor,
     }],
     order: [
-      ["createdAt", "DESC"]
+      ["data", "DESC"]
     ],
      raw: true,
     nest: true,

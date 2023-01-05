@@ -2,14 +2,15 @@
 ("../../partials/navbar.ejs") %>
 
 <body>
+  <br />
     <div class="container">
-      <hr />
+      <br />
       <h2>Estoque</h2>
   
       <hr />
-      <div class="row row-cols-1 row-cols-md-2 g-4">
+      <div class="row g-2">
 
-        <div class="col-2">
+        <div class="col-3">
             <div class="card text-center">
                 <a class="btn btn-primary form-control" href="/admin/estoque/newMorte"
                 >Lançar Morte</a
@@ -17,7 +18,7 @@
                 </div>
             </div>
 
-   <div class="col-4">
+   <div class="col-3">
     <div class="card text-center">
        <div class="dropdown">
 <button class="btn dropdown-toggle form-control" type="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -40,11 +41,9 @@ Investidor
     </div>
 <hr/>
 
-<div  class="table1 text-center">
+<div  class="table-responsive-xxl">
 <table id="tab" data-type="table-menu" class="table table-bordered text-center">
-    <thead>
-       
-            
+    <thead>      
       <tr id="table-header">
         <th>Nº de Animais Comprados</th>
         <th>Mortes</th>
@@ -59,11 +58,9 @@ Investidor
         <td><%= vendidos %></td>
         <td><%= estoque %></td>
       </tr>
-
     </tbody>
   </table>
 </div>
-<hr/>
       </div>
       </body>
 

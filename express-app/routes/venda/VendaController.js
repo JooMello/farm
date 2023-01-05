@@ -40,7 +40,7 @@ router.get('/admin/venda', async (req, res, next) => {
       model: Investidor,
     }],
     order: [
-      ["createdAt", "DESC"]
+      ["data", "DESC"]
     ],
      raw: true,
     nest: true,
@@ -166,13 +166,17 @@ router.post('/venda/update', (req, res) => {
   var amount = req.body.amount;
   var investidor = req.body.investidor;
 
+  var unitarioFloat = unitario.replace(".", "").replace(",", ".")
+  var totalFloat = total.replace(".", "").replace(",", ".")
+  var amountFloat = amount.replace(".", "").replace(",", ".")
+
   Venda.update({
     data: data,
     quantidade: quantidade,
-    unitario: unitario,
-    total: total,
+    unitario: unitarioFloat,
+    total: totalFloat,
     dolar: dolar,
-    amount: amount,
+    amount: amountFloat,
     investidoreId: investidor,
   }, {
     where: {

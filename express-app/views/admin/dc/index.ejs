@@ -2,21 +2,20 @@
 ("../../partials/navbar.ejs") %>
 
 <body>
+  <br />
     <div class="container">
-      <hr />
+      <br />
       <h2> DÉBITOS / CRÉDITOS</h2>
-  
       <hr />
-      <div class="row row-cols-1 row-cols-md-2 g-4">
-
-        <div class="col-2">
+      <div class="row g-2">
+        <div class="col-3">
             <div class="card text-center">
                 <a class="btn btn-primary form-control" href="/admin/dc/new"
                 >Lançar Débito/Crédito</a
               >
                 </div>
             </div>
-   <div class="col-4">
+   <div class="col-3">
     <div class="card text-center">
        <div class="dropdown">
 <button class="btn dropdown-toggle form-control" type="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -38,9 +37,9 @@ Investidor
    </div>
     </div>
 <hr/>
-<div  class="table1 text-center">
-<table id="tab" data-type="table-menu" class="table table-bordered text-center">
-    <thead>
+<div  class="table-responsive-xxl">
+  <table id="tab" data-type="table-menu"  class="table table-hover table-bordered table-sm text-center">
+    <thead >
         <tr id="table-header">
         <th>Nome</th>
         <th>Data</th>
@@ -49,14 +48,14 @@ Investidor
     </thead>
     <tbody id="demo">
         <% dcs.forEach(dc => { %>
-            <tr class="pesquisar" href="/<%= dc.id %>">
+        <tr class="pesquisar" href="/<%= dc.id %>">
         <td><%= dc.investidore.name %></td>
         <td><%= dc.data %></td>
         <td id="valor"><%= dc.valor %></td>
         <td>
             <a
               href="/admin/dc/edit/<%= dc.id %>"
-              class="btn btn-warning"
+              class="btn btn-warning btn-sm"
               >Editar</a
             >
             <form
@@ -66,7 +65,7 @@ Investidor
               onsubmit="confirmarDelecao(event, this)"
             >
               <input type="hidden" name="id" value="<%= dc.id %>" />
-              <button class="btn btn-danger">Deletar</button>
+              <button class="btn btn-danger btn-sm">Deletar</button>
             </form>
           </td>
       </tr>

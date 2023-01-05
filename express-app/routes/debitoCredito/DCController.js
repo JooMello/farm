@@ -24,6 +24,11 @@ router.get('/admin/dc', async (req, res, next) => {
       include: [{
           model: Investidor,
         }],
+        order: [
+          ["data", "DESC"]
+        ],
+         raw: true,
+        nest: true,
     }).then((dcs) => {
     Investidor.findAll().then(async(investidores) => {
 
