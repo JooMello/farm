@@ -8,8 +8,7 @@
       <h2>Investidores</h2>
   
       <hr />
-      <div class="row g-4">
-
+      <div class="row g-2">
         <div class="col-3">
           <div class="card">
       <a class="btn btn-primary" href="/admin/investidor/new"
@@ -35,8 +34,8 @@
     <hr />
     
     <div  class="table-responsive-xxl">
-    <table data-type="table-menu" id="tab" class="table table-hover table-sm ">
-      <thead class="table-striped">
+    <table data-type="table-menu" id="tab" class="table table-hover table-bordered table-sm text-center">
+      <thead class="thead-light">
         <tr>
           <th scope="col">Nome</th>
           <th scope="col">Telefone</th>
@@ -55,7 +54,7 @@
         <% investidores.forEach(investidor => { %>
         <tr class="pesquisar">
           <td scope="row"><a class="dropdown-item" href="/investidor/<%= investidor.id %>"><%= investidor.name %></a></td>
-          <td class="td"><%= investidor.phone %></td>
+          <td><%= investidor.phone %></td>
           <td><%= investidor.email %></td>
           <td><%= investidor.cpf %></td>
           <td><%= investidor.cep %></td>
