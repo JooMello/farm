@@ -266,7 +266,7 @@ router.post('/saque/save',  (req, res) => {
     investidoreId: investidor,
   })
   .then(() => {
-    res.redirect("/");
+    res.redirect("/admin/investidor");
   });
 });
 
