@@ -1,21 +1,20 @@
 const express = require("express");
-var request = require("request");
-var path = require('path');
-var logger = require("morgan");
-var cookieParser = require("cookie-parser");
+const request = require("request");
+const path = require('path');
+const logger = require("morgan");
+const cookieParser = require("cookie-parser");
 const session = require("express-session");
-var bodyParser = require("body-parser");
-var routes = require("./routes");
-var app = express();
+const bodyParser = require("body-parser");
+const routes = require("./routes");
+const app = express();
 const nodemailer = require("nodemailer");
-const adminAuth =   require("./middlewares/adminAuth")
-
-
+const adminAuth =   require("./middlewares/adminAuth");
 const sequelize = require("sequelize");
+const Op = sequelize.Op;
 const slugify = require("slugify");
-const connection = require("./database/database")
-const dolar = require('./api_dolar')
-const cep = require('./api-cep')
+const connection = require("./database/database");
+const dolar = require('./api_dolar');
+const cep = require('./api-cep');
 
 
 

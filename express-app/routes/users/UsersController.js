@@ -3,7 +3,6 @@ const router = express.Router();
 const User = require("./User");
 const bcrypt = require("bcryptjs");
 
-
 router.get("/admin/users", (req, res) => {
   User.findAll().then((users) => {
     res.render("admin/users/index", { users: users });
