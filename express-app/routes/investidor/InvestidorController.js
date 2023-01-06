@@ -3,6 +3,7 @@ const router = express.Router();
 const Investidor = require("./Investidor");
 const slugify = require("slugify");
 const sequelize = require("sequelize");
+const adminAuth = require("../../middlewares/adminAuth")
 const {
   Op
 } = require("sequelize");
@@ -23,7 +24,7 @@ var app = express();
     });
   };
 
-router.get('/admin/investidor', (req, res, next) => {
+router.get('/admin/investidor', adminAuth, (req, res, next) => {
 
   Investidor.findAll({
     order: [
@@ -38,7 +39,7 @@ router.get('/admin/investidor', (req, res, next) => {
   })
 });
 
-router.get('/admin/investidor/new', (req, res, next) => {
+router.get('/admin/investidor/new', adminAuth, (req, res, next) => {
   Investidor.findAll().then((investidores) => {
     res.render('admin/investidor/new', {
       investidores,
@@ -46,7 +47,7 @@ router.get('/admin/investidor/new', (req, res, next) => {
   })
 })
 
-router.post('/investidor/save', (req, res, next) => {
+router.post('/investidor/save', adminAuth, (req, res, next) => {
   var name = req.body.name;
   var phone = req.body.phone;
   var email = req.body.email;
@@ -76,7 +77,7 @@ router.post('/investidor/save', (req, res, next) => {
   });
 });
 
-router.get("/admin/investidor/edit/:id", (req, res) => {
+router.get("/admin/investidor/edit/:id", adminAuth, (req, res) => {
   var id = req.params.id;
 
 Investidor.findByPk(id)
@@ -94,7 +95,7 @@ Investidor.findByPk(id)
 })
 })
 
-router.post('/investidor/update', (req, res) => {
+router.post('/investidor/update', adminAuth, (req, res) => {
   var id = req.body.id;
   var name = req.body.name;
   var phone = req.body.phone;
@@ -132,7 +133,7 @@ router.post('/investidor/update', (req, res) => {
   });
 })
 
-router.post('/investidor/delete', (req, res) => {
+router.post('/investidor/delete',adminAuth,  (req, res) => {
   var id = req.body.id;
   if (id != undefined) {
     if (!isNaN(id)) {
@@ -154,7 +155,7 @@ router.post('/investidor/delete', (req, res) => {
 });
 
 //Investidores 
-router.get('/investidor/:id', (req, res) => {
+router.get('/investidor/:id',adminAuth,  (req, res) => {
     var id = req.params.id;
     
         Investidor.findAll({
@@ -236,7 +237,7 @@ router.get('/investidor/:id', (req, res) => {
 })
 });
 
-router.get('/admin/investidor/newR/:id', (req, res, next) => {
+router.get('/admin/investidor/newR/:id', adminAuth, (req, res, next) => {
 
   var id = req.params.id;
 
@@ -252,7 +253,7 @@ router.get('/admin/investidor/newR/:id', (req, res, next) => {
   })
 })
 
-router.post('/saque/save',  (req, res) => {
+router.post('/saque/save', adminAuth,  (req, res) => {
   var id = req.params.id;
   var data = req.body.data;
   var valor = req.body.valor;
@@ -271,7 +272,7 @@ router.post('/saque/save',  (req, res) => {
 });
 
 //Investidores 
-router.get('/admin/investidor/saque/:id', (req, res) => {
+router.get('/admin/investidor/saque/:id',adminAuth,  (req, res) => {
   var id = req.params.id;
       Investidor.findAll().then((investidores) => {
         Saque.findAll({

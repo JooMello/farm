@@ -1,11 +1,12 @@
 var express = require('express');
 var router = express.Router();
+const adminAuth = require("../middlewares/adminAuth")
 
 
 
 
 /* GET home page. */
-router.post('/', (req, res, next) => {
+router.post('/', adminAuth, (req, res, next) => {
   res.render('index', );
 });
 

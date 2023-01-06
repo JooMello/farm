@@ -14,7 +14,6 @@ function createWindow() {
         autoHideMenuBar: true,
         width: 640,
         height: 480,
-        icon: "favicon.ico",
         webPreferences: {
             nodeIntegration: true,
             enableRemoteModule: true,

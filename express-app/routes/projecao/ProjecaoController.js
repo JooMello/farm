@@ -4,13 +4,14 @@ const Compra = require("../compra/Compra");
 const slugify = require("slugify");
 const sequelize = require("sequelize");
 const { Op } = require("sequelize");
+const adminAuth = require("../../middlewares/adminAuth")
 
 
 var app = express();
 
 const Investidor = require("../investidor/Investidor")
 
-router.get('/admin/projecao', async (req, res, next) => {
+router.get('/admin/projecao',adminAuth,  async (req, res, next) => {
     Compra.findAll({
       include: [{
         model: Investidor,

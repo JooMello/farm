@@ -3,10 +3,12 @@ var request = require("request");
 var path = require('path');
 var logger = require("morgan");
 var cookieParser = require("cookie-parser");
+const session = require("express-session");
 var bodyParser = require("body-parser");
 var routes = require("./routes");
 var app = express();
 const nodemailer = require("nodemailer");
+const adminAuth =   require("./middlewares/adminAuth")
 
 
 const sequelize = require("sequelize");
@@ -15,6 +17,8 @@ const connection = require("./database/database")
 const dolar = require('./api_dolar')
 const cep = require('./api-cep')
 
+
+
 var investidorRouter = require('./routes/investidor/InvestidorController');
 var compraRouter = require('./routes/compra/CompraController');
 var projecaoRouter = require('./routes/projecao/ProjecaoController');
@@ -22,6 +26,7 @@ var vendaRouter = require('./routes/venda/VendaController');
 var relatorioRouter = require('./routes/relatorio/RelatorioController');
 var estoqueRouter = require('./routes/estoque/EstoqueController');
 var dcRouter = require('./routes/debitoCredito/DCController')
+var userRouter = require('./routes/users/UsersController')
 ///////////////
 const Investidor = require('./routes/investidor/Investidor');
 const Compra = require('./routes/compra/Compra');
@@ -29,6 +34,7 @@ const Venda = require('./routes/venda/Venda');
 const Morte = require('./routes/estoque/Estoque');
 const Saque = require('./routes/investidor/Saque');
 const DC = require('./routes/debitoCredito/DC');
+const User = require("./routes/users/User");
 
 
 //view engine setup
@@ -49,6 +55,7 @@ app.use('/', vendaRouter);
 app.use('/', relatorioRouter);
 app.use('/', estoqueRouter);
 app.use('/', dcRouter);
+app.use('/', userRouter);
 
 connection
   .authenticate()
@@ -59,9 +66,17 @@ connection
     console.log(error);
   });
 
+  app.use(
+    session({
+      secret: "qualquercoisa",
+      cookie: {
+        maxAge: 3000234433240000
+      },
+    })
+  );
 
   //Compra
-app.get('/compra/:id', (req, res) => {
+app.get('/compra/:id',  adminAuth, (req, res) => {
   var id = req.params.id;
       Compra.findAll({
         include: [{
@@ -127,7 +142,7 @@ app.get('/compra/:id', (req, res) => {
 })
 
 //Venda
-app.get('/venda/:id', (req, res) => {
+app.get('/venda/:id', adminAuth,  (req, res) => {
     var id = req.params.id;
         Venda.findAll({
           include: [{
@@ -188,7 +203,7 @@ app.get('/venda/:id', (req, res) => {
   })
 
 //Relatório id
-app.get('/relatorio/:id', async (req, res) => {
+app.get('/relatorio/:id',adminAuth,  async (req, res) => {
   
   var id = req.params.id;
   Investidor.findOne({
@@ -279,7 +294,7 @@ app.get('/relatorio/:id', async (req, res) => {
 })
 
 //Relatório data
-app.get('/relatorio/:data', async (req, res) => {
+app.get('/relatorio/:data',  adminAuth, async (req, res) => {
   
   var id = req.params.id;
   var data = req.params.data;
@@ -371,7 +386,7 @@ app.get('/relatorio/:data', async (req, res) => {
 })
 
 //Estoque
-app.get('/estoque/:id', async (req, res) => {
+app.get('/estoque/:id',adminAuth,  async (req, res) => {
   var id = req.params.id;
 
     await  Morte.findOne({
@@ -416,7 +431,7 @@ app.get('/estoque/:id', async (req, res) => {
 })
 
 //Morte
-app.get('/morte/:id', async (req, res) => {
+app.get('/morte/:id',adminAuth,  async (req, res) => {
   var id = req.params.id;
 
   //////////////////////mortes
@@ -456,7 +471,7 @@ app.get('/morte/:id', async (req, res) => {
 })
 
 
-app.get('/dc/:id', async (req, res, next) => {
+app.get('/dc/:id',adminAuth,  async (req, res, next) => {
   var id = req.params.id;
   DC.findAll({
     include: [{

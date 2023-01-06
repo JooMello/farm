@@ -8,8 +8,9 @@ const Investidor = require("../investidor/Investidor");
 const Compra = require('../compra/Compra');
 const Venda = require('../venda/Venda');
 const Morte = require('../estoque/Estoque');
+const adminAuth = require("../../middlewares/adminAuth")
 
-router.get('/admin/estoque', async (req, res, next) => {
+router.get('/admin/estoque', adminAuth, async (req, res, next) => {
 
     //////////////////////mortes
     var amountQ = await Morte.findOne({
@@ -64,7 +65,7 @@ var estoque = ((comprados) - (morte) - (vendidos));
 })
 });
 
-router.get('/admin/estoque/newMorte', (req, res) => {
+router.get('/admin/estoque/newMorte', adminAuth, (req, res) => {
     Investidor.findAll().then((investidores) => {
       res.render('admin/estoque/newMorte', {
         investidores: investidores,
@@ -72,7 +73,7 @@ router.get('/admin/estoque/newMorte', (req, res) => {
     });
   });
 
-router.post('/morte/save',  (req, res) => {
+router.post('/morte/save',adminAuth,   (req, res) => {
     var data = req.body.data;
     var quantidade = req.body.quantidade;
     var investidor = req.body.investidor;
@@ -88,7 +89,7 @@ router.post('/morte/save',  (req, res) => {
     });
   });
 
-router.get('/admin/estoque/morte', async (req, res, next) => {
+router.get('/admin/estoque/morte', adminAuth, async (req, res, next) => {
 
     //////////////////////mortes
     var amountQ = await Morte.findOne({
@@ -117,7 +118,7 @@ router.get('/admin/estoque/morte', async (req, res, next) => {
 })
 });
 
-router.post('/morte/delete', (req, res) => {
+router.post('/morte/delete', adminAuth, (req, res) => {
   var id = req.body.id;
   if (id != undefined) {
     if (!isNaN(id)) {
@@ -138,7 +139,7 @@ router.post('/morte/delete', (req, res) => {
   }
 });
 
-router.get("/admin/estoque/edit/:id", (req, res) => {
+router.get("/admin/estoque/edit/:id", adminAuth, (req, res) => {
   var id = req.params.id;
 
 Morte.findByPk(id)
@@ -160,7 +161,7 @@ Morte.findByPk(id)
 })
 })
 
-router.post('/morte/update', (req, res) => {
+router.post('/morte/update', adminAuth, (req, res) => {
   var id = req.body.id;
   var data = req.body.data;
   var quantidade = req.body.quantidade;

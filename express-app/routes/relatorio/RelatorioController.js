@@ -3,13 +3,14 @@ const router = express.Router();
 const slugify = require("slugify");
 const sequelize = require("sequelize");
 const { Op } = require("sequelize");
+const adminAuth = require("../../middlewares/adminAuth")
 
 const Investidor = require("../investidor/Investidor");
 const Compra = require('../compra/Compra');
 const Venda = require('../venda/Venda');
 
 
-router.get('/admin/relatorios', async (req, res, next) => {
+router.get('/admin/relatorios', adminAuth, async (req, res, next) => {
 
   //filtragem de dados, por peridodo que eles foram adicionados no BD
   //formatar numeros em valores decimais (.toLocaleFixed(2))

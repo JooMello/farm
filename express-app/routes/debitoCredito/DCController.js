@@ -8,6 +8,7 @@ const Investidor = require("../investidor/Investidor");
 const Compra = require('../compra/Compra');
 const Venda = require('../venda/Venda');
 const DC = require('./DC');
+const adminAuth = require("../../middlewares/adminAuth")
 
 
  //filtragem de dados, por peridodo que eles foram adicionados no BD
@@ -19,7 +20,7 @@ const DC = require('./DC');
     });
   };
 
-router.get('/admin/dc', async (req, res, next) => {
+router.get('/admin/dc',adminAuth,  async (req, res, next) => {
     DC.findAll({
       include: [{
           model: Investidor,
@@ -50,7 +51,7 @@ router.get('/admin/dc', async (req, res, next) => {
   })
   })
 
-router.get('/admin/dc/new', (req, res) => {
+router.get('/admin/dc/new',adminAuth,  (req, res) => {
   Investidor.findAll().then((investidores) => {
     res.render('admin/dc/new', {
       investidores: investidores,
@@ -58,7 +59,7 @@ router.get('/admin/dc/new', (req, res) => {
   });
 });
 
-router.post('/dc/save',  (req, res) => {
+router.post('/dc/save', adminAuth,  (req, res) => {
   var data = req.body.data;
   var valor = req.body.valor;
   var investidor = req.body.investidor;
@@ -76,7 +77,7 @@ router.post('/dc/save',  (req, res) => {
   });
 });
 
-router.get("/admin/dc/edit/:id", (req, res) => {
+router.get("/admin/dc/edit/:id",adminAuth,  (req, res) => {
   var id = req.params.id;
 
 DC.findByPk(id)
@@ -98,7 +99,7 @@ DC.findByPk(id)
 })
 })
 
-router.post('/dc/update', (req, res) => {
+router.post('/dc/update',adminAuth, (req, res) => {
   var id = req.body.id;
   var data = req.body.data;
   var valor = req.body.valor;
@@ -121,7 +122,7 @@ router.post('/dc/update', (req, res) => {
   });
 })
 
-router.post('/dc/delete', (req, res) => {
+router.post('/dc/delete',adminAuth,  (req, res) => {
   var id = req.body.id;
   if (id != undefined) {
     if (!isNaN(id)) {

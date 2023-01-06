@@ -5,6 +5,7 @@ const slugify = require("slugify");
 const sequelize = require("sequelize");
 const { Op } = require("sequelize");
 const request = require('request')
+const adminAuth = require("../../middlewares/adminAuth")
 
 const Investidor = require("../investidor/Investidor")
 
@@ -34,7 +35,7 @@ const Dolar = request(options, callback_dolar)
 
 
 
-router.get('/admin/venda', async (req, res, next) => {
+router.get('/admin/venda',adminAuth, async (req, res, next) => {
   Venda.findAll({
     include: [{
       model: Investidor,
@@ -82,7 +83,7 @@ router.get('/admin/venda', async (req, res, next) => {
   })
 });
 
-router.get('/admin/venda/new', (req, res) => {
+router.get('/admin/venda/new', adminAuth, (req, res) => {
 
   
     //filtragem de dados, por peridodo que eles foram adicionados no BD
@@ -105,7 +106,7 @@ router.get('/admin/venda/new', (req, res) => {
   });
 });
 
-router.post('/venda/save',  (req, res) => {
+router.post('/venda/save', adminAuth, (req, res) => {
   var data = req.body.data;
   var quantidade = req.body.quantidade;
   var unitario = req.body.unitario;
@@ -134,7 +135,7 @@ router.post('/venda/save',  (req, res) => {
   });
 });
 
-router.get("/admin/venda/edit/:id", (req, res) => {
+router.get("/admin/venda/edit/:id", adminAuth, (req, res) => {
   var id = req.params.id;
 
 Venda.findByPk(id)
@@ -156,7 +157,7 @@ Venda.findByPk(id)
 })
 })
 
-router.post('/venda/update', (req, res) => {
+router.post('/venda/update', adminAuth,(req, res) => {
   var id = req.body.id;
   var data = req.body.data;
   var quantidade = req.body.quantidade;
@@ -191,7 +192,7 @@ router.post('/venda/update', (req, res) => {
   });
 })
 
-router.post('/venda/delete', (req, res) => {
+router.post('/venda/delete',adminAuth, (req, res) => {
   var id = req.body.id;
   if (id != undefined) {
     if (!isNaN(id)) {

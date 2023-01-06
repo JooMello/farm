@@ -5,6 +5,7 @@ const slugify = require("slugify");
 const sequelize = require("sequelize");
 const { Op } = require("sequelize");
 const request = require('request')
+const adminAuth = require("../../middlewares/adminAuth")
 
 const Investidor = require("../investidor/Investidor")
 
@@ -42,7 +43,7 @@ const callback_dolar = function(erro, res, body){
 const Dolar = request(options, callback_dolar)
 
 
-router.get('/admin/compra', async (req, res, next) => {
+router.get('/admin/compra', adminAuth, async (req, res, next) => {
   Compra.findAll({
     include: [{
       model: Investidor,
@@ -91,7 +92,7 @@ router.get('/admin/compra', async (req, res, next) => {
   })
 });
 
-router.get('/admin/compra/new', (req, res) => {
+router.get('/admin/compra/new',adminAuth,  (req, res) => {
 
     //filtragem de dados, por peridodo que eles foram adicionados no BD
   //formatar numeros em valores decimais (.toLocaleFixed(2))
@@ -113,7 +114,7 @@ router.get('/admin/compra/new', (req, res) => {
   });
 });
 
-router.post('/compra/save',  (req, res) => {
+router.post('/compra/save', adminAuth,  (req, res) => {
   var data = req.body.data;
   var quantidade = req.body.quantidade;
   var unitario = req.body.unitario;
@@ -143,7 +144,7 @@ router.post('/compra/save',  (req, res) => {
   });
 });
 
-router.get("/admin/compra/edit/:id", (req, res) => {
+router.get("/admin/compra/edit/:id", adminAuth, (req, res) => {
   var id = req.params.id;
 
 Compra.findByPk(id)
@@ -165,7 +166,7 @@ Compra.findByPk(id)
 })
 })
 
-router.post('/compra/update', (req, res) => {
+router.post('/compra/update', adminAuth, (req, res) => {
   var id = req.body.id;
   var data = req.body.data;
   var quantidade = req.body.quantidade;
@@ -200,7 +201,7 @@ router.post('/compra/update', (req, res) => {
   });
 })
 
-router.post('/compra/delete', (req, res) => {
+router.post('/compra/delete', adminAuth, (req, res) => {
   var id = req.body.id;
   if (id != undefined) {
     if (!isNaN(id)) {

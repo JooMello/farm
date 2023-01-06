@@ -30,7 +30,8 @@
     "request": "^2.88.2",
     "sequelize": "^6.25.8",
     "serve-favicon": "^2.5.0",
-    "slugify": "^1.6.5"
+    "slugify": "^1.6.5",
+    "express-session": "^1.17.3"
   },
   "devDependencies": {
     "browser-sync": "^2.24.5",
