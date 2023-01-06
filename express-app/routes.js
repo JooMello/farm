@@ -3,9 +3,8 @@ const express = require("express"),
 
 //GET home page.
 router.get("/", function(req, res) {
-    res.render("index", { title: "Fazenda" });
+    res.render("index", { title: "Cattle Farm" });
 });
-
 
 
 module.exports = router;
