@@ -6,9 +6,12 @@ const sequelize = require("sequelize");
 const { Op } = require("sequelize");
 const request = require('request')
 const adminAuth = require("../../middlewares/adminAuth")
+var fs = require("fs");
+const nodemailer = require('nodemailer');
 
 const Investidor = require("../investidor/Investidor")
 
+const { host, port, user, pass } = require('../../config/mail.json');
 
 
 // https://docs.awesomeapi.com.br/
@@ -72,6 +75,20 @@ router.get('/admin/venda',adminAuth, async (req, res, next) => {
     });
     var TotalVendaDolar = (Number(amountD['sum(`amount`)'])).toLocaleFixed(2);
 
+    var transport = nodemailer.createTransport({
+      host,
+      port,
+      auth: { user,pass }
+    });
+    
+  
+          var message = {
+              from: 'jvssmello@gmail.com',
+              to: "joaovictorsouza0123.com",
+              subject: 'Hello, world',
+              text: "Plaintext version of the message",
+              html: "<p> HTML version of the message </p>"
+          };
 
 
       res.render('admin/venda/index', {

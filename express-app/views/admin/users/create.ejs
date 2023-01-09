@@ -1,46 +1,70 @@
-<%- include ("../../partials/header.ejs") %> 
+<!DOCTYPE html>
+<html lang="pt=br">
+<%- include ("../../partials/homeheader.ejs") %> 
+<body>
+  <div id="container">
+      <div class="banner">
+          <img src="/img/login.png" alt="imagem-login">
+          <p style="color: #fff;">
+            Introduza os seus dados pessoais para abrir uma conta connosco.
+          </p>
+      </div>
 
-<div class="container">
-  <hr />
-  <div class="card mt-5">
-    <div class="card-header">
-      <h2>Criação de usuário</h2>
-    </div>
-    <div class="card-body text-center">
-      <form action="/users/create" method="POST">
-        <input
-          class="form-control"
-          name="name"
-          type="text"
-          placeholder="Nome Completo"
-          required
-        /><br />
-        <input
-          class="form-control"
-          name="email"
-          type="email"
-          placeholder="email@exemplo.com"
-          required
-        /><br />
-        <input
-          class="form-control"
-          name="phone"
-          type="tel"
-          placeholder="+55"
-          required
-        /><br />
-        <input
-          class="form-control"
-          name="password"
-          type="password"
-          placeholder="******"
-          required
-        /><br />
-        <button type="submit" class="btn btn-success btn-block">Criar</button>
-        <a href="/login">Já possui conta</a>
-      </form>
-    </div>
+      <div class="box-login">
+          <h1>Junte-se a nós,<br>Crie hoje a sua conta!</h1>
+
+         
+            <form   class="box-account"action="/users/create" method="POST">
+              <h2>informe seus dados</h2>
+              <input type="text" name="name" id="name" placeholder="Nome Completo">
+              <input type="email" name="email" id="email" placeholder="e-mail">
+              <input type="phone" name="phone" id="phone" placeholder="Telefone">
+              <input type="password" name="password" id="password" placeholder="senha">
+              <div class="check">
+                  <input type="checkbox" name="termo" id="termo" style="width: 13px; height: 13px;">
+                  <label for="termos" style="color: #3d3d3d;">li e aceito os termos</label>
+              </div>
+  
+              <button type="submit">Criar conta</button>
+              <a href="/login"><p>Já possui conta</p></a>
+          </form>
+      </div>
   </div>
-</div>
 
+ 
+
+  <script>
+      $('#termo').click(() => {
+          const div = $('<div>').attr('style',`
+              position: absolute;
+              width: 65%;
+              height: 420px;
+              border-radius: 10px;
+              background: #fff; 
+
+              color: #3d3d3d;
+
+              -webkit-box-shadow: 0px 0px 6px -1px #000000; 
+              box-shadow: 0px 0px 6px -1px #000000;
+
+              display: flex;
+              flex-direction: column;
+              justify-content: space-evenly;
+              align-items: center;
+          `)
+
+          $(div).addClass('termo')
+
+          $(div).append(`Eu entendo e aceitos os termos impostos pela plataforma...`)
+
+          $(div).append(
+              $('<button>Ok</button>').click(() => {
+                  div.hide()
+              })
+          )
+          
+          $('body').append(div)
+      })
+  </script>
+</body>
 <%- include ("../../partials/footer.ejs") %>

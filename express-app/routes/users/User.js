@@ -9,13 +9,15 @@ const User = connection.define('users', {
     email: {
         type: Sequelize.STRING,
         allowNull: false
-    }, phone: {
+    }, 
+    phone: {
         type: Sequelize.STRING,
         allowNull: false
-    }, password: {
+    }, 
+    password: {
         type: Sequelize.STRING,
         allowNull: false 
-    }
+    },
 }) 
 
 //User.sync({ force: true });

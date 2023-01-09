@@ -13,8 +13,9 @@ const sequelize = require("sequelize");
 const Op = sequelize.Op;
 const slugify = require("slugify");
 const connection = require("./database/database");
-const dolar = require('./api_dolar');
-const cep = require('./api-cep');
+const dolar = require('./modules/api_dolar');
+const cep = require('./modules/api-cep');
+const fs = require('fs');
 
 
 
@@ -24,8 +25,9 @@ var projecaoRouter = require('./routes/projecao/ProjecaoController');
 var vendaRouter = require('./routes/venda/VendaController');
 var relatorioRouter = require('./routes/relatorio/RelatorioController');
 var estoqueRouter = require('./routes/estoque/EstoqueController');
-var dcRouter = require('./routes/debitoCredito/DCController')
-var userRouter = require('./routes/users/UsersController')
+var dcRouter = require('./routes/debitoCredito/DCController');
+var userRouter = require('./routes/users/UsersController');
+
 ///////////////
 const Investidor = require('./routes/investidor/Investidor');
 const Compra = require('./routes/compra/Compra');
@@ -39,6 +41,15 @@ const User = require("./routes/users/User");
 //view engine setup
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "ejs");
+
+app.use(
+  session({
+    secret: "qualquercoisa",
+    cookie: {
+      maxAge: 3000234433240000
+    },
+  })
+);
 
 app.use(logger("dev"));
 app.use(bodyParser.json());
@@ -56,6 +67,7 @@ app.use('/', estoqueRouter);
 app.use('/', dcRouter);
 app.use('/', userRouter);
 
+
 connection
   .authenticate()
   .then(() => {
@@ -64,15 +76,6 @@ connection
   .catch((error) => {
     console.log(error);
   });
-
-  app.use(
-    session({
-      secret: "qualquercoisa",
-      cookie: {
-        maxAge: 3000234433240000
-      },
-    })
-  );
 
   //Compra
 app.get('/compra/:id',  adminAuth, (req, res) => {
@@ -504,6 +507,40 @@ app.get('/dc/:id',adminAuth,  async (req, res, next) => {
   })
 })
 })
+
+app.get("/epassword", async (req, res, next) => {
+
+  var transport = nodemailer.createTransport({
+      host: "smtp.mailtrap.io",
+      port: 2525,
+      auth: {
+          user: "230c825f91b0cb",
+          pass: "9ffd395cdd433d"
+      }
+  });
+
+  var message = {
+      from: "jvssmello@gmail.com",
+      to: "joaovictorsouza0123@gmail.com",
+      subject: "Instrução para recuperar a senha",
+      text: "Prezado(a) Cesar. \n\nVocê solicitou alteração de senha.\n\n",
+      html: "Prezado(a) Cesar. <br><br>Você solicitou alteração de senha.<br><br>"
+  };
+
+  transport.sendMail(message, function (err) {
+      if (err) return res.status(400).json({
+          erro: true,
+          mensagem: "Erro: E-mail não enviado com sucesso!"
+      });
+  });
+
+  return res.json({
+      erro: false,
+      mensagem: "E-mail enviado com sucesso!"
+  });
+
+});
+
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

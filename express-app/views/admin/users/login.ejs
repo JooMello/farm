@@ -1,21 +1,38 @@
-<%- include ("../../partials/header") %>
-
-<div class="container">
-    <hr> 
-    <div class="card mt-5">
-        <div class="card-header">
-            <h2>Login de admin</h2>
+<!DOCTYPE html>
+<html lang="pt=br">
+<%- include ("../../partials/homeheader.ejs") %> 
+<body>
+    <div id="container">
+        <div class="banner">
+            <img src="/img/login.png" alt="imagem-login">
+            <p style="color: #fff; font-weight: 400;">
+                Para se manter conectado conosco, faça o login com seus dados pessoais.
+            </p>
         </div>
-        <div class="card-body text-center">
-            <form action="/authenticate" method="POST">
-                <input class="form-control" name="email" type="email" placeholder="email@exemplo.com" required><br>
-                <input class="form-control" name="password" type="password" placeholder="******" required><br>
-                <button type="submit" class="btn btn-success btn-block">Logar</button>
-             <a href="/admin/users/create">Faça parte da nossa equipe</a>
-            </form>
+
+        <div class="box-login">
+            <h1>
+                Olá!<br>
+                Seja bem vindo de volta.
+            </h1>
+
+            <form  class="box" action="/authenticate" method="POST">
+                <h2>faça o seu login agora</h2>
+                <input type="text" name="email" id="email" placeholder="E-mail">
+                <input type="password" name="password" id="password" placeholder="Senha">
+                
+                <a href="/password">
+                    <p>Esqueceu a sua senha?</p>
+                </a>
+
+                <button type="submit">Login</button>
+                
+                <a href="/admin/users/create">
+                    <p>Criar uma conta</p>
+                </a>
+                </form>
+               
         </div>
     </div>
-</div>
-
-
-<%- include ("../../partials/footer") %>
+</body>
+</html>
