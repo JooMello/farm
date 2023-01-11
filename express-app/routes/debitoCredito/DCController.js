@@ -105,9 +105,11 @@ router.post('/dc/update',adminAuth, (req, res) => {
   var valor = req.body.valor;
   var investidor = req.body.investidor;
 
+  var valorFloat = valor.replace(".", "").replace(",", ".")
+
   DC.update({
     data: data,
-    valor: valor,
+    valor: valorFloat,
     investidoreId: investidor
   }, {
     where: {

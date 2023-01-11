@@ -1,0 +1,81 @@
+<%- include ("../../partials/header.ejs") %> <%- include
+("../../partials/navbar.ejs") %>
+
+<body>
+    <div class="container">
+      <div class="card">
+        <div class="card-header">
+      <h2>Editar Saque</h2>
+    </div>
+      <hr />
+      <div class="card-body">
+        <form method="POST" action="/saque/update">
+            <div class="input--with-addon currency-input">
+          <label>Nome</label>
+           <input type="hidden" value="<%= saque.id %>" name="id" />
+          <select name="investidor" class="form-control">
+                    <% investidores.forEach((investidor) => { %>
+                      <% if (investidor.id == saque.investidoreId) { %>
+                        <option value="<%= investidor.id %>" selected><%= investidor.name %></option>
+                        <% } else { %>
+                          <% } %> 
+                       <% }) %> 
+                  </select>
+                  </div>
+          <br />
+          <div class="input--with-addon currency-input">
+          <label>Data</label>
+          <input
+            class="form-control"
+            type="date"
+            name="data"
+            value="<%= saque.data %>"
+            required
+          />
+          </div><br />
+          <div class="input--with-addon currency-input">
+            <label>Valor</label>
+            <div class="input__container numeral-input">
+              <input
+                required="required"
+                type="text"
+                name="valor"
+                id="valor"
+                value="<%= saque.valor %>"
+                class="input form-control form-control-danger"
+              /><!---->
+            </div>
+            <!----><!---->
+          </div>
+          <br />
+          <div class="row">
+            <div class="col"></div>
+            <div class="col-3"> 
+          <button class="btn btn-success">Atualizar</button>
+        </div>
+    </div>
+        </form>
+      </div>
+
+      </div>
+      </div>
+      </body>
+
+
+<%- include ("../../partials/footer.ejs") %>
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js" type="text/javascript"></script>
+<script src="https://plentz.github.io/jquery-maskmoney/javascripts/jquery.maskMoney.min.js" type="text/javascript"></script>
+
+
+
+<script>
+jQuery(function() {
+    
+    jQuery("#valor").maskMoney({
+	thousands:'.', 
+	decimal:','
+})
+
+});
+</script>

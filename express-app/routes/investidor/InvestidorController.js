@@ -301,6 +301,76 @@ router.get('/admin/investidor/saque/:id',adminAuth,  (req, res) => {
 });
 
 
+router.get("/admin/investidor/editSaque/:id", adminAuth,  (req, res) => {
+  var id = req.params.id;
+
+  Saque.findByPk(id)
+  .then((saque) => {
+    if (saque != undefined) {
+
+      Investidor.findAll().then((investidores) => {
+        res.render('admin/investidor/editSaque', {
+          saque: saque,
+          investidores: investidores,
+        })
+      })
+      } else{
+        res.redirect('/admin/investidor/editSaque/:id');
+      }
+    })
+    .catch((err) => {
+      res.redirect('/admin/investidor/editSaque/:id');
+    })
+})
+
+
+router.post('/saque/update',adminAuth, (req, res) => {
+  var id = req.body.id;
+  var data = req.body.data;
+  var valor = req.body.valor;
+  var investidor = req.body.investidor;
+
+  var valorFloat = valor.replace(".", "").replace(",", ".")
+
+  Saque.update({
+    data: data,
+    valor: valorFloat,
+    investidoreId: investidor
+  }, {
+    where: {
+      id: id,
+    }
+  })
+  .then(() => {
+    res.redirect("/admin/investidor");
+  })
+  .catch((err) => {
+    res.send("erro:" + err);
+  });
+})
+
+router.post('/saque/delete',adminAuth,  (req, res) => {
+  var id = req.body.id;
+  if (id != undefined) {
+    if (!isNaN(id)) {
+      Saque.destroy({
+        where: {
+          id: id,
+        },
+      }).then(() => {
+        res.redirect("/admin/investidor");
+      });
+    } else {
+      // NÃO FOR UM NÚMERO
+      res.redirect("/admin/investidor");
+    }
+  } else {
+    // NULL
+    res.redirect("/admin/investidor");
+  }
+});
+
+
 
 module.exports = router;
 
