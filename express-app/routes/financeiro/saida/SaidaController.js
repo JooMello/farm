@@ -1,16 +1,12 @@
 const express = require("express");
 const router = express.Router();
-const Investidor = require("../../investidor/Investidor");
 const slugify = require("slugify");
 const sequelize = require("sequelize");
-const adminAuth = require("../../../middlewares/adminAuth");
 const { Op } = require("sequelize");
 
-
+const Investidor = require("../../investidor/Investidor");
 const Saida = require("./Saida");
-const DC = require("../debitoCredito/DebitoCredito");
-
-var app = express();
+const adminAuth = require("../../../middlewares/adminAuth");
 
 //filtragem de dados, por peridodo que eles foram adicionados no BD
 //formatar numeros em valores decimais (.toLocaleFixed(2))
@@ -34,8 +30,16 @@ router.get("/admin/saida", adminAuth, async (req, res, next) => {
   }).then((saidas) => {
     Investidor.findAll().then(async (investidores) => {
       //////////////////////Capital Investidor
-      res.render("admin/saida/index", {
+      var amountT = await Saida.findOne({
+        attributes: [sequelize.fn("sum", sequelize.col("valor"))],
+
+        raw: true,
+      });
+      var Total = Number(amountT["sum(`valor`)"]).toLocaleFixed(2);
+      res.render("admin/financeiro/saida/index", {
         investidores: investidores,
+        saidas: saidas,
+        Total,
       });
     });
   });
@@ -43,7 +47,7 @@ router.get("/admin/saida", adminAuth, async (req, res, next) => {
 
 router.get("/admin/saida/new", adminAuth, (req, res) => {
   Investidor.findAll().then((investidores) => {
-    res.render("admin/saida/new", {
+    res.render("admin/financeiro/saida/new", {
       investidores: investidores,
     });
   });

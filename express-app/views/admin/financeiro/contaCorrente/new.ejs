@@ -6,10 +6,10 @@
         <br />
         <div class="card">
           <div class="card-header">
-            <h2>Novo Débito / Crédito</h2>
+            <h2>Adicionar</h2>
           </div>
           <div class="card-body">
-            <form method="POST" action="/debitoCredito/save">
+            <form method="POST" action="/contaCorrente/save">
               <div class="input--with-addon currency-input">
                 <label>Nome </label>
                 <div class="input__container text-input">
@@ -32,9 +32,9 @@
               </div>
               <br>
               <div class="input--with-addon currency-input">
-                <label for="substrato_imprime">Selecione </label>
+                <label for="category">Selecione </label>
                 <div class="input__container text-input">
-                  <select class="form-control" name="substrato_imprime" id="substrato_imprime"
+                  <select class="form-control" name="category" id="category"
                     onchange="javascript:associaInput();">
                     <option value=""></option>
                     <option value="entrada">Entrada</option>
@@ -96,7 +96,7 @@
         function associaInput() {
           var variavel;
           //pega o value do select
-          var e = document.getElementById("substrato_imprime");
+          var e = document.getElementById("category");
           var itemSelecionado = e.options[e.selectedIndex].value;
           //injeta no value do input
           if (itemSelecionado == "saida") {

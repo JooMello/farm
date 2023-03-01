@@ -1,0 +1,124 @@
+<%- include ("../../../partials/header.ejs") %> <%- include
+("../../../partials/navbar.ejs") %>
+
+<body>
+  <br>
+    <div class="container">
+      <br>
+      <div class="card">
+        <div class="card-header">
+      <h2>Editar</h2>
+    </div>
+
+      <div class="card-body">
+        <form method="POST" action="/contaCorrente/update">
+            <div class="input--with-addon currency-input">
+          <label>Nome</label>
+           <input type="hidden" value="<%= contaCorrente.id %>" name="id" />
+          <select name="investidor" class="form-control">
+                    <% investidores.forEach((investidor) => { %>
+                      <% if (investidor.id == contaCorrente.investidoreId) { %>
+                        <option value="<%= investidor.id %>" selected><%= investidor.name %></option>
+                        <% } else { %>
+                         <% } %> 
+                       <% }) %> 
+                  </select>
+                  </div>
+          <br />
+
+          <div class="input--with-addon currency-input">
+          <label>Data</label>
+          <input
+            class="form-control"
+            type="date"
+            name="data"
+            value="<%= contaCorrente.data %>"
+            required
+          />
+          </div><br />
+          <div class="input--with-addon currency-input">
+            <label for="category">Selecione </label>
+            <div class="input__container text-input">
+              <select class="form-control" name="category" id="category" onchange="javascript:associaInput();">
+                <option value="<%= contaCorrente.category %>"><%= contaCorrente.category %></option>
+                <option value="entrada">Entrada</option>
+                <option value="saida">Saída</option>
+                <option value="debito">Débito</option>
+                <option value="credito">Crédito</option>
+              </select>
+            </div>
+          </div>
+          <br />
+          <div class="input--with-addon currency-input">
+            <label>Valor</label>
+            <div class="input__container numeral-input">
+              <input
+                required="required"
+                type="text"
+                name="valor"
+                id="valor"
+                value="<%= contaCorrente.valor %>"
+                class="input form-control form-control-danger"
+              /><!---->
+            </div> 
+            <!----><!---->
+          </div>
+          <br />
+                        <div class="input--with-addon currency-input">
+                          <label>Descrição</label>
+                          <textarea required="required"
+                type="text"
+                name="obs"
+                id="obs"
+                value="<%= contaCorrente.obs %>" class="form-control"><%= contaCorrente.obs %></textarea>
+                        </div>
+                        <br />
+          <button class="btn btn-success">Atualizar</button>
+        </form>
+      </div>
+      </div>
+      <br>      </div>
+      </body>
+
+
+<%- include ("../../../partials/footer.ejs") %>
+
+      <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js" type="text/javascript"></script>
+      <script src="https://plentz.github.io/jquery-maskmoney/javascripts/jquery.maskMoney.min.js"
+        type="text/javascript"></script>
+      
+      
+      
+      <script>
+        jQuery(function () {
+
+          jQuery("#valor").maskMoney({
+            thousands: '.',
+            decimal: ','
+          })
+
+        });
+      </script>
+      
+      <script>
+        function associaInput() {
+          var variavel;
+          //pega o value do select
+          var e = document.getElementById("category");
+          var itemSelecionado = e.options[e.selectedIndex].value;
+          //injeta no value do input
+          if (itemSelecionado == "saida") {
+            variavel = "-";
+          } else if (itemSelecionado == "entrada") {
+            variavel = "";
+          }
+          if (itemSelecionado == "debito") {
+            variavel = "-";
+          } else if (itemSelecionado == "credito") {
+            variavel = "";
+          }
+          document.getElementById('valor').value = variavel;
+        }
+
+      </script>
+</script>

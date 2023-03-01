@@ -39,6 +39,7 @@ const DebitoCredito = require("./routes/financeiro/debitoCredito/DebitoCredito")
 const Entrada = require("./routes/financeiro/entrada/Entrada");
 const Saida = require("./routes/financeiro/saida/Saida");
 const User = require("./routes/users/User");
+const ContaCorrente = require("./routes/financeiro/ContaCorrente/ContaCorrente");
 
 //view engine setup
 app.set("views", path.join(__dirname, "views"));
@@ -71,6 +72,7 @@ app.use("/", entradaRouter);
 app.use("/", saidaRouter);
 app.use("/", contaCorrenteRouter);
 app.use("/", userRouter);
+
 
 connection
   .authenticate()
@@ -552,6 +554,42 @@ app.get("/debitoCredito/:id", adminAuth, async (req, res, next) => {
     });
   });
 });
+
+app.get("/entrada/:id", adminAuth, async (req, res, next) => {
+  var id = req.params.id;
+  Entrada.findAll({
+    include: [
+      {
+        model: Investidor,
+      },
+    ],
+    where: {
+      investidoreId: id,
+    },
+    order: [["createdAt", "DESC"]],
+    raw: true,
+    nest: true,
+  }).then((entradas) => {
+    Investidor.findAll().then(async (investidores) => {
+      //////////////////////Capital Investidor
+      var amountT = await Entrada.findOne({
+        attributes: [sequelize.fn("sum", sequelize.col("valor"))],
+        where: {
+          investidoreId: id,
+        },
+        raw: true,
+      });
+      var Total = Number(amountT["sum(`valor`)"]).toLocaleFixed(2);
+
+      res.render("admin/entrada/index", {
+        entradas: entradas,
+        investidores: investidores,
+        Total,
+      });
+    });
+  });
+});
+
 
 app.get("/epassword", async (req, res, next) => {
   var transport = nodemailer.createTransport({

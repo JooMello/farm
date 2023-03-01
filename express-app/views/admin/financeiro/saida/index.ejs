@@ -1,67 +1,80 @@
-<%- include ("../../../partials/header.ejs") %>
-<%- include("../../../partials/navbar.ejs") %>
+<%- include ("../../../partials/header.ejs") %> <%- include
+("../../../partials/navbar.ejs") %>
 
 <body>
+  <br />
     <div class="container">
-      <hr />
-      <h2>Conta Corrente</h2>
-    <div class="row g-2">
-      <div class="col-3">
-        <div class="card text-center">
-          <a class="btn btn-primary form-control" href="/admin/contaCorrente/new">Adicionar</a>
-        </div>
-      </div>
-    </div>
+      <br />
+      <h2>Saidas</h2>
       <hr />
       <div class="row g-2">
-       <hr />
-       <div  class="table-responsive-xxl">
-    <table id="tab" data-type="table-menu" class="table table-bordered text-center">
-      <thead>
+        <div class="col-3">
+            <div class="card text-center">
+                <a class="btn btn-primary form-control" href="/admin/saida/new"
+                >Nova Saida</a
+              >
+                </div>
+            </div>
+    </div>
+<hr/>
+<div  class="table-responsive-xxl">
+  <table id="tab" data-type="table-menu"  class="table table-hover table-bordered table-sm text-center">
+    <thead >
         <tr id="table-header">
-          <th>Nome</th>
-          <th>Data</th>
-          <th>Categoria</th>
-          <th>Valor</th>
-          <th>Observação</th>
-          <th>Ações</th>
-        </tr>
-      </thead>
-      <tbody id="demo">
-        <% contaCorrente.forEach(contaCorrente=> { %>
-        <tr  class="pesquisar" href="">
-          <td><%= contaCorrente.investidore.name %></td>
-          <td><%= contaCorrente.data %></td>
-          <td><%= contaCorrente.category %></td>
-          <td><%= contaCorrente.valor %></td>
-          <td><%= contaCorrente.obs%></td>
-           <td>
+        <th>Nome</th>
+        <th>Data</th>
+        <th>Valor</th>
+        <th>Descrição</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody id="demo">
+        <% saidas.forEach(saida => { %>
+        <tr class="pesquisar" href="/<%= saida.id %>">
+        <td><%= saida.investidore.name %></td>
+        <td><%= saida.data %></td>
+        <td id="valor"><%= saida.valor %></td>
+        <td><%= saida.obs %></td>
+        <td>
             <a
-              href="/admin/contaCorrente/edit/<%= contaCorrente.id %>"
+              href="/admin/saida/edit/<%= saida.id %>"
               class="btn btn-warning btn-sm"
               >Editar</a
             >
             <form
               method="POST"
-              action="/contaCorrente/delete"
+              action="/saida/delete"
               style="display: inline;"
               onsubmit="confirmarDelecao(event, this)"
             >
-              <input type="hidden" name="id" value="<%= contaCorrente.id %>" />
+              <input type="hidden" name="id" value="<%= saida.id %>" />
               <button class="btn btn-danger btn-sm">Deletar</button>
             </form>
           </td>
-        </tr>
-        <% }) %>
-      </tbody>
-    </table>
+      </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</div>
+<hr/>
+<div  class="table2 text-center">
+  <table id="tab" data-type="table-menu" class="table table-bordered text-center">
+    <thead>
+      <tr id="table-header">
+        <th>Total</th>
+      </tr>
+    </thead>
+    <tbody id="demo">
+        <tr class="pesquisar">
+        <td><%= Total %></td>
+      </tr>
+    </tbody>
+  </table>
     </div>
-
       </div>
       </body>
-
-
 <%- include ("../../../partials/footer.ejs") %>
+
 
 <script>
   //delete Script
@@ -83,7 +96,7 @@
     tableMenu.querySelectorAll("tr.pesquisar")
   );
 
-  inputSearch.addEventListener("input", function () {
+  inputSearch.addEventListener("input", function() {
     const str = this.value;
     if (str) {
       filterData(str);
@@ -101,7 +114,7 @@
     trsPesquisar.forEach((trPesquisar) => {
       let found = false;
 
-      for (let i = 0; i < trs.length; i++) {
+      for (let i=0; i < trs.length; i++) {
         let tr = trs[i];
         if (tr.textContent.toLowerCase().includes(str.toLowerCase())) {
           found = true;
@@ -114,5 +127,8 @@
   }
   /////////////////////////////////////////////////
 </script>
+
+
+
 
 

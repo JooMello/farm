@@ -6,10 +6,10 @@
         <br />
         <div class="card">
           <div class="card-header">
-            <h2>Novo Débito / Crédito</h2>
+            <h2>Nova saida</h2>
           </div>
           <div class="card-body">
-            <form method="POST" action="/debitoCredito/save">
+            <form method="POST" action="/saida/save">
               <div class="input--with-addon currency-input">
                 <label>Nome </label>
                 <div class="input__container text-input">
@@ -30,20 +30,6 @@
                 </div>
                 <!----><!---->
               </div>
-              <br>
-              <div class="input--with-addon currency-input">
-                <label for="substrato_imprime">Selecione </label>
-                <div class="input__container text-input">
-                  <select class="form-control" name="substrato_imprime" id="substrato_imprime"
-                    onchange="javascript:associaInput();">
-                    <option value=""></option>
-                    <option value="entrada">Entrada</option>
-                    <option value="saida">Saída</option>
-                    <option value="debito">Débito</option>
-                    <option value="credito">Crédito</option>
-                  </select>
-                </div>
-              </div>
               <br />
               <div class="input--with-addon currency-input">
                 <label for="valor">Valor</label>
@@ -53,11 +39,11 @@
                 </div>
                 <!----><!---->
               </div>
-              <br />
               <div class="input--with-addon currency-input">
                 <label>Descrição</label>
                 <textarea class="form-control" name="obs" required></textarea>
               </div>
+              <br />
               <br />
               <div class="row">
                 <div class="col"></div>
@@ -90,26 +76,4 @@
           })
 
         });
-      </script>
-
-      <script>
-        function associaInput() {
-          var variavel;
-          //pega o value do select
-          var e = document.getElementById("substrato_imprime");
-          var itemSelecionado = e.options[e.selectedIndex].value;
-          //injeta no value do input
-          if (itemSelecionado == "saida") {
-            variavel = "-";
-          } else if (itemSelecionado == "entrada") {
-            variavel = "";
-          }
-          if (itemSelecionado == "debito") {
-            variavel = "-";
-          } else if (itemSelecionado == "credito") {
-            variavel = "";
-          }
-          document.getElementById('valor').value = variavel;
-        }
-
       </script>

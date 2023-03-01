@@ -5,13 +5,13 @@
   <br />
     <div class="container">
       <br />
-      <h2> DÉBITOS / CRÉDITOS</h2>
+      <h2> Entradas</h2>
       <hr />
       <div class="row g-2">
         <div class="col-3">
             <div class="card text-center">
-                <a class="btn btn-primary form-control" href="/admin/debitoCredito/new"
-                >Lançar Débito/Crédito</a
+                <a class="btn btn-primary form-control" href="/admin/entrada/new"
+                >Nova Entrada</a
               >
                 </div>
             </div>
@@ -23,11 +23,11 @@ Investidor
 </button>
 <ul class="dropdown-menu">
   <li >
-    <a class="dropdown-item"  href="/admin/debitoCredito">TODOS</a>
+    <a class="dropdown-item"  href="/admin/entrada">TODOS</a>
   </li>
  <% investidores.forEach(investidor => { %>
 <li >
-        <a class="dropdown-item"  href="/debitoCredito/<%= investidor.id %>"><%= investidor.name %></a>
+        <a class="dropdown-item"  href="/entrada/<%= investidor.id %>"><%= investidor.name %></a>
     </li>
  <% }) %>
 </ul>
@@ -49,25 +49,25 @@ Investidor
       </tr>
     </thead>
     <tbody id="demo">
-        <% debitoCreditos.forEach(debitoCredito => { %>
-        <tr class="pesquisar" href="/<%= debitoCredito.id %>">
-        <td><%= debitoCredito.investidore.name %></td>
-        <td><%= debitoCredito.data %></td>
-        <td id="valor"><%= debitoCredito.valor %></td>
-        <td ><%= debitoCredito.obs %></td>
+        <% entradas.forEach(entrada => { %>
+        <tr class="pesquisar" href="/<%= entrada.id %>">
+        <td><%= entrada.investidore.name %></td>
+        <td><%= entrada.data %></td>
+        <td id="valor"><%= entrada.valor %></td>
+        <td><%= entrada.obs %></td>
         <td>
             <a
-              href="/admin/debitoCredito/edit/<%= debitoCredito.id %>"
+              href="/admin/entrada/edit/<%= entrada.id %>"
               class="btn btn-warning btn-sm"
               >Editar</a
             >
             <form
               method="POST"
-              action="/debitoCredito/delete"
+              action="/entrada/delete"
               style="display: inline;"
               onsubmit="confirmarDelecao(event, this)"
             >
-              <input type="hidden" name="id" value="<%= debitoCredito.id %>" />
+              <input type="hidden" name="id" value="<%= entrada.id %>" />
               <button class="btn btn-danger btn-sm">Deletar</button>
             </form>
           </td>
@@ -87,6 +87,7 @@ Investidor
     <tbody id="demo">
         <tr class="pesquisar">
         <td><%= Total %></td>
+        
       </tr>
     </tbody>
   </table>

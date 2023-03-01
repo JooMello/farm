@@ -13,12 +13,6 @@
       >Nova Compra</a>
     </div>
           </div>
-        <div class="col-3">
-      <div class="card">
-  <a class="btn btn-primary form-control" href="/admin/dc"
-  >Débitos/Créditos</a>
-</div>
-          </div>
           <div class="col-2">
     <div class="card text-center">
        <div class="dropdown">
@@ -73,7 +67,7 @@ Investidor
           <td><%= compra.investidore.name %></td>
           <td id="formatData"><%= compra.data %></td>
           <td><%= compra.id %></td>
-          <td><%= compra.unitario %></td>
+          <td name="valor" id="valor"><%= compra.valor %></td>
           <td><%= compra.amount %></td>
           <td>
             <a
@@ -176,3 +170,23 @@ Investidor
   /////////////////////////////////////////////////
 </script>
 
+
+
+      <script>
+
+        //filtragem de dados, por peridodo que eles foram adicionados no BD
+        //formatar numeros em valores decimais (.toLocaleFixed(2))
+        Number.prototype.toLocaleFixed = function (n) {
+          return this.toLocaleString(undefined, {
+            minimumFractionDigits: n,
+            maximumFractionDigits: n
+          });
+        };
+
+        valor.addEventListener('td', event => {
+
+          var unitario = 10
+
+          document.getElementById('valor').value = Number(valor).toLocaleFixed(2);
+        })
+      </script>

@@ -12,11 +12,7 @@ const Compra = connection.define("compras", {
     type: Sequelize.STRING,
     allowNull: false,
   },
-  unitario: {
-    type: Sequelize.STRING,
-    allowNull: false,
-  },
-  total: {
+  valor: {
     type: Sequelize.STRING,
     allowNull: false,
   },

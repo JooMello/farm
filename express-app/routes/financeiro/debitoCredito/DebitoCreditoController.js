@@ -5,8 +5,6 @@ const sequelize = require("sequelize");
 const { Op } = require("sequelize");
 
 const Investidor = require("../../investidor/Investidor");
-const Compra = require("../../compra/Compra");
-const Venda = require("../../venda/Venda");
 const DebitoCredito = require("./DebitoCredito");
 const adminAuth = require("../../../middlewares/adminAuth");
 
@@ -30,7 +28,7 @@ router.get("/admin/debitoCredito", adminAuth, async (req, res, next) => {
     raw: true,
     nest: true,
   }).then((debitoCreditos) => {
-    Investidor.findAll().then(async (investidores) => {
+    Investidor.findAll().then(async (investidores) => { 
       //////////////////////Capital Investidor
       var amountT = await DebitoCredito.findOne({
         attributes: [sequelize.fn("sum", sequelize.col("valor"))],
@@ -70,7 +68,7 @@ router.post("/debitoCredito/save", adminAuth, (req, res) => {
     obs: obs,
     investidoreId: investidor,
   }).then(() => {
-    res.redirect("/admin/financeiro/debitoCredito");
+    res.redirect("/admin/debitoCredito");
   });
 });
 

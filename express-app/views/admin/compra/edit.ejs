@@ -57,22 +57,9 @@
               <input
                 required="required"
                 type="text"
-                name="unitario"
-                id="unitario"
-                class="input form-control form-control-danger"
-              /><!---->
-            </div>
-            <!----><!---->
-          </div>
-          <br />
-          <div class="input--with-addon currency-input">
-            <label>Valor Compra</label>
-            <div class="input__container numeral-input">
-              <input
-                required="required"
-                type="text"
-                name="total"
-                id="total"
+                name="valor"
+                id="valor"
+                value="<%= compra.valor %>"
                 class="input form-control form-control-danger"
               /><!---->
             </div>
@@ -101,8 +88,17 @@
                 type="text"
                 name="amount"
                 id="amount"
+                value="<%= compra.amount %>"
                 class="input form-control form-control-danger"
               /><!---->
+            </div>
+            <!----><!---->
+          </div>
+          <br />
+          <div class="input--with-addon currency-input">
+            <label>Descrição</label>
+            <div class="input__container text-input">
+              <textarea type="text" name="obs" id="obs" required class="input form-control form-control-danger"><%= compra.obs %></textarea>
             </div>
             <!----><!---->
           </div>
