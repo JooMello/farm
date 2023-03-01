@@ -11,6 +11,40 @@
           <a class="btn btn-primary form-control" href="/admin/contaCorrente/new">Adicionar</a>
         </div>
       </div>
+      <div class="col-2">
+        <div class="card text-center">
+           <div class="dropdown">
+    <button class="btn dropdown-toggle form-control" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+    Investidor
+    </button>
+    <ul class="dropdown-menu">
+      <li >
+        <a class="dropdown-item"  href="/admin/contaCorrente">TODOS</a>
+      </li>
+     <% investidores.forEach(investidor => { %>
+    <li >
+            <a class="dropdown-item"  href="/contaCorrente/<%= investidor.id %>"><%= investidor.name %></a>
+        </li>
+     <% }) %>
+    </ul>
+    </div>
+    
+        </div>
+                </div>
+              <div class="col-3">
+        <div class="card">
+          <!--Barra de Pesquisa-->
+          <form class="form-search">
+            <input
+              class="form-control"
+              type="text"
+              name="search"
+              id="search"
+              placeholder="Pesquisar..."
+            />
+          </form>
+        </div>
+                </div>
     </div>
       <hr />
       <div class="row g-2">
@@ -23,7 +57,7 @@
           <th>Data</th>
           <th>Categoria</th>
           <th>Valor</th>
-          <th>Observação</th>
+          <th>Descrição</th>
           <th>Ações</th>
         </tr>
       </thead>
@@ -55,6 +89,21 @@
         <% }) %>
       </tbody>
     </table>
+    <div  class="table1 text-center">
+      <h2>TOTAL</h2>
+      <table id="tab" data-type="table-menu" class="table table-bordered text-center">
+        <thead>
+          <tr id="table-header">
+            <th>Valor</th>
+          </tr>
+        </thead>
+        <tbody id="demo">
+            <tr class="pesquisar">
+            <td><%= Total %></td>
+          </tr>
+        </tbody>
+      </table>
+        </div>
     </div>
 
       </div>

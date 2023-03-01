@@ -95,7 +95,7 @@ app.get("/compra/:id", adminAuth, (req, res) => {
     where: {
       investidoreId: id,
     },
-    order: [["createdAt", "DESC"]],
+    order: [["data", "DESC"]],
     raw: true,
     nest: true,
   })
@@ -113,14 +113,13 @@ app.get("/compra/:id", adminAuth, (req, res) => {
 
         //////////////////////Capital Investidor
         var amountT = await Compra.findOne({
-          attributes: [sequelize.fn("sum", sequelize.col("total"))],
+          attributes: [sequelize.fn("sum", sequelize.col("valor"))],
           where: {
             investidoreId: id,
           },
           raw: true,
         });
-        var CapitalInvestidoT = Number(amountT["sum(`total`)"]);
-        var CapitalInvestido = Number(amountT["sum(`total`)"]).toLocaleFixed(2);
+        var CapitalInvestido = Number(amountT["sum(`valor`)"]).toLocaleFixed(2);
 
         //////////////////////Capital Investidor em dolar
         var amountD = await Compra.findOne({
@@ -130,7 +129,6 @@ app.get("/compra/:id", adminAuth, (req, res) => {
           },
           raw: true,
         });
-        var CapitalInvestidoD = Number(amountD["sum(`amount`)"]);
         var CapitalInvestidoDolar = Number(
           amountD["sum(`amount`)"]
         ).toLocaleFixed(2);
