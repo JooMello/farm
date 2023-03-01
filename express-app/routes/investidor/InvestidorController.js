@@ -11,7 +11,7 @@ const {
 const Compra = require("../compra/Compra");
 const Venda = require("../venda/Venda");
 const Saque = require('./Saque');
-const DC = require("../debitoCredito/DC");
+const DebitoCredito = require("../financeiro/debitoCredito/DebitoCredito");
 
 var app = express();
 
@@ -169,7 +169,7 @@ router.get('/investidor/:id',adminAuth,  (req, res) => {
         },{
           model: Saque
         },{
-          model: DC
+          model: DebitoCredito
         },],
         raw: true,
         nest: true,
@@ -214,15 +214,15 @@ router.get('/investidor/:id',adminAuth,  (req, res) => {
   var CapitalRetirado = (Number(amountR['sum(`valor`)'])).toLocaleFixed(2);
 
       //////////////////////Capital Investidor
-      var amountDC = await DC.findOne({
+      var amountDebitoCredito = await DebitoCredito.findOne({
         attributes: [sequelize.fn("sum", sequelize.col("valor"))],
         where: {
           investidoreId: id,
         },
         raw: true
       });
-      var debitoCreditoD = (Number(amountDC['sum(`valor`)']))
-      var debitoCredito = (Number(amountDC['sum(`valor`)'])).toLocaleFixed(2);
+      var debitoCreditoD = (Number(amountDebitoCredito['sum(`valor`)']))
+      var debitoCredito = (Number(amountDebitoCredito['sum(`valor`)'])).toLocaleFixed(2);
 
       /////total
   var total = (Number(CapitalInvestidoT) + Number(LucroN) + Number(debitoCreditoD) - Number(CapitalRetiradoT)).toLocaleFixed(2);

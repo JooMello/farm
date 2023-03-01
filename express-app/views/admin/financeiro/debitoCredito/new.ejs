@@ -1,0 +1,110 @@
+
+<%- include ("../../partials/header.ejs") %> <%- include
+("../../partials/navbar.ejs") %>
+<body>
+  <br />
+    <div class="container">
+      <br />
+        <div class="card">
+            <div class="card-header">
+              <h2>Novo Débito / Crédito</h2>
+            </div>
+            <div class="card-body">
+              <form method="POST" action="/debitoCredito/save">
+                  <div class="input--with-addon currency-input">
+                <label>Nome </label>
+                <div class="input__container text-input">
+                  <select name="investidor" class="form-control">
+                    <% investidores.forEach((investidor) => { %>
+                      <option value="<%= investidor.id %>"><%= investidor.name %></option>
+                      <% }) %> 
+                  </select>
+                  </div>
+                  </div>
+                <br />
+                <div class="input--with-addon currency-input">
+                  <label>Data </label>
+                  <div class="input__container numeral-input">
+                    <input
+                      type="date"
+                      name="data"
+                      required
+                      class="input form-control form-control-danger"
+                    /><!---->
+                  </div>
+                  <!----><!---->
+                </div>
+                <br>
+                <div class="input--with-addon currency-input">
+                  <label for="substrato_imprime">Selecione </label>
+                  <div class="input__container text-input">
+                    <select class="form-control" name="substrato_imprime" id="substrato_imprime" onchange="javascript:associaInput();">
+                      <option value=""></option>
+                      <option value="debito">Débito</option>
+                      <option value="credito">Crédito</option>
+                      </select>
+                    </div>
+                    </div>
+                  <br />
+                <div class="input--with-addon currency-input">
+                    <label for="valor">Valor</label>
+                    <div class="input__container text-input">
+                      <input
+                      type="text"
+                      name="valor" id="valor"
+                      value=""
+                      required
+                      class="input form-control form-control-danger"
+                    /><!---->
+                    </div>
+                    <!----><!---->
+                  </div>
+                <br />
+                <div class="row">
+                  <div class="col"></div>
+                  <div class="col-3"> 
+                    <button class="btn btn-success form-control">Salvar</button>
+                    </div>
+                  </div>
+              </form>
+            </div>
+          </div>
+          <br />
+      </div>
+      </body>
+
+
+<%- include ("../../partials/footer.ejs") %>
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js" type="text/javascript"></script>
+<script src="https://plentz.github.io/jquery-maskmoney/javascripts/jquery.maskMoney.min.js" type="text/javascript"></script>
+
+
+
+<script>
+jQuery(function() {
+    
+    jQuery("#valor").maskMoney({
+	thousands:'.', 
+	decimal:','
+})
+
+});
+</script>
+
+<script>
+  function associaInput() {
+     var variavel;
+    //pega o value do select
+    var e = document.getElementById("substrato_imprime");
+    var itemSelecionado = e.options[e.selectedIndex].value;
+    //injeta no value do input
+    if (itemSelecionado=="debito"){
+        variavel="-";
+    }else if (itemSelecionado=="credito"){
+        variavel="";
+    }
+    document.getElementById('valor').value = variavel;
+}
+  
+</script>

@@ -115,12 +115,14 @@ router.get('/admin/compra/new',adminAuth,  (req, res) => {
 });
 
 router.post('/compra/save', adminAuth,  (req, res) => {
+  var id = req.body.id;
   var data = req.body.data;
   var quantidade = req.body.quantidade;
   var unitario = req.body.unitario;
   var total = req.body.total;
   var dolar = req.body.dolar;
   var amount = req.body.amount;
+  var obs = req.body.obs;
   var investidor = req.body.investidor;
 
   var unitarioFloat = unitario.replace(".", "").replace(",", ".")
@@ -130,18 +132,20 @@ router.post('/compra/save', adminAuth,  (req, res) => {
 
 
    Compra.create(
-   {
-    data: data,
-    quantidade: quantidade,
-    unitario: unitarioFloat,
-    total: totalFloat,
-    dolar: dolarFloat,
-    amount: amountFloat,
-    investidoreId: investidor
-  })
-  .then(() => {
-    res.redirect("/admin/compra");
-  });
+     {
+       id: id,
+       data: data,
+       quantidade: quantidade,
+       unitario: unitarioFloat,
+       total: totalFloat,
+       dolar: dolarFloat,
+       amount: amountFloat,
+       obs: obs,
+       investidoreId: investidor,
+     },
+   ).then(() => {
+     res.redirect("/admin/compra");
+   });
 });
 
 router.get("/admin/compra/edit/:id", adminAuth, (req, res) => {
@@ -174,6 +178,7 @@ router.post('/compra/update', adminAuth, (req, res) => {
   var total = req.body.total;
   var dolar = req.body.dolar;
   var amount = req.body.amount;
+  var obs = req.body.obs;
   var investidor = req.body.investidor;
 
   var unitarioFloat = unitario.replace(".", "").replace(",", ".")
@@ -187,6 +192,7 @@ router.post('/compra/update', adminAuth, (req, res) => {
     total: totalFloat,
     dolar: dolar,
     amount: amountFloat,
+    obs: obs,
     investidoreId: investidor,
   }, {
     where: {

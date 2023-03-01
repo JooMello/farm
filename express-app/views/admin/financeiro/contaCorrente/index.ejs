@@ -1,0 +1,42 @@
+<%- include ("../../../partials/header.ejs") %>
+<%- include("../../../partials/navbar.ejs") %>
+
+<body>
+    <div class="container">
+      <hr />
+      <h2>Conta Corrente</h2>
+  
+      <hr />
+      <div class="row g-2">
+       <hr />
+       <div  class="table-responsive-xxl">
+    <table id="tab" data-type="table-menu" class="table table-bordered text-center">
+      <thead>
+        <tr id="table-header">
+          <th>Nome</th>
+          <th>Entrada</th>
+          <th>Saida</th>
+          <th>Débito / Crédito</th>
+          <th>Saldo</th>
+        </tr>
+      </thead>
+      <tbody id="demo">
+        <% investidores.forEach(investidor=> { %>
+        <tr  class="pesquisar" href="/<%= investidor.id %>">
+          <td><%= investidor.name %></td>
+          <td><%= investidor.entradas.valor %></td>
+          <td><%= investidor.saidas.valor %></td>
+          <td><a class="dropdown-item" href="/debitoCredito/<%= investidor.id %>"><%= investidor.debitosCreditos.valor %></a></td>
+          <td></td>
+        </tr>
+        <% }) %>
+      </tbody>
+    </table>
+    </div>
+
+      </div>
+      </body>
+
+
+<%- include ("../../../partials/footer.ejs") %>
+

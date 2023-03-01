@@ -1,0 +1,75 @@
+<%- include ("../../partials/header.ejs") %> <%- include
+("../../partials/navbar.ejs") %>
+
+<body>
+    <div class="container">
+      <div class="card">
+        <div class="card-header">
+      <h2>Editar Débito / Crédito</h2>
+    </div>
+      <hr />
+      <div class="card-body">
+        <form method="POST" action="/debitoCredito/update">
+            <div class="input--with-addon currency-input">
+          <label>Nome</label>
+           <input type="hidden" value="<%= debitoCredito.id %>" name="id" />
+          <select name="investidor" class="form-control">
+                    <% investidores.forEach((investidor) => { %>
+                      <% if (investidor.id == debitoCredito.investidoreId) { %>
+                        <option value="<%= investidor.id %>" selected><%= investidor.name %></option>
+                        <% } else { %>
+                         <% } %> 
+                       <% }) %> 
+                  </select>
+                  </div>
+          <br />
+
+          <div class="input--with-addon currency-input">
+          <label>Data</label>
+          <input
+            class="form-control"
+            type="date"
+            name="data"
+            value="<%= debitoCredito.data %>"
+            required
+          />
+          </div><br />
+          <div class="input--with-addon currency-input">
+            <label>Valor</label>
+            <div class="input__container numeral-input">
+              <input
+                required="required"
+                type="text"
+                name="valor"
+                id="valor"
+                value="<%= debitoCredito.valor %>"
+                class="input form-control form-control-danger"
+              /><!---->
+            </div>
+            <!----><!---->
+          </div>
+          <br />
+          <button class="btn btn-success">Atualizar</button>
+        </form>
+      </div>
+
+      </div>
+      </div>
+      </body>
+
+
+<%- include ("../../partials/footer.ejs") %>
+
+<!--script format Valor Unutario-->
+<script>
+  const valor = document.querySelector('#valor');
+
+  valor.addEventListener('keypress', () => {
+    let inputlength = valor.value.length;
+
+    if (inputlength === 4) {
+      valor.value += '.'
+    }
+  })
+
+</script>

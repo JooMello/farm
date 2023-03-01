@@ -11,6 +11,14 @@
             </div>
             <div class="card-body">
               <form method="POST" action="/compra/save">
+                            <div class="input--with-addon currency-input">
+                              <label>Numeração</label>
+                              <div class="input__container text-input">
+                                <input type="number" name="id" id="id" required class="input form-control form-control-danger" /><!---->
+                              </div>
+                              <!----><!---->
+                            </div>
+                            <br />
                   <div class="input--with-addon currency-input">
                 <label>Nome </label>
                 <div class="input__container text-input">
@@ -106,7 +114,17 @@
                     <!----><!---->
                   </div>
                 <br />
+                <div class="input--with-addon currency-input">
+                  <label>Descrição</label>
+                  <div class="input__container text-input">
+                    <textarea type="text" name="obs" id="obs" required class="input form-control form-control-danger">
+                    </textarea>
+                  </div>
+                  <!----><!---->
+                </div>
+                <br />
                 <div class="row">
+                  
                   <div class="col"></div>
                   <div class="col-3"> 
                     <button class="btn btn-success form-control">Salvar</button>
