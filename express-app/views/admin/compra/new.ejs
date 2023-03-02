@@ -119,7 +119,7 @@ Pega valor total da compra divide pelo dolar diario
           var dolar = <%= cotacao %>;
 
           var totalDolarValue = (Number(unitarioValue) / Number(dolar))
-          document.getElementById('amount').value = Number(totalDolarValue).toLocaleFixed(2);
+          document.getElementById('amount').value = Number(totalDolarValue).toLocaleString('en-US', {style: 'currency', currency: 'USD'});
         })
       </script>
 

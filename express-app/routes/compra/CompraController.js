@@ -125,16 +125,14 @@ router.post("/compra/save", adminAuth, (req, res) => {
   var investidor = req.body.investidor;
 
   var valorFloat = valor.replace(".", "").replace(",", ".");
-  var dolarFloat = dolar.replace(".", "").replace(",", ".");
-  var amountFloat = amount.replace(".", "").replace(",", ".");
 
   Compra.create({
     id: id,
     data: data,
     quantidade: quantidade,
     valor: valorFloat,
-    dolar: dolarFloat,
-    amount: amountFloat,
+    dolar: dolar,
+    amount: amount,
     obs: obs,
     investidoreId: investidor,
   }).then(() => {
@@ -174,7 +172,6 @@ router.post("/compra/update", adminAuth, (req, res) => {
   var investidor = req.body.investidor;
 
   var valorFloat = valor.replace(".", "").replace(",", ".");
-  var amountFloat = amount.replace(".", "").replace(",", ".");
 
   Compra.update(
     {
@@ -182,7 +179,7 @@ router.post("/compra/update", adminAuth, (req, res) => {
       quantidade: quantidade,
       valor: valorFloat,
       dolar: dolar,
-      amount: amountFloat,
+      amount: amount,
       obs: obs,
       investidoreId: investidor,
     },

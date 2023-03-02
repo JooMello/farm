@@ -139,13 +139,6 @@ router.get('/admin/estoque/morte', adminAuth, async (req, res, next) => {
         });
         var qvalor = (Number(amountV['sum(`valor`)'])).toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
 
-         //////////////////////valor mortes
-         var amountVC = await Compra.findOne({
-          attributes: [sequelize.fn("sum", sequelize.col("valor"))],
-          raw: true
-        });
-        var Cvalor = (Number(amountVC['sum(`valor`)'])).toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
-
     Morte.findAll({
       include: [{
           model: Investidor,
@@ -176,7 +169,6 @@ router.get('/admin/estoque/morte', adminAuth, async (req, res, next) => {
         investidores: investidores,
         qmorte,
         qvalor,
-        Cvalor,
       });
     })
 })

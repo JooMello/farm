@@ -109,9 +109,7 @@ router.post('/venda/save', adminAuth, (req, res) => {
   var obs = req.body.obs;
   var investidor = req.body.investidor;
 
-  var valorFloat = valor.replace(".", "").replace(",", ".")
-  var dolarFloat = dolar.replace(".", "").replace(",", ".")
-  var amountFloat = amount.replace(".", "").replace(",", ".")
+  var valorFloat = valor.replace(/\D/g, "");
 
    Venda.create(
    {
@@ -119,8 +117,8 @@ router.post('/venda/save', adminAuth, (req, res) => {
     data: data,
     quantidade: quantidade,
     valor: valorFloat,
-    dolar: dolarFloat,
-    amount: amountFloat,
+    dolar: dolar,
+    amount: amount,
     obs: obs,
     investidoreId: investidor
   })
@@ -161,15 +159,14 @@ router.post('/venda/update', adminAuth,(req, res) => {
   var obs = req.body.obs;
   var investidor = req.body.investidor;
 
-  var valorFloat = valor.replace(".", "").replace(",", ".")
-  var amountFloat = amount.replace(".", "").replace(",", ".")
+  var valorFloat = valor.replace(/\D/g, "");
 
   Venda.update({
     data: data,
     quantidade: quantidade,
     valor: valorFloat,
     dolar: dolar,
-    amount: amountFloat,
+    amount: amount,
     obs: obs,
     investidoreId: investidor,
   }, {

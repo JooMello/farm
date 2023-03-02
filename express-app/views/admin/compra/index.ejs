@@ -68,9 +68,9 @@ Investidor
           <td><%= compra.investidore.name %></td>
           <td id="formatData"><%= compra.data %></td>
           <td><%= compra.id %></td>
-          <td name="valor" id="valor"><%= new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(compra.valor) %></td>
-          <td name="dolar" id="dolar"><%= new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(compra.dolar) %></td>
-          <td name="amount" id="amount"><%= new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(compra.amount) %></td>
+          <td><%= new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(compra.valor) %></td>
+          <td><%= compra.dolar %></td>
+          <td><%= compra.amount %></td>
           <td>
             <a
               href="/admin/compra/edit/<%= compra.id %>"
