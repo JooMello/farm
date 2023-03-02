@@ -58,6 +58,7 @@ Investidor
           <th>Numeração</th>
           <th>Valor</th>
           <th>Dolar</th>
+          <th>Venda - Dolar</th>
           <th>Ações</th>
         </tr>
       </thead>
@@ -67,8 +68,9 @@ Investidor
           <td><%= compra.investidore.name %></td>
           <td id="formatData"><%= compra.data %></td>
           <td><%= compra.id %></td>
-          <td name="valor" id="valor"><%= compra.valor %></td>
-          <td><%= compra.amount %></td>
+          <td name="valor" id="valor"><%= new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(compra.valor) %></td>
+          <td name="dolar" id="dolar"><%= new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(compra.dolar) %></td>
+          <td name="amount" id="amount"><%= new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(compra.amount) %></td>
           <td>
             <a
               href="/admin/compra/edit/<%= compra.id %>"
@@ -97,6 +99,7 @@ Investidor
           <th>Nº de Animais Comprados</th>
           <th>Valor Compra</th>
           <th>Compra - Dolar</th>
+          <th>Média das Compras</th>
         </tr>
       </thead>
       <tbody id="demo">
@@ -104,12 +107,14 @@ Investidor
           <td><%= quantidade %></td>
           <td><%= CapitalInvestido %></td>
           <td><%= CapitalInvestidoDolar %></td>
+          <td><%= mediaCompra %></td>
         </tr>
       </tbody>
     </table>
       </div>
       </div>
       </div>
+      <br>
       </body>
 
 

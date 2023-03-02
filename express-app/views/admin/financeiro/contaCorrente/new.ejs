@@ -37,10 +37,8 @@
                   <select class="form-control" name="category" id="category"
                     onchange="javascript:associaInput();">
                     <option value=""></option>
-                    <option value="entrada">Entrada</option>
-                    <option value="saida">Saída</option>
-                    <option value="debito">Débito</option>
-                    <option value="credito">Crédito</option>
+                    <option value="DEBITO">Débito</option>
+                    <option value="CREDITO">Crédito</option>
                   </select>
                 </div>
               </div>
@@ -99,14 +97,9 @@
           var e = document.getElementById("category");
           var itemSelecionado = e.options[e.selectedIndex].value;
           //injeta no value do input
-          if (itemSelecionado == "saida") {
+          if (itemSelecionado == "DEBITO") {
             variavel = "-";
-          } else if (itemSelecionado == "entrada") {
-            variavel = "";
-          }
-          if (itemSelecionado == "debito") {
-            variavel = "-";
-          } else if (itemSelecionado == "credito") {
+          } else if (itemSelecionado == "CREDITO") {
             variavel = "";
           }
           document.getElementById('valor').value = variavel;

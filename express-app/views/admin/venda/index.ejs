@@ -60,9 +60,8 @@ Investidor
         <tr id="table-header">
           <th>Nome</th>
           <th>Data Venda</th>
-          <th>Quantidade</th>
-          <th>Valor Unitário</th>
-          <th>Valor Venda</th>
+          <th>Numeração</th>
+          <th>Valor</th>
           <th>Dolar</th>
           <th>Venda - Dolar</th>
           <th>Ações</th>
@@ -74,8 +73,8 @@ Investidor
           <td><%= venda.investidore.name %></td>
           <td id="formatData"><%= venda.data %></td>
           <td><%= venda.quantidade %></td>
-          <td><%= venda.unitario %></td>
-          <td><%= venda.total %></td>
+          <td><%= venda.valor %></td>
+          <td><%= new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(venda.valor) %></td>
           <td><%= venda.dolar %></td>
           <td><%= venda.amount %></td>
           <td>
@@ -111,7 +110,7 @@ Investidor
         <tbody id="demo">
             <tr class="pesquisar">
             <td><%= quantidade %></td>
-            <td><%= TotalVenda %></td>
+            <td><%= ValorVenda %></td>
             <td><%= TotalVendaDolar %></td>
           </tr>
         </tbody>
@@ -119,6 +118,7 @@ Investidor
         </div>
         </div>
       </div>
+      <br>
       </body>
 
 

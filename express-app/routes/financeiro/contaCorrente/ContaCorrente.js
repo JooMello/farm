@@ -4,7 +4,7 @@ const Investidor = require("../../investidor/Investidor");
 
 const ContaCorrente = connection.define("contaCorrente", {
   data: {
-    type: Sequelize.DATE,
+    type: Sequelize.DATEONLY,
     allowNull: false,
   },
   category: {

@@ -1,12 +1,10 @@
 const express = require("express");
 const router = express.Router();
-const slugify = require("slugify");
 const sequelize = require("sequelize");
-const { Op } = require("sequelize");
-
 const Investidor = require("../../investidor/Investidor");
-const Entrada = require("./Entrada");
 const adminAuth = require("../../../middlewares/adminAuth");
+
+const Estoque = require("../estoque/Estoque");
 
 //filtragem de dados, por peridodo que eles foram adicionados no BD
 //formatar numeros em valores decimais (.toLocaleFixed(2))
@@ -17,94 +15,98 @@ Number.prototype.toLocaleFixed = function (n) {
   });
 };
 
-router.get("/admin/entrada", adminAuth, async (req, res, next) => {
-  Entrada.findAll({
-    include: [
-      {
-        model: Investidor,
-      },
-    ],
-    order: [["data", "DESC"]],
+router.get("/admin/estoque", adminAuth, async (req, res, next) => {
+  Investidor.findAll({
     raw: true,
     nest: true,
-  }).then((entradas) => {
-    Investidor.findAll().then(async (investidores) => {
-      //////////////////////Capital Investidor
-      var amountT = await Entrada.findOne({
+  }).then(async (investidores) => {
+    Estoque.findAll({
+       include: [
+         {
+           model: Investidor,
+         },
+       ],
+       order: [["data", "DESC"]],
+       raw: true,
+       nest: true,
+     }).then(async (estoque) => {
+      var amountT = await Estoque.findOne({
         attributes: [sequelize.fn("sum", sequelize.col("valor"))],
-
         raw: true,
       });
       var Total = Number(amountT["sum(`valor`)"]).toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
-
-      res.render("admin/financeiro/entrada/index", {
-        entradas: entradas,
-        investidores: investidores,
-        Total,
-      });
-    });
-  });
+           res.render("admin/financeiro/estoque/index", {
+             investidores: investidores,
+             estoque: estoque,
+             Total,
+           });
+         });
+       });
 });
 
-router.get("/admin/entrada/new", adminAuth, (req, res) => {
+router.get("/admin/estoque/new", adminAuth, (req, res) => {
   Investidor.findAll().then((investidores) => {
-    res.render("admin/financeiro/entrada/new", {
+    res.render("admin/financeiro/estoque/new", {
       investidores: investidores,
     });
   });
 });
 
-router.post("/entrada/save", adminAuth, (req, res) => {
+router.post("/estoque/save", adminAuth, (req, res) => {
   var data = req.body.data;
+  var category = req.body.category;
   var valor = req.body.valor;
   var obs = req.body.obs;
   var investidor = req.body.investidor;
 
   var valorFloat = valor.replace(".", "").replace(",", ".");
 
-  Entrada.create({
+  Estoque.create({
     data: data,
+    category: category,
     valor: valorFloat,
     obs: obs,
     investidoreId: investidor,
   }).then(() => {
-    res.redirect("/admin/entrada");
+    res.redirect("/admin/estoque");
   });
 });
 
-router.get("/admin/entrada/edit/:id", adminAuth, (req, res) => {
+router.get("/admin/estoque/edit/:id", adminAuth, (req, res) => {
   var id = req.params.id;
 
-  Entrada.findByPk(id)
-    .then((entrada) => {
-      if (entrada != undefined) {
+  Estoque.findByPk(id)
+    .then((estoque) => {
+      if (estoque != undefined) {
         Investidor.findAll().then((investidores) => {
-          res.render("admin/entrada/edit", {
-            entrada: entrada,
+          res.render("admin/financeiro/contaCorrente/edit", {
+            estoque: estoque,
             investidores: investidores,
           });
         });
       } else {
-        res.redirect("/admin/entrada");
+        res.redirect("/admin/estoque");
       }
     })
     .catch((err) => {
-      res.redirect("/admin/entrada");
+      res.redirect("/admin/estoque");
     });
 });
 
-router.post("/entrada/update", adminAuth, (req, res) => {
+router.post("/estoque/update", adminAuth, (req, res) => {
   var id = req.body.id;
   var data = req.body.data;
+  var category = req.body.category;
   var valor = req.body.valor;
   var obs = req.body.obs;
   var investidor = req.body.investidor;
 
   var valorFloat = valor.replace(".", "").replace(",", ".");
 
-  Entrada.update(
+  Estoque.update(
     {
       data: data,
+      category: category,
       valor: valorFloat,
       obs: obs,
       investidoreId: investidor,
@@ -116,31 +118,31 @@ router.post("/entrada/update", adminAuth, (req, res) => {
     }
   )
     .then(() => {
-      res.redirect("/admin/entrada");
+      res.redirect("/admin/estoque");
     })
     .catch((err) => {
       res.send("erro:" + err);
     });
 });
 
-router.post("/entrada/delete", adminAuth, (req, res) => {
+router.post("/estoque/delete", adminAuth, (req, res) => {
   var id = req.body.id;
   if (id != undefined) {
     if (!isNaN(id)) {
-      Entrada.destroy({
+      Estoque.destroy({
         where: {
           id: id,
         },
       }).then(() => {
-        res.redirect("/admin/entrada");
+        res.redirect("/admin/estoque");
       });
     } else {
       // NÃO FOR UM NÚMERO
-      res.redirect("/admin/entrada");
+      res.redirect("/admin/estoque");
     }
   } else {
     // NULL
-    res.redirect("/admin/entrada");
+    res.redirect("/admin/estoque");
   }
 });
 

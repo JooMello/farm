@@ -5,6 +5,8 @@ const slugify = require("slugify");
 const sequelize = require("sequelize");
 const { Op } = require("sequelize");
 const request = require("request");
+
+const moment = require('moment');
 const adminAuth = require("../../middlewares/adminAuth");
 
 const Investidor = require("../investidor/Investidor");
@@ -50,6 +52,9 @@ router.get("/admin/compra", adminAuth, async (req, res, next) => {
     raw: true,
     nest: true,
   }).then((compras) => {
+    compras.forEach((compra) => {
+      compra.data = moment(compra.data).format('DD/MM/YYYY');
+    });
     Investidor.findAll().then(async (investidores) => {
       //////////////////////Quantidade
       var amountQ = await Compra.findOne({
@@ -65,7 +70,7 @@ router.get("/admin/compra", adminAuth, async (req, res, next) => {
 
         raw: true,
       });
-      var CapitalInvestido = Number(amountT["sum(`valor`)"]).toLocaleFixed(2);
+      var CapitalInvestido = Number(amountT["sum(`valor`)"]).toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
 
       //////////////////////Capital Investidor em dolar
       var amountD = await Compra.findOne({
@@ -75,12 +80,20 @@ router.get("/admin/compra", adminAuth, async (req, res, next) => {
       });
       var CapitalInvestidoDolar = Number(
         amountD["sum(`amount`)"]
-      ).toLocaleFixed(2);
+      ).toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+
+            //////////////////////média valor
+            var amounC = await Compra.findOne({
+              attributes: [sequelize.fn("avg", sequelize.col("valor"))],
+            
+              raw: true
+            });
+            var mediaCompra = (Number(amounC['avg(`valor`)'])).toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
 
       res.render("admin/compra/index", {
         compras: compras,
         investidores: investidores,
-        quantidade,
+        quantidade ,mediaCompra,
         CapitalInvestido,
         CapitalInvestidoDolar,
       });
@@ -89,16 +102,8 @@ router.get("/admin/compra", adminAuth, async (req, res, next) => {
 });
 
 router.get("/admin/compra/new", adminAuth, (req, res) => {
-  //filtragem de dados, por peridodo que eles foram adicionados no BD
-  //formatar numeros em valores decimais (.toLocaleFixed(2))
-  Number.prototype.toLocaleFixed = function (n) {
-    return this.toLocaleString(undefined, {
-      minimumFractionDigits: n,
-      maximumFractionDigits: n,
-    });
-  };
 
-  var cotacaoDolar = Number(cotacao).toLocaleFixed(2);
+  var cotacaoDolar = Number(cotacao).toLocaleString('en-US', {style: 'currency', currency: 'USD'});
 
   Investidor.findAll().then((investidores) => {
     res.render("admin/compra/new", {
@@ -163,14 +168,12 @@ router.post("/compra/update", adminAuth, (req, res) => {
   var data = req.body.data;
   var quantidade = req.body.quantidade;
   var valor = req.body.valor;
-  var total = req.body.total;
   var dolar = req.body.dolar;
   var amount = req.body.amount;
   var obs = req.body.obs;
   var investidor = req.body.investidor;
 
   var valorFloat = valor.replace(".", "").replace(",", ".");
-  var totalFloat = total.replace(".", "").replace(",", ".");
   var amountFloat = amount.replace(".", "").replace(",", ".");
 
   Compra.update(
@@ -178,7 +181,6 @@ router.post("/compra/update", adminAuth, (req, res) => {
       data: data,
       quantidade: quantidade,
       valor: valorFloat,
-      total: totalFloat,
       dolar: dolar,
       amount: amountFloat,
       obs: obs,

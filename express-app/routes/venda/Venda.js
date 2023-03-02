@@ -5,18 +5,14 @@ const Investidor = require("../investidor/Investidor")
 
 const Venda = connection.define('vendas', {
     data: {
-        type: Sequelize.DATE,
+        type: Sequelize.DATEONLY,
         allowNull: false
     },
     quantidade: {
         type: Sequelize.STRING,
         allowNull: false
     },
-    unitario: {
-         type: Sequelize.STRING,
-        allowNull: false
-    },
-    total: {
+    valor: {
          type: Sequelize.STRING,
         allowNull: false
     },
@@ -28,6 +24,10 @@ const Venda = connection.define('vendas', {
          type: Sequelize.STRING,
         allowNull: false
     },
+    obs: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
 });
 
 // UM Investidor tem muitas vendas

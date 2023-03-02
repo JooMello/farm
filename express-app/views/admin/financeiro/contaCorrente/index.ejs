@@ -67,7 +67,7 @@
           <td><%= contaCorrente.investidore.name %></td>
           <td><%= contaCorrente.data %></td>
           <td><%= contaCorrente.category %></td>
-          <td><%= contaCorrente.valor %></td>
+          <td><%= new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(contaCorrente.valor) %></td>
           <td><%= contaCorrente.obs%></td>
            <td>
             <a
@@ -107,6 +107,8 @@
     </div>
 
       </div>
+</div>
+<br>
       </body>
 
 

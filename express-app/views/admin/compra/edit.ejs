@@ -129,12 +129,9 @@ return this.toLocaleString(undefined, {
 });
 };
 /////
-var unitario = <%= compra.unitario %>;
-document.getElementById('unitario').value = Number(unitario).toLocaleFixed(2);
+var valor = <%= compra.valor %>;
+document.getElementById('valor').value = Number(valor).toLocaleFixed(2);
 /////
-/////
-var total = <%= compra.total %>;
-document.getElementById('total').value = Number(total).toLocaleFixed(2);
 /////
 var amount = <%= compra.amount %>;
 document.getElementById('amount').value = Number(amount).toLocaleFixed(2);

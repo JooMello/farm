@@ -1,12 +1,11 @@
 const express = require("express");
 const router = express.Router();
-const app = express();
 const sequelize = require("sequelize");
 const Investidor = require("../../investidor/Investidor");
 const adminAuth = require("../../../middlewares/adminAuth");
+const moment = require('moment');
 
-const Entrada = require("../entrada/Entrada");
-const Saida = require("../saida/Saida");
+
 const ContaCorrente = require("../contaCorrente/ContaCorrente");
 
 //filtragem de dados, por peridodo que eles foram adicionados no BD
@@ -33,11 +32,14 @@ router.get("/admin/contaCorrente", adminAuth, async (req, res, next) => {
        raw: true,
        nest: true,
      }).then(async (contaCorrente) => {
+      contaCorrente.forEach((contaCorrente) => {
+        contaCorrente.data = moment(contaCorrente.data).format('DD/MM/YYYY');
+      });
       var amountT = await ContaCorrente.findOne({
         attributes: [sequelize.fn("sum", sequelize.col("valor"))],
         raw: true,
       });
-      var Total = Number(amountT["sum(`valor`)"]).toLocaleFixed(2);
+      var Total = Number(amountT["sum(`valor`)"]).toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
            res.render("admin/financeiro/contaCorrente/index", {
              investidores: investidores,
              contaCorrente: contaCorrente,
@@ -147,41 +149,6 @@ router.post("/contaCorrente/delete", adminAuth, (req, res) => {
     // NULL
     res.redirect("/admin/contaCorrente");
   }
-});
-
-app.get("/contaCorrente/:id", adminAuth, async (req, res, next) => {
-  var id = req.params.id;
-     ContaCorrente.findAll({
-       include: [
-         {
-           model: Investidor,
-         },
-       ],
-       where: {
-        investidoreId: id,
-      },
-       order: [["data", "DESC"]],
-       raw: true,
-       nest: true,
-     }).then(async (contaCorrente) => {
-      Investidor.findAll().then(async (investidores) => {
-
-      var amountT = await ContaCorrente.findOne({
-        attributes: [sequelize.fn("sum", sequelize.col("valor"))],
-        where: {
-          investidoreId: id,
-        },
-        raw: true,
-      });
-      var Total = Number(amountT["sum(`valor`)"]).toLocaleFixed(2);
-      
-           res.render("admin/financeiro/contaCorrente/index", {
-             investidores: investidores,
-             contaCorrente: contaCorrente,
-             Total,
-           });
-         });
-       });
 });
 
 module.exports = router;

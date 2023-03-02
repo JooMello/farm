@@ -68,6 +68,7 @@ Investidor
         <th>Nome</th>
         <th>Data</th>
         <th>Mortes</th>
+        <th>Valor</th>
         <th>Ações</th>
       </tr>
     </thead>
@@ -77,6 +78,8 @@ Investidor
         <td><%= morte.investidore.name %></td>
         <td><%= morte.data %></td>
         <td><%= morte.quantidade %></td>
+        <td><%= new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(morte.valor) %></td>
+        
         <td>
             <a
               href="/admin/estoque/edit/<%= morte.id %>"
@@ -97,6 +100,23 @@ Investidor
       <% }) %>
     </tbody>
   </table>
+  <br>
+  <div  class="table1 text-center">
+    <table id="tab" data-type="table-menu" class="table table-bordered text-center">
+      <thead>
+        <tr id="table-header">
+          <th>Nº de Animais Mortos</th>
+          <th>Valor total das mortes</th>
+        </tr>
+      </thead>
+      <tbody id="demo">
+          <tr class="pesquisar">
+          <td><%= qmorte %></td>
+          <td><%= qvalor %></td>
+        </tr>
+      </tbody>
+    </table>
+      </div>
 </div>
 
 

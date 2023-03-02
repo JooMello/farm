@@ -7,7 +7,7 @@ const { Op } = require("sequelize");
 const request = require('request')
 const adminAuth = require("../../middlewares/adminAuth")
 var fs = require("fs");
-const nodemailer = require('nodemailer');
+const moment = require('moment');
 
 const Investidor = require("../investidor/Investidor")
 
@@ -50,6 +50,9 @@ router.get('/admin/venda',adminAuth, async (req, res, next) => {
     nest: true,
   }).then((vendas) => {
     Investidor.findAll().then(async(investidores) => {
+      vendas.forEach((venda) => {
+        venda.data = moment(venda.data).format('DD/MM/YYYY');
+      });
           //////////////////////Quantidade
     var amountQ = await Venda.findOne({
       attributes: [sequelize.fn("sum", sequelize.col("quantidade"))],
@@ -58,43 +61,26 @@ router.get('/admin/venda',adminAuth, async (req, res, next) => {
     });
     var quantidade = (Number(amountQ['sum(`quantidade`)']))
     
-          //////////////////////Total Venda
+          //////////////////////valor Venda
           var amountT = await Venda.findOne({
-            attributes: [sequelize.fn("sum", sequelize.col("total"))],
+            attributes: [sequelize.fn("sum", sequelize.col("valor"))],
            
             raw: true
           });
-          var TotalVenda = (Number(amountT['sum(`total`)'])).toLocaleFixed(2);
+          var ValorVenda = (Number(amountT['sum(`valor`)'])).toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
       
           
-          //////////////////////Total Venda em dolar
+          //////////////////////valor Venda em dolar
     var amountD = await Venda.findOne({
       attributes: [sequelize.fn("sum", sequelize.col("amount"))],
      
       raw: true
     });
-    var TotalVendaDolar = (Number(amountD['sum(`amount`)'])).toLocaleFixed(2);
-
-    var transport = nodemailer.createTransport({
-      host,
-      port,
-      auth: { user,pass }
-    });
-    
-  
-          var message = {
-              from: 'jvssmello@gmail.com',
-              to: "joaovictorsouza0123.com",
-              subject: 'Hello, world',
-              text: "Plaintext version of the message",
-              html: "<p> HTML version of the message </p>"
-          };
-
-
+    var TotalVendaDolar = (Number(amountD['sum(`amount`)'])).toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
       res.render('admin/venda/index', {
         vendas: vendas,
         investidores: investidores,
-        quantidade, TotalVenda, TotalVendaDolar,
+        quantidade, ValorVenda, TotalVendaDolar,
       });
     })
   })
@@ -102,17 +88,7 @@ router.get('/admin/venda',adminAuth, async (req, res, next) => {
 
 router.get('/admin/venda/new', adminAuth, (req, res) => {
 
-  
-    //filtragem de dados, por peridodo que eles foram adicionados no BD
-  //formatar numeros em valores decimais (.toLocaleFixed(2))
-  Number.prototype.toLocaleFixed = function (n) {
-    return this.toLocaleString(undefined, {
-      minimumFractionDigits: n,
-      maximumFractionDigits: n
-    });
-  };
-
-  var cotacaoDolar = (Number(cotacao)).toLocaleFixed(2);
+  var cotacaoDolar = Number(cotacao).toLocaleString('en-US', {style: 'currency', currency: 'USD'});
 
   Investidor.findAll().then((investidores) => {
     res.render('admin/venda/new', {
@@ -124,27 +100,28 @@ router.get('/admin/venda/new', adminAuth, (req, res) => {
 });
 
 router.post('/venda/save', adminAuth, (req, res) => {
+  var id = req.body.id;
   var data = req.body.data;
   var quantidade = req.body.quantidade;
-  var unitario = req.body.unitario;
-  var total = req.body.total;
+  var valor = req.body.valor;
   var dolar = req.body.dolar;
   var amount = req.body.amount;
+  var obs = req.body.obs;
   var investidor = req.body.investidor;
 
-  var unitarioFloat = unitario.replace(".", "").replace(",", ".")
-  var totalFloat = total.replace(".", "").replace(",", ".")
+  var valorFloat = valor.replace(".", "").replace(",", ".")
   var dolarFloat = dolar.replace(".", "").replace(",", ".")
   var amountFloat = amount.replace(".", "").replace(",", ".")
 
    Venda.create(
    {
+    id: id,
     data: data,
     quantidade: quantidade,
-    unitario: unitarioFloat,
-    total: totalFloat,
+    valor: valorFloat,
     dolar: dolarFloat,
     amount: amountFloat,
+    obs: obs,
     investidoreId: investidor
   })
   .then(() => {
@@ -178,23 +155,22 @@ router.post('/venda/update', adminAuth,(req, res) => {
   var id = req.body.id;
   var data = req.body.data;
   var quantidade = req.body.quantidade;
-  var unitario = req.body.unitario;
-  var total = req.body.total;
+  var valor = req.body.valor;
   var dolar = req.body.dolar;
   var amount = req.body.amount;
+  var obs = req.body.obs;
   var investidor = req.body.investidor;
 
-  var unitarioFloat = unitario.replace(".", "").replace(",", ".")
-  var totalFloat = total.replace(".", "").replace(",", ".")
+  var valorFloat = valor.replace(".", "").replace(",", ".")
   var amountFloat = amount.replace(".", "").replace(",", ".")
 
   Venda.update({
     data: data,
     quantidade: quantidade,
-    unitario: unitarioFloat,
-    total: totalFloat,
+    valor: valorFloat,
     dolar: dolar,
     amount: amountFloat,
+    obs: obs,
     investidoreId: investidor,
   }, {
     where: {

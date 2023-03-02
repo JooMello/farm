@@ -53,7 +53,7 @@
       <tbody  id="demo">
         <% investidores.forEach(investidor => { %>
         <tr class="pesquisar">
-          <td scope="row"><a class="dropdown-item" href="/investidor/<%= investidor.id %>"><%= investidor.name %></a></td>
+          <td scope="row"><%= investidor.name %></td>
           <td><%= investidor.phone %></td>
           <td><%= investidor.email %></td>
           <td><%= investidor.cpf %></td>

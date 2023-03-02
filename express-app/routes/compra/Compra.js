@@ -5,7 +5,7 @@ const Investidor = require("../investidor/Investidor")
 
 const Compra = connection.define("compras", {
   data: {
-    type: Sequelize.DATE,
+    type: Sequelize.DATEONLY,
     allowNull: false,
   },
   quantidade: {

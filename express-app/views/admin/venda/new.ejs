@@ -36,40 +36,27 @@
                 </div>
                 <br>
                 <div class="input--with-addon currency-input">
-                    <label>Quantidade</label>
-                    <div class="input__container text-input">
-                      <input
-                        type="text"
-                        name="quantidade"      
-                         id="quantidade"
-                        required     
-                        class="input form-control form-control-danger"
-                      /><!---->
-                    </div>
-                    <!----><!---->
+                  <label>Numeração</label>
+                  <div class="input__container text-input">
+                    <input type="number" name="id" id="id" required
+                      class="input form-control form-control-danger" /><!---->
                   </div>
+                  <!----><!---->
+                </div>
                 <br />
+                <div class="input--with-addon currency-input">
+                  <div class="input__container text-input">
+                    <input  type="hidden"  name="quantidade" id="quantidade" value="1"/><!---->
+                  </div>
+                  <!----><!---->
+                </div>
                 <div class="input--with-addon currency-input">
                     <label>Valor Unitário</label>
                     <div class="input__container text-input">
                       <input
                         type="text"
-                        name="unitario"
-                          id="unitario"
-                        required
-                        class="input form-control form-control-danger"
-                      /><!---->
-                    </div>
-                    <!----><!---->
-                  </div>
-                <br />
-                <div class="input--with-addon currency-input">
-                    <label>Valor Venda</label>
-                    <div class="input__container number-input">
-                      <input
-                        type="text"
-                        name="total"
-                          id="total"
+                        name="valor"
+                          id="valor"
                         required
                         class="input form-control form-control-danger"
                       /><!---->
@@ -106,6 +93,15 @@
                     <!----><!---->
                   </div>
                 <br />
+                <div class="input--with-addon currency-input">
+                  <label>Descrição</label>
+                  <div class="input__container text-input">
+                    <textarea type="text" name="obs" id="obs" required class="input form-control form-control-danger">
+                      </textarea>
+                  </div>
+                  <!----><!---->
+                </div>
+                <br />
                 <div class="row">
                   <div class="col"></div>
                   <div class="col-3"> 
@@ -129,46 +125,25 @@ Pega valor total da compra divide pelo dolar diario
 <script>
 
   //filtragem de dados, por peridodo que eles foram adicionados no BD
-//formatar numeros em valores decimais (.toLocaleFixed(2))
-Number.prototype.toLocaleFixed = function (n) {
-return this.toLocaleString(undefined, {
-  minimumFractionDigits: n,
-  maximumFractionDigits: n
-});
-};
+  //formatar numeros em valores decimais (.toLocaleFixed(2))
+  Number.prototype.toLocaleFixed = function (n) {
+    return this.toLocaleString(undefined, {
+      minimumFractionDigits: n,
+      maximumFractionDigits: n
+    });
+  };
 
-quantidade.addEventListener('input', event => {
-var quantidadeValue = event.target.value
+  valor.addEventListener('input', event => {
+    var unitarioValue = (event.target.value)
 
-unitario.addEventListener('input', event => {
-var unitarioValue = event.target.value
+    var dolar = <%= cotacao %>;
 
-var unitarioFloat = unitarioValue.replace(".", "").replace(",", ".")
-
-
-var totalValue = (Number(quantidadeValue) * Number(unitarioFloat))
-document.getElementById('total').value = Number(totalValue).toLocaleFixed(2);
-
-var dolar = <%= cotacao %>;
-
-var totalDolarValue = ((totalValue) / (dolar))
-document.getElementById('amount').value = Number(totalDolarValue).toLocaleFixed(2);
-})
-})
+    var totalDolarValue = (Number(unitarioValue) / Number(dolar))
+    document.getElementById('amount').value = Number(totalDolarValue).toLocaleFixed(2);
+  })
 </script>
-
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js" type="text/javascript"></script>
 <script src="https://plentz.github.io/jquery-maskmoney/javascripts/jquery.maskMoney.min.js" type="text/javascript"></script>
 
-<script>
-  jQuery(function() {
-      
-      jQuery("#valor").maskMoney({
-    thousands:'.', 
-    decimal:','
-  })
-  
-  });
-  </script>
 
 

@@ -5,13 +5,17 @@ const Investidor = require("../investidor/Investidor")
 
 const Morte = connection.define('mortes', {
     data: {
-        type: Sequelize.DATE,
+        type: Sequelize.DATEONLY,
         allowNull: false
     },
     quantidade: {
         type: Sequelize.STRING,
         allowNull: false
     },
+    valor: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
 });
 
 // UM Investidor tem muitas compras
