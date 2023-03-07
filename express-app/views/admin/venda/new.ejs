@@ -118,15 +118,7 @@
 
 <%- include ("../../partials/footer.ejs") %>
 
-<script>
-  function formatCurrency(input) {
-    // remove tudo que não é número
-    let value = input.value.replace(/\D/g, "");
-    // formata como moeda em Real (BRL)
-    value = Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value/100);
-    input.value = value;
-  }
-  </script>
+
 
 <!-- script pegar valores (quantidade, unitario) multiplicar e apresentar no input total.
 Pega valor total da compra divide pelo dolar diario

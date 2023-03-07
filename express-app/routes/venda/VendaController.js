@@ -109,7 +109,8 @@ router.post('/venda/save', adminAuth, (req, res) => {
   var obs = req.body.obs;
   var investidor = req.body.investidor;
 
-  var valorFloat = valor.replace(/\D/g, "");
+  var valorFloat = valor.replace(".", "").replace(",", ".");
+  var amountFloat = amount.replace("$", "");
 
    Venda.create(
    {
@@ -118,7 +119,7 @@ router.post('/venda/save', adminAuth, (req, res) => {
     quantidade: quantidade,
     valor: valorFloat,
     dolar: dolar,
-    amount: amount,
+    amount: amountFloat,
     obs: obs,
     investidoreId: investidor
   })
