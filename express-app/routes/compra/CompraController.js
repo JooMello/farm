@@ -3,7 +3,9 @@ const router = express.Router();
 const Compra = require("./Compra");
 const slugify = require("slugify");
 const sequelize = require("sequelize");
-const { Op } = require("sequelize");
+const {
+  Op
+} = require("sequelize");
 const request = require("request");
 
 const moment = require('moment');
@@ -43,12 +45,12 @@ const Dolar = request(options, callback_dolar);
 
 router.get("/admin/compra", adminAuth, async (req, res, next) => {
   Compra.findAll({
-    include: [
-      {
-        model: Investidor,
-      },
+    include: [{
+      model: Investidor,
+    }, ],
+    order: [
+      ["data", "DESC"]
     ],
-    order: [["data", "DESC"]],
     raw: true,
     nest: true,
   }).then((compras) => {
@@ -70,7 +72,10 @@ router.get("/admin/compra", adminAuth, async (req, res, next) => {
 
         raw: true,
       });
-      var CapitalInvestido = Number(amountT["sum(`valor`)"]).toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+      var CapitalInvestido = Number(amountT["sum(`valor`)"]).toLocaleString('pt-BR', {
+        style: 'currency',
+        currency: 'BRL'
+      });
 
       //////////////////////Capital Investidor em dolar
       var amountD = await Compra.findOne({
@@ -80,30 +85,36 @@ router.get("/admin/compra", adminAuth, async (req, res, next) => {
       });
       var CapitalInvestidoDolar = Number(
         amountD["sum(`amount`)"]
-      ).toLocaleString("en-US", { style: "currency", currency: "USD" });
+      ).toLocaleString("en-US", {
+        style: "currency",
+        currency: "USD"
+      });
 
-                  var amountU = await Compra.findOne({
-                    attributes: [
-                      [
-                        sequelize.fn(
-                          "avg",
-                          sequelize.fn("DISTINCT", sequelize.col("valor"))
-                        ),
-                        "media",
-                      ],
-                    ],
-                    distinct: true,
-                    raw: true,
-                  });
-                  var mediaCompra = Number(amountU["media"]).toLocaleString(
-                    "pt-BR",
-                    { style: "currency", currency: "BRL" }
-                  );
+      var amountU = await Compra.findOne({
+        attributes: [
+          [
+            sequelize.fn(
+              "avg",
+              sequelize.fn("DISTINCT", sequelize.col("valor"))
+            ),
+            "media",
+          ],
+        ],
+        distinct: true,
+        raw: true,
+      });
+      var mediaCompra = Number(amountU["media"]).toLocaleString(
+        "pt-BR", {
+          style: "currency",
+          currency: "BRL"
+        }
+      );
 
       res.render("admin/compra/index", {
         compras: compras,
         investidores: investidores,
-        quantidade ,mediaCompra,
+        quantidade,
+        mediaCompra,
         CapitalInvestido,
         CapitalInvestidoDolar,
       });
@@ -113,7 +124,10 @@ router.get("/admin/compra", adminAuth, async (req, res, next) => {
 
 router.get("/admin/compra/new", adminAuth, (req, res) => {
 
-  var cotacaoDolar = Number(cotacao).toLocaleString('en-US', {style: 'currency', currency: 'USD'});
+  var cotacaoDolar = Number(cotacao).toLocaleString('en-US', {
+    style: 'currency',
+    currency: 'USD'
+  });
 
   Investidor.findAll().then((investidores) => {
     res.render("admin/compra/new", {
@@ -184,8 +198,7 @@ router.post("/compra/update", adminAuth, (req, res) => {
 
   var valorFloat = valor.replace(".", "").replace(",", ".");
 
-  Compra.update(
-    {
+  Compra.update({
       data: data,
       quantidade: quantidade,
       valor: valorFloat,
@@ -193,13 +206,11 @@ router.post("/compra/update", adminAuth, (req, res) => {
       amount: amount,
       obs: obs,
       investidoreId: investidor,
-    },
-    {
+    }, {
       where: {
         id: id,
       },
-    }
-  )
+    })
     .then(() => {
       res.redirect("/admin/compra");
     })

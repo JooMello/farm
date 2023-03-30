@@ -16,7 +16,7 @@ const connection = require("./database/database");
 const dolar = require("./modules/api_dolar");
 const cep = require("./modules/api-cep");
 const fs = require("fs");
-const moment = require('moment');
+const moment = require("moment");
 
 var investidorRouter = require("./routes/investidor/InvestidorController");
 var compraRouter = require("./routes/compra/CompraController");
@@ -49,9 +49,11 @@ app.use(
 
 app.use(logger("dev"));
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({
-  extended: false
-}));
+app.use(
+  bodyParser.urlencoded({
+    extended: false,
+  })
+);
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
@@ -63,7 +65,6 @@ app.use("/", relatorioRouter);
 app.use("/", estoqueRouter);
 app.use("/", contaCorrenteRouter);
 app.use("/", userRouter);
-
 
 connection
   .authenticate()
@@ -78,21 +79,21 @@ connection
 app.get("/compra/:id", adminAuth, (req, res) => {
   var id = req.params.id;
   Compra.findAll({
-      include: [{
+    include: [
+      {
         model: Investidor,
-      }, ],
-      where: {
-        investidoreId: id,
       },
-      order: [
-        ["data", "DESC"]
-      ],
-      raw: true,
-      nest: true,
-    })
+    ],
+    where: {
+      investidoreId: id,
+    },
+    order: [["data", "DESC"]],
+    raw: true,
+    nest: true,
+  })
     .then((compras) => {
       compras.forEach((compra) => {
-        compra.data = moment(compra.data).format('DD/MM/YYYY');
+        compra.data = moment(compra.data).format("DD/MM/YYYY");
       });
       Investidor.findAll().then(async (investidores) => {
         //////////////////////Quantidade
@@ -113,10 +114,13 @@ app.get("/compra/:id", adminAuth, (req, res) => {
           },
           raw: true,
         });
-        var CapitalInvestido = Number(amountT["sum(`valor`)"]).toLocaleString('pt-BR', {
-          style: 'currency',
-          currency: 'BRL'
-        });
+        var CapitalInvestido = Number(amountT["sum(`valor`)"]).toLocaleString(
+          "pt-BR",
+          {
+            style: "currency",
+            currency: "BRL",
+          }
+        );
 
         //////////////////////média valor
         var amounC = await Compra.findOne({
@@ -124,12 +128,15 @@ app.get("/compra/:id", adminAuth, (req, res) => {
           where: {
             investidoreId: id,
           },
-          raw: true
+          raw: true,
         });
-        var mediaCompra = (Number(amounC['avg(`valor`)'])).toLocaleString('pt-BR', {
-          style: 'currency',
-          currency: 'BRL'
-        });
+        var mediaCompra = Number(amounC["avg(`valor`)"]).toLocaleString(
+          "pt-BR",
+          {
+            style: "currency",
+            currency: "BRL",
+          }
+        );
 
         //////////////////////Capital Investidor em dolar
         var amountD = await Compra.findOne({
@@ -141,9 +148,9 @@ app.get("/compra/:id", adminAuth, (req, res) => {
         });
         var CapitalInvestidoDolar = Number(
           amountD["sum(`amount`)"]
-        ).toLocaleString('pt-BR', {
-          style: 'currency',
-          currency: 'BRL'
+        ).toLocaleString("pt-BR", {
+          style: "currency",
+          currency: "BRL",
         });
 
         res.render("admin/compra/index", {
@@ -162,21 +169,123 @@ app.get("/compra/:id", adminAuth, (req, res) => {
 });
 
 //Venda
+app.get("/compra", adminAuth, (req, res) => {
+  const { start, end } = req.query; //Obter as datas da rota ao invés do corpo da requisição
+  Compra.findAll({
+    include: [
+      {
+        model: Investidor,
+      },
+    ],
+    where: {
+      data: {
+        [Op.between]: [start, end],
+      },
+    },
+    order: [["data", "DESC"]],
+    raw: true,
+    nest: true,
+  })
+    .then((compras) => {
+      compras.forEach((compra) => {
+        compra.data = moment(compra.data).format("DD/MM/YYYY");
+      });
+      Investidor.findAll().then(async (investidores) => {
+        //////////////////////Quantidade
+        var amountQ = await Compra.findOne({
+          attributes: [sequelize.fn("sum", sequelize.col("quantidade"))],
+          where: {
+            data: {
+              [Op.between]: [start, end],
+            },
+          },
+          raw: true,
+        });
+        var quantidade = Number(amountQ["sum(`quantidade`)"]);
+
+        //////////////////////Capital Investidor
+        var amountT = await Compra.findOne({
+          attributes: [sequelize.fn("sum", sequelize.col("valor"))],
+          where: {
+            data: {
+              [Op.between]: [start, end],
+            },
+          },
+          raw: true,
+        });
+        var CapitalInvestido = Number(amountT["sum(`valor`)"]).toLocaleString(
+          "pt-BR",
+          {
+            style: "currency",
+            currency: "BRL",
+          }
+        );
+
+        //////////////////////média valor
+        var amounC = await Compra.findOne({
+          attributes: [sequelize.fn("avg", sequelize.col("valor"))],
+          where: {
+            data: {
+              [Op.between]: [start, end],
+            },
+          },
+          raw: true,
+        });
+        var mediaCompra = Number(amounC["avg(`valor`)"]).toLocaleString(
+          "pt-BR",
+          {
+            style: "currency",
+            currency: "BRL",
+          }
+        );
+
+        //////////////////////Capital Investidor em dolar
+        var amountD = await Compra.findOne({
+          attributes: [sequelize.fn("sum", sequelize.col("amount"))],
+          where: {
+            data: {
+              [Op.between]: [start, end],
+            },
+          },
+          raw: true,
+        });
+        var CapitalInvestidoDolar = Number(
+          amountD["sum(`amount`)"]
+        ).toLocaleString("pt-BR", {
+          style: "currency",
+          currency: "BRL",
+        });
+
+        res.render("admin/compra/index", {
+          investidores: investidores,
+          compras: compras,
+          quantidade,
+          mediaCompra,
+          CapitalInvestido,
+          CapitalInvestidoDolar,
+        });
+      });
+    })
+    .catch((err) => {
+      res.redirect("admin/compra/index");
+    });
+});
+
 app.get("/venda/:id", adminAuth, (req, res) => {
   var id = req.params.id;
   Venda.findAll({
-      include: [{
+    include: [
+      {
         model: Investidor,
-      }, ],
-      where: {
-        investidoreId: id,
       },
-      order: [
-        ["createdAt", "DESC"]
-      ],
-      raw: true,
-      nest: true,
-    })
+    ],
+    where: {
+      investidoreId: id,
+    },
+    order: [["createdAt", "DESC"]],
+    raw: true,
+    nest: true,
+  })
     .then((vendas) => {
       Investidor.findAll().then(async (investidores) => {
         //////////////////////Quantidade
@@ -197,10 +306,13 @@ app.get("/venda/:id", adminAuth, (req, res) => {
           },
           raw: true,
         });
-        var ValorVenda = Number(amountT["sum(`valor`)"]).toLocaleString('pt-BR', {
-          style: 'currency',
-          currency: 'BRL'
-        });
+        var ValorVenda = Number(amountT["sum(`valor`)"]).toLocaleString(
+          "pt-BR",
+          {
+            style: "currency",
+            currency: "BRL",
+          }
+        );
 
         //////////////////////Total Venda em dolar
         var amountD = await Venda.findOne({
@@ -210,10 +322,13 @@ app.get("/venda/:id", adminAuth, (req, res) => {
           },
           raw: true,
         });
-        var TotalVendaDolar = Number(amountD["sum(`amount`)"]).toLocaleString('pt-BR', {
-          style: 'currency',
-          currency: 'BRL'
-        });
+        var TotalVendaDolar = Number(amountD["sum(`amount`)"]).toLocaleString(
+          "pt-BR",
+          {
+            style: "currency",
+            currency: "BRL",
+          }
+        );
 
         res.render("admin/venda/index", {
           investidores: investidores,
@@ -236,15 +351,15 @@ app.get("/contaCorrente/:id", adminAuth, async (req, res, next) => {
     nest: true,
   }).then(async (investidores) => {
     ContaCorrente.findAll({
-      include: [{
-        model: Investidor,
-      }, ],
+      include: [
+        {
+          model: Investidor,
+        },
+      ],
       where: {
         investidoreId: id,
       },
-      order: [
-        ["data", "DESC"]
-      ],
+      order: [["data", "DESC"]],
       raw: true,
       nest: true,
     }).then(async (contaCorrente) => {
@@ -255,9 +370,9 @@ app.get("/contaCorrente/:id", adminAuth, async (req, res, next) => {
         },
         raw: true,
       });
-      var Total = Number(amountT["sum(`valor`)"]).toLocaleString('pt-BR', {
-        style: 'currency',
-        currency: 'BRL'
+      var Total = Number(amountT["sum(`valor`)"]).toLocaleString("pt-BR", {
+        style: "currency",
+        currency: "BRL",
       });
       res.render("admin/financeiro/contaCorrente/index", {
         investidores: investidores,
@@ -272,17 +387,18 @@ app.get("/contaCorrente/:id", adminAuth, async (req, res, next) => {
 app.get("/relatorio/:id", adminAuth, async (req, res) => {
   var id = req.params.id;
   Investidor.findOne({
-      where: {
-        id: id,
+    where: {
+      id: id,
+    },
+    include: [
+      {
+        model: Venda,
       },
-      include: [{
-          model: Venda,
-        },
-        {
-          model: Compra,
-        },
-      ],
-    })
+      {
+        model: Compra,
+      },
+    ],
+  })
     .then((investidor) => {
       if (investidor != undefined) {
         Investidor.findAll().then(async (investidores) => {
@@ -305,10 +421,13 @@ app.get("/relatorio/:id", adminAuth, async (req, res) => {
             raw: true,
           });
           var unitarioT = Number(amountU["avg(`valor`)"]);
-          var unitario = Number(amountU["avg(`valor`)"]).toLocaleString('pt-BR', {
-            style: 'currency',
-            currency: 'BRL'
-          });
+          var unitario = Number(amountU["avg(`valor`)"]).toLocaleString(
+            "pt-BR",
+            {
+              style: "currency",
+              currency: "BRL",
+            }
+          );
 
           /////Valor da Venda
           var amountVv = await Venda.findOne({
@@ -319,10 +438,13 @@ app.get("/relatorio/:id", adminAuth, async (req, res) => {
             raw: true,
           });
           var amountVT = Number(amountVv["sum(`valor`)"]);
-          var amountV = Number(amountVv["sum(`valor`)"]).toLocaleString('pt-BR', {
-            style: 'currency',
-            currency: 'BRL'
-          });
+          var amountV = Number(amountVv["sum(`valor`)"]).toLocaleString(
+            "pt-BR",
+            {
+              style: "currency",
+              currency: "BRL",
+            }
+          );
 
           //////////////////////Capital Investidor
           var amountT = await Compra.findOne({
@@ -341,34 +463,34 @@ app.get("/relatorio/:id", adminAuth, async (req, res) => {
           var InvVenda = (
             (Number(CapitalInvestidoT) / Number(amountVT)) *
             100
-          ).toLocaleString('pt-BR', {
-            style: 'currency',
-            currency: 'BRL'
+          ).toLocaleString("pt-BR", {
+            style: "currency",
+            currency: "BRL",
           });
 
           ///Lucro sobre Investimento
           var LucroN = Number(amountVT) - Number(CapitalInvestidoT);
           var Lucro = (
             Number(amountVT) - Number(CapitalInvestidoT)
-          ).toLocaleString('pt-BR', {
-            style: 'currency',
-            currency: 'BRL'
+          ).toLocaleString("pt-BR", {
+            style: "currency",
+            currency: "BRL",
           });
 
           ///Lucro sobre investimento Fazenda
           var LucroFN = Number(LucroN) / 2;
-          var LucroF = (Number(LucroN) / 2).toLocaleString('pt-BR', {
-            style: 'currency',
-            currency: 'BRL'
+          var LucroF = (Number(LucroN) / 2).toLocaleString("pt-BR", {
+            style: "currency",
+            currency: "BRL",
           });
 
           //Percentual Fazenda
           var percentualF = (
             (Number(LucroFN) / Number(LucroN)) *
             100
-          ).toLocaleString('pt-BR', {
-            style: 'currency',
-            currency: 'BRL'
+          ).toLocaleString("pt-BR", {
+            style: "currency",
+            currency: "BRL",
           });
 
           res.render("admin/relatorios/index", {
@@ -396,189 +518,221 @@ app.get("/relatorio/:id", adminAuth, async (req, res) => {
 
 //Estoque
 app.get("/estoque/:id", adminAuth, async (req, res) => {
-        var id = req.params.id;
+  var id = req.params.id;
 
-    //////////////////////mortes
-    var amountQ = await Morte.findOne({
-      attributes: [sequelize.fn("sum", sequelize.col("quantidade"))],
-      where: {
-        investidoreId: id,
-      },
-      raw: true
-    });
-    var morte = (Number(amountQ['sum(`quantidade`)']))
+  //////////////////////mortes
+  var amountQ = await Morte.findOne({
+    attributes: [sequelize.fn("sum", sequelize.col("quantidade"))],
+    where: {
+      investidoreId: id,
+    },
+    raw: true,
+  });
+  var morte = Number(amountQ["sum(`quantidade`)"]);
 
-        //////////////////////Valor  mortes
-        var amountQ = await Morte.findOne({
-          attributes: [sequelize.fn("sum", sequelize.col("valor"))],
-          where: {
-            investidoreId: id,
-          },
-          raw: true
-        });
-        var valorf = (Number(amountQ['sum(`valor`)']))
-        var valor = (Number(amountQ['sum(`valor`)'])).toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+  //////////////////////Valor  mortes
+  var amountQ = await Morte.findOne({
+    attributes: [sequelize.fn("sum", sequelize.col("valor"))],
+    where: {
+      investidoreId: id,
+    },
+    raw: true,
+  });
+  var valorf = Number(amountQ["sum(`valor`)"]);
+  var valor = Number(amountQ["sum(`valor`)"]).toLocaleString("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+  });
 
-//////////////////////comprados
-    var amountQc = await Compra.findOne({
-      attributes: [sequelize.fn("sum", sequelize.col("quantidade"))],
-      where: {
-        investidoreId: id,
-      },
-      raw: true
-    });
-    var comprados = (Number(amountQc['sum(`quantidade`)']))
-    
-//////////////////////vendidos
-var amountQv = await Venda.findOne({
-  attributes: [sequelize.fn("sum", sequelize.col("quantidade"))],
-  where: {
-    investidoreId: id,
-  },
-  raw: true
-});
-var vendidos = (Number(amountQv['sum(`quantidade`)']))
+  //////////////////////comprados
+  var amountQc = await Compra.findOne({
+    attributes: [sequelize.fn("sum", sequelize.col("quantidade"))],
+    where: {
+      investidoreId: id,
+    },
+    raw: true,
+  });
+  var comprados = Number(amountQc["sum(`quantidade`)"]);
 
-//////////////////////estoque
-var estoque = ((comprados) - (morte) - (vendidos));
+  //////////////////////vendidos
+  var amountQv = await Venda.findOne({
+    attributes: [sequelize.fn("sum", sequelize.col("quantidade"))],
+    where: {
+      investidoreId: id,
+    },
+    raw: true,
+  });
+  var vendidos = Number(amountQv["sum(`quantidade`)"]);
 
-    Compra.findAll({
-        include: [{
-            model: Investidor,
-          }],
-          where: {
-            investidoreId: id,
-          },
-    }).then((compras) => {
-  Venda.findAll({
-    include: [{
+  //////////////////////estoque
+  var estoque = comprados - morte - vendidos;
+
+  Compra.findAll({
+    include: [
+      {
         model: Investidor,
-      }],
-      where: {
-        investidoreId: id,
       },
-  }).then((vendas) => {
-    Morte.findAll({
-      include: [{
-          model: Investidor,
-        }],
-        where: {
-          investidoreId: id,
-        },
-    }).then((mortes) => {
-    Investidor.findAll().then(async(investidores) => {
-      var amountT = await ContaCorrente.findOne({
-        attributes: [sequelize.fn("sum", sequelize.col("valor"))],
-        where: {
-          investidoreId: id,
-        },
-        raw: true,
-      });
-      var Totalf = Number(amountT["sum(`valor`)"])
-      var Total = Number(amountT["sum(`valor`)"]).toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'})
-
-      var amountU = await Compra.findOne({
-        attributes: [
-          [sequelize.fn("avg", sequelize.fn("DISTINCT", sequelize.col("valor"))), "media"]
+    ],
+    where: {
+      investidoreId: id,
+    },
+  })
+    .then((compras) => {
+      Venda.findAll({
+        include: [
+          {
+            model: Investidor,
+          },
         ],
-        distinct: true,
         where: {
           investidoreId: id,
         },
-        raw: true,
-      });
-      var MediaCompra = (Number(amountU['media'])).toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
-
-      var CapitalEstoque = ((Totalf) - (valorf)).toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
-      res.render('admin/estoque/index', {
-        compras: compras,
-        vendas: vendas,
-        mortes: mortes,
-        valor:valor,
-        Total, MediaCompra, CapitalEstoque,
-        investidores: investidores,
-        morte,comprados,vendidos,estoque,
-      });
-    })
-  })
-  })
-})
-            .catch((err) => {
-              res.redirect("admin/estoque/index");
-            });
-        });
-
-        //Morte
-        app.get("/morte/:id", adminAuth, async (req, res) => {
-          var id = req.params.id;
-
-          //////////////////////mortes
-          var amountQ = await Morte.findOne({
-            attributes: [sequelize.fn("sum", sequelize.col("quantidade"))],
-            where: {
-              investidoreId: id,
+      }).then((vendas) => {
+        Morte.findAll({
+          include: [
+            {
+              model: Investidor,
             },
-            raw: true,
-          });
-          var qmorte = Number(amountQ["sum(`quantidade`)"]);
-
-          //////////////////////valor mortes
-          var amountV = await Morte.findOne({
-            attributes: [sequelize.fn("sum", sequelize.col("valor"))],
-            where: {
-              investidoreId: id,
-            },
-            raw: true
-          });
-          var qvalor = (Number(amountV['sum(`valor`)'])).toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
-
-          Morte.findAll({
-              include: [{
-                model: Investidor,
-              }, ],
+          ],
+          where: {
+            investidoreId: id,
+          },
+        }).then((mortes) => {
+          Investidor.findAll().then(async (investidores) => {
+            var amountT = await ContaCorrente.findOne({
+              attributes: [sequelize.fn("sum", sequelize.col("valor"))],
               where: {
                 investidoreId: id,
               },
-              order: [
-                ["createdAt", "DESC"]
-              ],
               raw: true,
-              nest: true,
-            })
-            .then((mortes) => {
-              mortes.forEach((morte) => {
-                morte.data = moment(morte.data).format('DD/MM/YYYY');
-              });
-              Investidor.findAll().then((investidores) => {
-                res.render("admin/estoque/morte", {
-                  mortes: mortes,
-                  investidores: investidores,
-                  qmorte,
-                  qvalor,
-                });
-              });
-            })
-            .catch((err) => {
-              res.redirect("admin/estoque/morte");
             });
+            var Totalf = Number(amountT["sum(`valor`)"]);
+            var Total = Number(amountT["sum(`valor`)"]).toLocaleString(
+              "pt-BR",
+              { style: "currency", currency: "BRL" }
+            );
+
+            var amountU = await Compra.findOne({
+              attributes: [
+                [
+                  sequelize.fn(
+                    "avg",
+                    sequelize.fn("DISTINCT", sequelize.col("valor"))
+                  ),
+                  "media",
+                ],
+              ],
+              distinct: true,
+              where: {
+                investidoreId: id,
+              },
+              raw: true,
+            });
+            var MediaCompra = Number(amountU["media"]).toLocaleString("pt-BR", {
+              style: "currency",
+              currency: "BRL",
+            });
+
+            var CapitalEstoque = (Totalf - valorf).toLocaleString("pt-BR", {
+              style: "currency",
+              currency: "BRL",
+            });
+            res.render("admin/estoque/index", {
+              compras: compras,
+              vendas: vendas,
+              mortes: mortes,
+              valor: valor,
+              Total,
+              MediaCompra,
+              CapitalEstoque,
+              investidores: investidores,
+              morte,
+              comprados,
+              vendidos,
+              estoque,
+            });
+          });
         });
+      });
+    })
+    .catch((err) => {
+      res.redirect("admin/estoque/index");
+    });
+});
 
+//Morte
+app.get("/morte/:id", adminAuth, async (req, res) => {
+  var id = req.params.id;
 
-        // catch 404 and forward to error handler
-        app.use(function (req, res, next) {
-          next(createError(404));
+  //////////////////////mortes
+  var amountQ = await Morte.findOne({
+    attributes: [sequelize.fn("sum", sequelize.col("quantidade"))],
+    where: {
+      investidoreId: id,
+    },
+    raw: true,
+  });
+  var qmorte = Number(amountQ["sum(`quantidade`)"]);
+
+  //////////////////////valor mortes
+  var amountV = await Morte.findOne({
+    attributes: [sequelize.fn("sum", sequelize.col("valor"))],
+    where: {
+      investidoreId: id,
+    },
+    raw: true,
+  });
+  var qvalor = Number(amountV["sum(`valor`)"]).toLocaleString("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+  });
+
+  Morte.findAll({
+    include: [
+      {
+        model: Investidor,
+      },
+    ],
+    where: {
+      investidoreId: id,
+    },
+    order: [["createdAt", "DESC"]],
+    raw: true,
+    nest: true,
+  })
+    .then((mortes) => {
+      mortes.forEach((morte) => {
+        morte.data = moment(morte.data).format("DD/MM/YYYY");
+      });
+      Investidor.findAll().then((investidores) => {
+        res.render("admin/estoque/morte", {
+          mortes: mortes,
+          investidores: investidores,
+          qmorte,
+          qvalor,
         });
+      });
+    })
+    .catch((err) => {
+      res.redirect("admin/estoque/morte");
+    });
+});
 
-        // error handler
-        app.use(function (err, req, res, next) {
-          // set locals, only providing error in development
-          res.locals.title = "error";
-          res.locals.message = err.message;
-          res.locals.error = req.app.get("env") === "development" ? err : {};
+// catch 404 and forward to error handler
+app.use(function (req, res, next) {
+  next(createError(404));
+});
 
-          // render the error page
-          res.status(err.status || 500);
-          res.render("error");
-        });
+// error handler
+app.use(function (err, req, res, next) {
+  // set locals, only providing error in development
+  res.locals.title = "error";
+  res.locals.message = err.message;
+  res.locals.error = req.app.get("env") === "development" ? err : {};
 
-        module.exports = app;
+  // render the error page
+  res.status(err.status || 500);
+  res.render("error");
+});
+
+module.exports = app;
