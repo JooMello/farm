@@ -13,6 +13,10 @@ const adminAuth = require("../../middlewares/adminAuth");
 
 const Investidor = require("../investidor/Investidor");
 
+const accountSid = 'AC00fbbfc768402c07243ec830f4e3c2d8';
+const authToken = '95380828610fd2690e7b53371079bf4c';
+const client = require('twilio')(accountSid, authToken);
+
 //filtragem de dados, por peridodo que eles foram adicionados no BD
 //formatar numeros em valores decimais (.toLocaleFixed(2))
 Number.prototype.toLocaleFixed = function (n) {
@@ -161,6 +165,22 @@ router.post("/compra/save", adminAuth, (req, res) => {
     obs: obs,
     investidoreId: investidor,
   }).then(() => {
+// Formata a data para o padrão "DD/MM/YYYY"
+var dataFormatada = moment(data, 'YYYY-MM-DD').format('DD/MM/YYYY');
+var valorFormatado = Number(valor).toLocaleString('pt-BR', {
+  style: 'currency',
+  currency: 'BRL'
+});
+
+    // Enviar mensagem no WhatsApp quando a página inicial for acessada
+  client.messages.create({
+    from: 'whatsapp:+14155238886',
+    to: 'whatsapp:+556593589187',
+    body: `Olá, essa é uma mensagem de notificação:
+    Compra de Gado
+    Data: ${dataFormatada}
+    Valor R$: ${valorFormatado}`
+  }).then(message => console.log(message.sid));
     res.redirect("/admin/compra");
   });
 });

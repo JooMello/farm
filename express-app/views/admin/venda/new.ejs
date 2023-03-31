@@ -126,21 +126,18 @@ Pega valor total da compra divide pelo dolar diario
 
 <script>
   valor.addEventListener('input', event => {
-    var dolar = <%= cotacao %>;
+    const dolar = <%= cotacao %>;
     document.getElementById('dolar').value = dolar.toLocaleString('en-US', {style: 'currency', currency: 'USD'});
   })
 </script>
 
 <script>
   valor.addEventListener('input', event => {
-    var unitarioValue = event.target.value.replace(/\D/g, "");
-    var dolar = <%= cotacao %>;
-    var totalDolarValue = Number(unitarioValue) / Number(dolar);
-    document.getElementById('amount').value = totalDolarValue.toLocaleString('en-US', {style: 'currency', currency: 'USD'});
-  })
+  var unitarioValue = event.target.value.replace(/\D/g, ""); // remova os caracteres não numéricos
+  var dolar = <%= cotacao %>;
+  var totalDolarValue = (Number(unitarioValue) / Number(dolar) / 100);
+  document.getElementById('amount').value = totalDolarValue.toLocaleString('en-US', {style: 'currency', currency: 'USD'});
+});
 </script>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js" type="text/javascript"></script>
 <script src="https://plentz.github.io/jquery-maskmoney/javascripts/jquery.maskMoney.min.js" type="text/javascript"></script>
-
-
-
