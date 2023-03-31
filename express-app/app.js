@@ -168,7 +168,7 @@ app.get("/compra/:id", adminAuth, (req, res) => {
     });
 });
 
-//Venda
+//Data-filter Compra
 app.get("/compra", adminAuth, (req, res) => {
   const { start, end } = req.query; //Obter as datas da rota ao invés do corpo da requisição
   Compra.findAll({
@@ -271,6 +271,91 @@ app.get("/compra", adminAuth, (req, res) => {
     });
 });
 
+//Data-filter Venda
+app.get("/venda", adminAuth, (req, res) => {
+  const { start, end } = req.query; //Obter as datas da rota ao invés do corpo da requisição
+  Venda.findAll({
+    include: [
+      {
+        model: Investidor,
+      },
+    ],
+    where: {
+      data: {
+        [Op.between]: [start, end],
+      },
+    },
+    order: [["createdAt", "DESC"]],
+    raw: true,
+    nest: true,
+  })
+    .then((vendas) => {
+            vendas.forEach((venda) => {
+              venda.data = moment(venda.data).format("DD/MM/YYYY");
+            });
+      Investidor.findAll().then(async (investidores) => {
+        //////////////////////Quantidade
+        var amountQ = await Venda.findOne({
+          attributes: [sequelize.fn("sum", sequelize.col("quantidade"))],
+          where: {
+            data: {
+              [Op.between]: [start, end],
+            },
+          },
+          raw: true,
+        });
+        var quantidade = Number(amountQ["sum(`quantidade`)"]);
+
+        //////////////////////valor Venda
+        var amountT = await Venda.findOne({
+          attributes: [sequelize.fn("sum", sequelize.col("valor"))],
+          where: {
+            data: {
+              [Op.between]: [start, end],
+            },
+          },
+          raw: true,
+        });
+        var ValorVenda = Number(amountT["sum(`valor`)"]).toLocaleString(
+          "pt-BR",
+          {
+            style: "currency",
+            currency: "BRL",
+          }
+        );
+
+        //////////////////////Total Venda em dolar
+        var amountD = await Venda.findOne({
+          attributes: [sequelize.fn("sum", sequelize.col("amount"))],
+          where: {
+            data: {
+              [Op.between]: [start, end],
+            },
+          },
+          raw: true,
+        });
+        var TotalVendaDolar = Number(amountD["sum(`amount`)"]).toLocaleString(
+          "pt-BR",
+          {
+            style: "currency",
+            currency: "BRL",
+          }
+        );
+
+        res.render("admin/venda/index", {
+          investidores: investidores,
+          vendas: vendas,
+          quantidade,
+          ValorVenda,
+          TotalVendaDolar,
+        });
+      });
+    })
+    .catch((err) => {
+      res.redirect("admin/venda/index");
+    });
+});
+
 app.get("/venda/:id", adminAuth, (req, res) => {
   var id = req.params.id;
   Venda.findAll({
@@ -367,6 +452,54 @@ app.get("/contaCorrente/:id", adminAuth, async (req, res, next) => {
         attributes: [sequelize.fn("sum", sequelize.col("valor"))],
         where: {
           investidoreId: id,
+        },
+        raw: true,
+      });
+      var Total = Number(amountT["sum(`valor`)"]).toLocaleString("pt-BR", {
+        style: "currency",
+        currency: "BRL",
+      });
+      res.render("admin/financeiro/contaCorrente/index", {
+        investidores: investidores,
+        contaCorrente: contaCorrente,
+        Total,
+      });
+    });
+  });
+});
+
+
+//data-filter contaCorrente
+app.get("/contaCorrente", adminAuth, async (req, res, next) => {
+  const { start, end } = req.query; //Obter as datas da rota ao invés do corpo da requisição
+  Investidor.findAll({
+    raw: true,
+    nest: true,
+  }).then(async (investidores) => {
+    ContaCorrente.findAll({
+      include: [
+        {
+          model: Investidor,
+        },
+      ],
+      where: {
+        data: {
+          [Op.between]: [start, end],
+        },
+      },
+      order: [["data", "DESC"]],
+      raw: true,
+      nest: true,
+    }).then(async (contaCorrente) => {
+       contaCorrente.forEach((contaCorrente) => {
+         contaCorrente.data = moment(contaCorrente.data).format("DD/MM/YYYY");
+       });
+      var amountT = await ContaCorrente.findOne({
+        attributes: [sequelize.fn("sum", sequelize.col("valor"))],
+        where: {
+          data: {
+            [Op.between]: [start, end],
+          },
         },
         raw: true,
       });
@@ -516,6 +649,144 @@ app.get("/relatorio/:id", adminAuth, async (req, res) => {
     });
 });
 
+
+//data-filter Relatório 
+app.get("/relatorio", adminAuth, async (req, res) => {
+  const { start, end } = req.query; //Obter as datas da rota ao invés do corpo da requisição
+  Investidor.findOne({
+    include: [
+      {
+        model: Venda,
+      },
+      {
+        model: Compra,
+      },
+    ],
+  })
+    .then((investidor) => {
+      if (investidor != undefined) {
+        Investidor.findAll().then(async (investidores) => {
+          //////////////////////Quantidade
+          var amountQ = await Venda.findOne({
+            attributes: [sequelize.fn("sum", sequelize.col("quantidade"))],
+            where: {
+              data: {
+                [Op.between]: [start, end],
+              },
+            },
+            raw: true,
+          });
+          var quantidade = Number(amountQ["sum(`quantidade`)"]);
+
+          //////////////////////média valor
+          var amountU = await Venda.findOne({
+            attributes: [sequelize.fn("avg", sequelize.col("valor"))],
+            where: {
+              data: {
+                [Op.between]: [start, end],
+              },
+            },
+            raw: true,
+          });
+          var unitarioT = Number(amountU["avg(`valor`)"]);
+          var unitario = Number(amountU["avg(`valor`)"]).toLocaleString(
+            "pt-BR",
+            {
+              style: "currency",
+              currency: "BRL",
+            }
+          );
+
+          /////Valor da Venda
+          var amountVv = await Venda.findOne({
+            attributes: [sequelize.fn("sum", sequelize.col("valor"))],
+            where: {
+              data: {
+                [Op.between]: [start, end],
+              },
+            },
+            raw: true,
+          });
+          var amountVT = Number(amountVv["sum(`valor`)"]);
+          var amountV = Number(amountVv["sum(`valor`)"]).toLocaleString(
+            "pt-BR",
+            {
+              style: "currency",
+              currency: "BRL",
+            }
+          );
+
+          //////////////////////Capital Investidor
+          var amountT = await Compra.findOne({
+            attributes: [sequelize.fn("sum", sequelize.col("valor"))],
+            where: {
+              data: {
+                [Op.between]: [start, end],
+              },
+            },
+            raw: true,
+          });
+          var CapitalInvestidoT = Number(amountT["sum(`valor`)"]);
+          var CapitalInvestido = Number(amountT["sum(`valor`)"]).toLocaleFixed(
+            2
+          );
+
+          ///Investimento sobre a Venda
+          var InvVenda = (
+            (Number(CapitalInvestidoT) / Number(amountVT)) *
+            100
+          ).toLocaleString("pt-BR", {
+            style: "currency",
+            currency: "BRL",
+          });
+
+          ///Lucro sobre Investimento
+          var LucroN = Number(amountVT) - Number(CapitalInvestidoT);
+          var Lucro = (
+            Number(amountVT) - Number(CapitalInvestidoT)
+          ).toLocaleString("pt-BR", {
+            style: "currency",
+            currency: "BRL",
+          });
+
+          ///Lucro sobre investimento Fazenda
+          var LucroFN = Number(LucroN) / 2;
+          var LucroF = (Number(LucroN) / 2).toLocaleString("pt-BR", {
+            style: "currency",
+            currency: "BRL",
+          });
+
+          //Percentual Fazenda
+          var percentualF = (
+            (Number(LucroFN) / Number(LucroN)) *
+            100
+          ).toLocaleString("pt-BR", {
+            style: "currency",
+            currency: "BRL",
+          });
+
+          res.render("admin/relatorios/index", {
+            vendas: investidor.vendas,
+            compra: investidor.compras,
+            investidores: investidores,
+            quantidade,
+            unitario,
+            amountV,
+            CapitalInvestido,
+            InvVenda,
+            Lucro,
+            LucroF,
+            percentualF,
+          });
+        });
+      } else {
+        res.redirect("admin/relatorios/index");
+      }
+    })
+    .catch((err) => {
+      res.redirect("admin/relatorios/index");
+    });
+});
 //Estoque
 app.get("/estoque/:id", adminAuth, async (req, res) => {
   var id = req.params.id;
@@ -718,6 +989,69 @@ app.get("/morte/:id", adminAuth, async (req, res) => {
     });
 });
 
+//data-filter Morte
+app.get("/morte", adminAuth, async (req, res) => {
+  const { start, end } = req.query; //Obter as datas da rota ao invés do corpo da requisição
+
+  //////////////////////mortes
+  var amountQ = await Morte.findOne({
+    attributes: [sequelize.fn("sum", sequelize.col("quantidade"))],
+    where: {
+      data: {
+        [Op.between]: [start, end],
+      },
+    },
+    raw: true,
+  });
+  var qmorte = Number(amountQ["sum(`quantidade`)"]);
+
+  //////////////////////valor mortes
+  var amountV = await Morte.findOne({
+    attributes: [sequelize.fn("sum", sequelize.col("valor"))],
+    where: {
+      data: {
+        [Op.between]: [start, end],
+      },
+    },
+    raw: true,
+  });
+  var qvalor = Number(amountV["sum(`valor`)"]).toLocaleString("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+  });
+
+  Morte.findAll({
+    include: [
+      {
+        model: Investidor,
+      },
+    ],
+    where: {
+      data: {
+        [Op.between]: [start, end],
+      },
+    },
+    order: [["createdAt", "DESC"]],
+    raw: true,
+    nest: true,
+  })
+    .then((mortes) => {
+      mortes.forEach((morte) => {
+        morte.data = moment(morte.data).format("DD/MM/YYYY");
+      });
+      Investidor.findAll().then((investidores) => {
+        res.render("admin/estoque/morte", {
+          mortes: mortes,
+          investidores: investidores,
+          qmorte,
+          qvalor,
+        });
+      });
+    })
+    .catch((err) => {
+      res.redirect("admin/estoque/morte");
+    });
+});
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
   next(createError(404));

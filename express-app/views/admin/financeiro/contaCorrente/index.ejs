@@ -31,6 +31,30 @@
     
         </div>
                 </div>
+                <div class="col-4">
+                  <div class="card">
+                    <div class="dropdown">
+                      <button class="btn dropdown-toggle form-control" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Periodo
+                      </button>
+                      <ul class="dropdown-menu">
+                        <li>
+                          <form action="/contaCorrente" method="get">
+                            <div class="mb-3">
+                              <label for="start" class="form-label">Data de início:</label>
+                              <input type="date" class="form-control" id="start" name="start">
+                            </div>
+                            <div class="mb-3">
+                              <label for="end" class="form-label">Data de fim:</label>
+                              <input type="date" class="form-control" id="end" name="end">
+                            </div>
+                            <button type="submit" class="btn btn-primary">Filtrar</button>
+                          </form>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
               <div class="col-3">
         <div class="card">
           <!--Barra de Pesquisa-->
