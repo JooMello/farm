@@ -32,7 +32,7 @@ const Compra = require("./routes/compra/Compra");
 const Venda = require("./routes/venda/Venda");
 const Morte = require("./routes/estoque/Estoque");
 const User = require("./routes/users/User");
-const ContaCorrente = require("./routes/financeiro/ContaCorrente/ContaCorrente");
+const  ContaCorrente = require("./routes/financeiro/contaCorrente/ContaCorrente");
 
 //view engine setup
 app.set("views", path.join(__dirname, "views"));

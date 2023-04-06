@@ -11,6 +11,11 @@ const moment = require('moment');
 
 const Investidor = require("../investidor/Investidor")
 
+const accountSid = "AC00fbbfc768402c07243ec830f4e3c2d8";
+const authToken = "c49b7d7775ef24875c1a6e330bfc1c16";
+const client = require("twilio")(accountSid, authToken);
+
+
 const { host, port, user, pass } = require('../../config/mail.json');
 
 
@@ -124,6 +129,25 @@ router.post('/venda/save', adminAuth, (req, res) => {
     investidoreId: investidor
   })
   .then(() => {
+    // Formata a data para o padrão "DD/MM/YYYY"
+    var dataFormatada = moment(data, "YYYY-MM-DD").format("DD/MM/YYYY");
+    var valorFormatado = Number(valor).toLocaleString("pt-BR", {
+      style: "currency",
+      currency: "BRL",
+    });
+
+    // Enviar mensagem no WhatsApp quando a página inicial for acessada
+    client.messages
+      .create({
+        from: "whatsapp:+14155238886",
+        to: "whatsapp:+556593589187",
+        body: `Olá, essa é uma mensagem de notificação:
+    Nova Venda de Gado
+    Data: ${dataFormatada}
+    Valor: ${valorFormatado}`,
+      })
+      .then((message) => console.log(message.sid));
+
     res.redirect("/admin/venda");
   });
 });
@@ -160,27 +184,49 @@ router.post('/venda/update', adminAuth,(req, res) => {
   var obs = req.body.obs;
   var investidor = req.body.investidor;
 
-  var valorFloat = valor.replace(/\D/g, "");
+  var valorFloat = valor.replace(".", "").replace(",", ".");
+  var amountFloat = amount.replace("$", "");
 
-  Venda.update({
-    data: data,
-    quantidade: quantidade,
-    valor: valorFloat,
-    dolar: dolar,
-    amount: amount,
-    obs: obs,
-    investidoreId: investidor,
-  }, {
-    where: {
-      id: id,
+  Venda.update(
+    {
+      data: data,
+      quantidade: quantidade,
+      valor: valorFloat,
+      dolar: dolar,
+      amount: amountFloat,
+      obs: obs,
+      investidoreId: investidor,
+    },
+    {
+      where: {
+        id: id,
+      },
     }
-  })
-  .then(() => {
-    res.redirect("/admin/venda");
-  })
-  .catch((err) => {
-    res.send("erro:" + err);
-  });
+  )
+    .then(() => {
+      // Formata a data para o padrão "DD/MM/YYYY"
+      var dataFormatada = moment(data, "YYYY-MM-DD").format("DD/MM/YYYY");
+      var valorFormatado = Number(valor).toLocaleString("pt-BR", {
+        style: "currency",
+        currency: "BRL",
+      });
+
+      // Enviar mensagem no WhatsApp quando a página inicial for acessada
+      client.messages
+        .create({
+          from: "whatsapp:+14155238886",
+          to: "whatsapp:+556593589187",
+          body: `Olá, essa é uma mensagem de notificação:
+    Venda de Gado foi editado para
+    Data: ${dataFormatada}
+    Valor: ${valorFormatado}`,
+        })
+        .then((message) => console.log(message.sid));
+      res.redirect("/admin/venda");
+    })
+    .catch((err) => {
+      res.send("erro:" + err);
+    });
 })
 
 router.post('/venda/delete',adminAuth, (req, res) => {
@@ -192,6 +238,15 @@ router.post('/venda/delete',adminAuth, (req, res) => {
           id: id,
         },
       }).then(() => {
+                // Enviar mensagem no WhatsApp quando a página inicial for acessada
+        client.messages
+          .create({
+            from: "whatsapp:+14155238886",
+            to: "whatsapp:+556593589187",
+            body: `Olá, essa é uma mensagem de notificação:
+    Uma Venda de Gado foi excluida`,
+          })
+          .then((message) => console.log(message.sid));
         res.redirect("/admin/venda");
       });
     } else {

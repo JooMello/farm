@@ -3,19 +3,17 @@ const router = express.Router();
 const Compra = require("./Compra");
 const slugify = require("slugify");
 const sequelize = require("sequelize");
-const {
-  Op
-} = require("sequelize");
+const { Op } = require("sequelize");
 const request = require("request");
 
-const moment = require('moment');
+const moment = require("moment");
 const adminAuth = require("../../middlewares/adminAuth");
 
 const Investidor = require("../investidor/Investidor");
 
-const accountSid = 'AC00fbbfc768402c07243ec830f4e3c2d8';
-const authToken = '95380828610fd2690e7b53371079bf4c';
-const client = require('twilio')(accountSid, authToken);
+const accountSid = "AC00fbbfc768402c07243ec830f4e3c2d8";
+const authToken = "c49b7d7775ef24875c1a6e330bfc1c16";
+const client = require("twilio")(accountSid, authToken);
 
 //filtragem de dados, por peridodo que eles foram adicionados no BD
 //formatar numeros em valores decimais (.toLocaleFixed(2))
@@ -49,17 +47,17 @@ const Dolar = request(options, callback_dolar);
 
 router.get("/admin/compra", adminAuth, async (req, res, next) => {
   Compra.findAll({
-    include: [{
-      model: Investidor,
-    }, ],
-    order: [
-      ["data", "DESC"]
+    include: [
+      {
+        model: Investidor,
+      },
     ],
+    order: [["data", "DESC"]],
     raw: true,
     nest: true,
   }).then((compras) => {
     compras.forEach((compra) => {
-      compra.data = moment(compra.data).format('DD/MM/YYYY');
+      compra.data = moment(compra.data).format("DD/MM/YYYY");
     });
     Investidor.findAll().then(async (investidores) => {
       //////////////////////Quantidade
@@ -76,10 +74,13 @@ router.get("/admin/compra", adminAuth, async (req, res, next) => {
 
         raw: true,
       });
-      var CapitalInvestido = Number(amountT["sum(`valor`)"]).toLocaleString('pt-BR', {
-        style: 'currency',
-        currency: 'BRL'
-      });
+      var CapitalInvestido = Number(amountT["sum(`valor`)"]).toLocaleString(
+        "pt-BR",
+        {
+          style: "currency",
+          currency: "BRL",
+        }
+      );
 
       //////////////////////Capital Investidor em dolar
       var amountD = await Compra.findOne({
@@ -91,7 +92,7 @@ router.get("/admin/compra", adminAuth, async (req, res, next) => {
         amountD["sum(`amount`)"]
       ).toLocaleString("en-US", {
         style: "currency",
-        currency: "USD"
+        currency: "USD",
       });
 
       var amountU = await Compra.findOne({
@@ -107,12 +108,10 @@ router.get("/admin/compra", adminAuth, async (req, res, next) => {
         distinct: true,
         raw: true,
       });
-      var mediaCompra = Number(amountU["media"]).toLocaleString(
-        "pt-BR", {
-          style: "currency",
-          currency: "BRL"
-        }
-      );
+      var mediaCompra = Number(amountU["media"]).toLocaleString("pt-BR", {
+        style: "currency",
+        currency: "BRL",
+      });
 
       res.render("admin/compra/index", {
         compras: compras,
@@ -127,10 +126,9 @@ router.get("/admin/compra", adminAuth, async (req, res, next) => {
 });
 
 router.get("/admin/compra/new", adminAuth, (req, res) => {
-
-  var cotacaoDolar = Number(cotacao).toLocaleString('en-US', {
-    style: 'currency',
-    currency: 'USD'
+  var cotacaoDolar = Number(cotacao).toLocaleString("en-US", {
+    style: "currency",
+    currency: "USD",
   });
 
   Investidor.findAll().then((investidores) => {
@@ -165,22 +163,24 @@ router.post("/compra/save", adminAuth, (req, res) => {
     obs: obs,
     investidoreId: investidor,
   }).then(() => {
-// Formata a data para o padrão "DD/MM/YYYY"
-var dataFormatada = moment(data, 'YYYY-MM-DD').format('DD/MM/YYYY');
-var valorFormatado = Number(valor).toLocaleString('pt-BR', {
-  style: 'currency',
-  currency: 'BRL'
-});
+    // Formata a data para o padrão "DD/MM/YYYY"
+    var dataFormatada = moment(data, "YYYY-MM-DD").format("DD/MM/YYYY");
+    var valorFormatado = Number(valor).toLocaleString("pt-BR", {
+      style: "currency",
+      currency: "BRL",
+    });
 
     // Enviar mensagem no WhatsApp quando a página inicial for acessada
-  client.messages.create({
-    from: 'whatsapp:+14155238886',
-    to: 'whatsapp:+556593589187',
-    body: `Olá, essa é uma mensagem de notificação:
-    Compra de Gado
+    client.messages
+      .create({
+        from: "whatsapp:+14155238886",
+        to: "whatsapp:+556593589187",
+        body: `Olá, essa é uma mensagem de notificação:
+    Nova Compra de Gado
     Data: ${dataFormatada}
-    Valor R$: ${valorFormatado}`
-  }).then(message => console.log(message.sid));
+    Valor: ${valorFormatado}`,
+      })
+      .then((message) => console.log(message.sid));
     res.redirect("/admin/compra");
   });
 });
@@ -217,21 +217,44 @@ router.post("/compra/update", adminAuth, (req, res) => {
   var investidor = req.body.investidor;
 
   var valorFloat = valor.replace(".", "").replace(",", ".");
+  var amountFloat = amount.replace("$", "");
 
-  Compra.update({
+
+  Compra.update(
+    {
       data: data,
       quantidade: quantidade,
       valor: valorFloat,
       dolar: dolar,
-      amount: amount,
+      amount: amountFloat,
       obs: obs,
       investidoreId: investidor,
-    }, {
+    },
+    {
       where: {
         id: id,
       },
-    })
+    }
+  )
     .then(() => {
+      // Formata a data para o padrão "DD/MM/YYYY"
+      var dataFormatada = moment(data, "YYYY-MM-DD").format("DD/MM/YYYY");
+      var valorFormatado = Number(valor).toLocaleString("pt-BR", {
+        style: "currency",
+        currency: "BRL",
+      });
+
+      // Enviar mensagem no WhatsApp quando a página inicial for acessada
+      client.messages
+        .create({
+          from: "whatsapp:+14155238886",
+          to: "whatsapp:+556593589187",
+          body: `Olá, essa é uma mensagem de notificação:
+    Compra de Gado foi editado para
+    Data: ${dataFormatada}
+    Valor: ${valorFormatado}`,
+        })
+        .then((message) => console.log(message.sid));
       res.redirect("/admin/compra");
     })
     .catch((err) => {
@@ -248,6 +271,16 @@ router.post("/compra/delete", adminAuth, (req, res) => {
           id: id,
         },
       }).then(() => {
+
+        // Enviar mensagem no WhatsApp quando a página inicial for acessada
+        client.messages
+          .create({
+            from: "whatsapp:+14155238886",
+            to: "whatsapp:+556593589187",
+            body: `Olá, essa é uma mensagem de notificação:
+    Uma Compra de Gado foi excluida`,
+          })
+          .then((message) => console.log(message.sid));
         res.redirect("/admin/compra");
       });
     } else {
