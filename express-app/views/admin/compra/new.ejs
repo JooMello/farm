@@ -32,24 +32,36 @@
               </div>
               <br>
               <div class="input--with-addon currency-input">
-                <label>Numeração</label>
+                <label>Código de Referencia</label>
                 <div class="input__container text-input">
-                  <input type="number" name="id" id="id" required
+                  <input type="number" name="code" id="code" required
                     class="input form-control form-control-danger" /><!---->
                 </div>
                 <!----><!---->
               </div>
               <br />
               <div class="input--with-addon currency-input">
+                <label>Quantidade</label>
                 <div class="input__container text-input">
-                  <input  type="hidden"  name="quantidade" id="quantidade" value="1"/><!---->
+                  <input type="number" name="quantidade" id="quantidade" required
+                    class="input form-control form-control-danger" /><!---->
                 </div>
                 <!----><!---->
               </div>
+              <br />
               <div class="input--with-addon currency-input">
-                <label>Valor Unitário</label>
+                <label>Valor</label>
                 <div class="input__container text-input">
                   <input type="text" name="valor" id="valor" required
+                    class="input form-control form-control-danger" /><!---->
+                </div>
+                <!----><!---->
+              </div>
+              <br />
+              <div class="input--with-addon currency-input">
+                <label>Númeração do Brinco</label>
+                <div class="input__container text-input">
+                  <input type="number" name="id" id="id"
                     class="input form-control form-control-danger" /><!---->
                 </div>
                 <!----><!---->
@@ -100,6 +112,7 @@
     <%- include ("../../partials/footer.ejs") %>
 
 
+    
       <!-- script pegar valores (quantidade, unitario) multiplicar e apresentar no input total.
 Pega valor total da compra divide pelo dolar diario
 -->

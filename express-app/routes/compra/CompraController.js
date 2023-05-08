@@ -3,17 +3,19 @@ const router = express.Router();
 const Compra = require("./Compra");
 const slugify = require("slugify");
 const sequelize = require("sequelize");
-const { Op } = require("sequelize");
+const {
+  Op
+} = require("sequelize");
 const request = require("request");
 
-const moment = require("moment");
+const moment = require('moment');
 const adminAuth = require("../../middlewares/adminAuth");
 
 const Investidor = require("../investidor/Investidor");
 
-const accountSid = "AC00fbbfc768402c07243ec830f4e3c2d8";
-const authToken = "c49b7d7775ef24875c1a6e330bfc1c16";
-const client = require("twilio")(accountSid, authToken);
+const accountSid = 'AC00fbbfc768402c07243ec830f4e3c2d8';
+const authToken = 'a4bf781cce4033571b1cebd1bab79bd4';
+const client = require('twilio')(accountSid, authToken);
 
 //filtragem de dados, por peridodo que eles foram adicionados no BD
 //formatar numeros em valores decimais (.toLocaleFixed(2))
@@ -47,17 +49,17 @@ const Dolar = request(options, callback_dolar);
 
 router.get("/admin/compra", adminAuth, async (req, res, next) => {
   Compra.findAll({
-    include: [
-      {
-        model: Investidor,
-      },
+    include: [{
+      model: Investidor,
+    }, ],
+    order: [
+      ["data", "DESC"]
     ],
-    order: [["data", "DESC"]],
     raw: true,
     nest: true,
   }).then((compras) => {
     compras.forEach((compra) => {
-      compra.data = moment(compra.data).format("DD/MM/YYYY");
+      compra.data = moment(compra.data).format('DD/MM/YYYY');
     });
     Investidor.findAll().then(async (investidores) => {
       //////////////////////Quantidade
@@ -74,13 +76,10 @@ router.get("/admin/compra", adminAuth, async (req, res, next) => {
 
         raw: true,
       });
-      var CapitalInvestido = Number(amountT["sum(`valor`)"]).toLocaleString(
-        "pt-BR",
-        {
-          style: "currency",
-          currency: "BRL",
-        }
-      );
+      var CapitalInvestido = Number(amountT["sum(`valor`)"]).toLocaleString('pt-BR', {
+        style: 'currency',
+        currency: 'BRL'
+      });
 
       //////////////////////Capital Investidor em dolar
       var amountD = await Compra.findOne({
@@ -92,7 +91,7 @@ router.get("/admin/compra", adminAuth, async (req, res, next) => {
         amountD["sum(`amount`)"]
       ).toLocaleString("en-US", {
         style: "currency",
-        currency: "USD",
+        currency: "USD"
       });
 
       var amountU = await Compra.findOne({
@@ -108,10 +107,12 @@ router.get("/admin/compra", adminAuth, async (req, res, next) => {
         distinct: true,
         raw: true,
       });
-      var mediaCompra = Number(amountU["media"]).toLocaleString("pt-BR", {
-        style: "currency",
-        currency: "BRL",
-      });
+      var mediaCompra = Number(amountU["media"]).toLocaleString(
+        "pt-BR", {
+          style: "currency",
+          currency: "BRL"
+        }
+      );
 
       res.render("admin/compra/index", {
         compras: compras,
@@ -126,9 +127,10 @@ router.get("/admin/compra", adminAuth, async (req, res, next) => {
 });
 
 router.get("/admin/compra/new", adminAuth, (req, res) => {
-  var cotacaoDolar = Number(cotacao).toLocaleString("en-US", {
-    style: "currency",
-    currency: "USD",
+
+  var cotacaoDolar = Number(cotacao).toLocaleString('en-US', {
+    style: 'currency',
+    currency: 'USD'
   });
 
   Investidor.findAll().then((investidores) => {
@@ -142,6 +144,7 @@ router.get("/admin/compra/new", adminAuth, (req, res) => {
 
 router.post("/compra/save", adminAuth, (req, res) => {
   var id = req.body.id;
+  var code = req.body.code;
   var data = req.body.data;
   var quantidade = req.body.quantidade;
   var valor = req.body.valor;
@@ -150,39 +153,62 @@ router.post("/compra/save", adminAuth, (req, res) => {
   var obs = req.body.obs;
   var investidor = req.body.investidor;
 
-  var valorFloat = valor.replace(".", "").replace(",", ".");
-  var amountFloat = amount.replace("$", "");
+  var valorFloat = parseFloat(valor.replace(".", "").replace(",", "."));
+  var amountFloat = parseFloat(amount.replace("$", ""));
 
-  Compra.create({
-    id: id,
-    data: data,
-    quantidade: quantidade,
-    valor: valorFloat,
-    dolar: dolar,
-    amount: amountFloat,
-    obs: obs,
-    investidoreId: investidor,
-  }).then(() => {
-    // Formata a data para o padrão "DD/MM/YYYY"
-    var dataFormatada = moment(data, "YYYY-MM-DD").format("DD/MM/YYYY");
-    var valorFormatado = Number(valor).toLocaleString("pt-BR", {
-      style: "currency",
-      currency: "BRL",
+  var nextId;
+
+  if (!id) {
+    // Consulta SQL para buscar o último ID salvo na tabela Compra
+    Compra.findOne({
+      order: [['id', 'DESC']],
+      limit: 1
+    }).then((compra) => {
+      nextId = compra ? compra.id + 1 : 1; // Definir o próximo ID
+      checkIfCodeExists(nextId);
     });
+  } else {
+    nextId = parseInt(id) + 1;
+    checkIfCodeExists(id);
+  }
 
-    // Enviar mensagem no WhatsApp quando a página inicial for acessada
-    client.messages
-      .create({
-        from: "whatsapp:+14155238886",
-        to: "whatsapp:+556593589187",
-        body: `Olá, essa é uma mensagem de notificação:
-    Nova Compra de Gado
-    Data: ${dataFormatada}
-    Valor: ${valorFormatado}`,
-      })
-      .then((message) => console.log(message.sid));
-    res.redirect("/admin/compra");
-  });
+  function checkIfCodeExists(currentId) {
+    // Consulta SQL para verificar se já existe um registro com o mesmo valor de "code"
+    Compra.findOne({
+      where: { code: code }
+    }).then((compra) => {
+      if (compra) {
+        // Já existe um registro com o mesmo valor de "code"
+        res.send("<script>alert('Já existe um registro com o mesmo código'); history.back();</script>");
+      } else {
+        // Não existe um registro com o mesmo valor de "code"
+        insertCompra(currentId);
+      }
+    });
+  }
+
+  function insertCompra(currentId) {
+    var objects = [];
+
+    for (var i = 0; i < quantidade; i++) {
+      objects.push({
+        id: currentId,
+        data: data,
+        quantidade: quantidade,
+        code: code,
+        valor: valorFloat / quantidade,
+        dolar: dolar,
+        amount: amountFloat / quantidade,
+        obs: obs,
+        investidoreId: investidor,
+      });
+      currentId++; // Incrementar o ID para o próximo objeto
+    }
+
+    Compra.bulkCreate(objects).then(() => {
+      res.redirect("/admin/compra");
+    });
+  }
 });
 
 router.get("/admin/compra/edit/:id", adminAuth, (req, res) => {
@@ -217,44 +243,21 @@ router.post("/compra/update", adminAuth, (req, res) => {
   var investidor = req.body.investidor;
 
   var valorFloat = valor.replace(".", "").replace(",", ".");
-  var amountFloat = amount.replace("$", "");
 
-
-  Compra.update(
-    {
+  Compra.update({
       data: data,
       quantidade: quantidade,
       valor: valorFloat,
       dolar: dolar,
-      amount: amountFloat,
+      amount: amount,
       obs: obs,
       investidoreId: investidor,
-    },
-    {
+    }, {
       where: {
         id: id,
       },
-    }
-  )
+    })
     .then(() => {
-      // Formata a data para o padrão "DD/MM/YYYY"
-      var dataFormatada = moment(data, "YYYY-MM-DD").format("DD/MM/YYYY");
-      var valorFormatado = Number(valor).toLocaleString("pt-BR", {
-        style: "currency",
-        currency: "BRL",
-      });
-
-      // Enviar mensagem no WhatsApp quando a página inicial for acessada
-      client.messages
-        .create({
-          from: "whatsapp:+14155238886",
-          to: "whatsapp:+556593589187",
-          body: `Olá, essa é uma mensagem de notificação:
-    Compra de Gado foi editado para
-    Data: ${dataFormatada}
-    Valor: ${valorFormatado}`,
-        })
-        .then((message) => console.log(message.sid));
       res.redirect("/admin/compra");
     })
     .catch((err) => {
@@ -271,16 +274,6 @@ router.post("/compra/delete", adminAuth, (req, res) => {
           id: id,
         },
       }).then(() => {
-
-        // Enviar mensagem no WhatsApp quando a página inicial for acessada
-        client.messages
-          .create({
-            from: "whatsapp:+14155238886",
-            to: "whatsapp:+556593589187",
-            body: `Olá, essa é uma mensagem de notificação:
-    Uma Compra de Gado foi excluida`,
-          })
-          .then((message) => console.log(message.sid));
         res.redirect("/admin/compra");
       });
     } else {
