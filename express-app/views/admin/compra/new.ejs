@@ -34,7 +34,7 @@
               <div class="input--with-addon currency-input">
                 <label>Código de Referencia</label>
                 <div class="input__container text-input">
-                  <input type="number" name="code" id="code" required
+                  <input type="number" name="code" id="code"
                     class="input form-control form-control-danger" /><!---->
                 </div>
                 <!----><!---->
@@ -117,24 +117,27 @@
 Pega valor total da compra divide pelo dolar diario
 -->
       <script>
+const valorInput = document.getElementById('valor');
 
-        //filtragem de dados, por peridodo que eles foram adicionados no BD
-        //formatar numeros em valores decimais (.toLocaleFixed(2))
-        Number.prototype.toLocaleFixed = function (n) {
-          return this.toLocaleString(undefined, {
-            minimumFractionDigits: n,
-            maximumFractionDigits: n
-          });
-        };
+valorInput.addEventListener('input', event => {
+  // Remove todos os caracteres não numéricos do valor de entrada
+  const valorNumerico = event.target.value.replace(/[^\d]/g, '');
 
-        valor.addEventListener('input', event => {
-          const unitarioValue = (event.target.value)
+  // Formata o valor numérico como um valor de dinheiro
+  const valorFormatado = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(valorNumerico / 100);
 
-          const dolar = <%= cotacao %>;
+  // Define o valor formatado no input
+  event.target.value = valorFormatado;
 
-          const totalDolarValue = (Number(unitarioValue) / Number(dolar))
-          document.getElementById('amount').value = Number(totalDolarValue).toLocaleString('en-US', {style: 'currency', currency: 'USD'});
-        })
+  // Sua lógica de cálculo de conversão de moeda abaixo
+  const unitarioValue = valorNumerico / 100;
+
+  const dolar = <%= cotacao %>;
+
+  const totalDolarValue = (Number(unitarioValue) / Number(dolar))
+  document.getElementById('amount').value = Number(totalDolarValue).toLocaleString('en-US', {style: 'currency', currency: 'USD'});
+});
+
       </script>
 
 

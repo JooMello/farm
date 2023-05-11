@@ -63,12 +63,7 @@ router.get("/admin/compra", adminAuth, async (req, res, next) => {
     });
     Investidor.findAll().then(async (investidores) => {
       //////////////////////Quantidade
-      var amountQ = await Compra.findOne({
-        attributes: [sequelize.fn("sum", sequelize.col("quantidade"))],
-
-        raw: true,
-      });
-      var quantidade = Number(amountQ["sum(`quantidade`)"]);
+      var quantidade = await Compra.count(); 
 
       //////////////////////Capital Investidor
       var amountT = await Compra.findOne({
@@ -152,10 +147,11 @@ router.post("/compra/save", adminAuth, (req, res) => {
   var amount = req.body.amount;
   var obs = req.body.obs;
   var investidor = req.body.investidor;
-
-  var valorFloat = parseFloat(valor.replace(".", "").replace(",", "."));
-  var amountFloat = parseFloat(amount.replace("$", ""));
-
+console.log(valor)
+  var valorFloat = parseFloat(valor.replace("R$", "").replace(".", "").replace(",", "."));
+  var dolarFloat = parseFloat(dolar.replace("$", ""));
+  var amountFloat = parseFloat(amount.replace("$", "").replace(",", ".").replace(".", ""));
+  console.log(valorFloat)
   var nextId;
 
   if (!id) {
@@ -197,7 +193,7 @@ router.post("/compra/save", adminAuth, (req, res) => {
         quantidade: quantidade,
         code: code,
         valor: valorFloat / quantidade,
-        dolar: dolar,
+        dolar: dolarFloat,
         amount: amountFloat / quantidade,
         obs: obs,
         investidoreId: investidor,

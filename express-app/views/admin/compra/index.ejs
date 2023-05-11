@@ -76,7 +76,7 @@
             <th>Numeração</th>
             <th>Valor</th>
             <th>Dolar</th>
-            <th>Venda - Dolar</th>
+            <th>Compra - Dolar</th>
             <th>Ações</th>
           </tr>
         </thead>
@@ -87,7 +87,7 @@
             <td id="formatData"><%= compra.data %></td>
             <td><%= compra.id %></td>
             <td><%= new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(compra.valor) %></td>
-            <td><%= compra.dolar %></td>
+            <td><%= new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format( compra.dolar) %></td>
             <td><%= new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(compra.amount) %></td>
             <td>
               <a href="/admin/compra/edit/<%= compra.id %>" class="btn btn-warning btn-sm">Editar</a>
