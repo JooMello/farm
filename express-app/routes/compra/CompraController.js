@@ -137,68 +137,83 @@ router.get("/admin/compra/new", adminAuth, (req, res) => {
   });
 });
 
-router.post("/compra/save", adminAuth, (req, res) => {
-  var id = req.body.id;
-  var code = req.body.code;
-  var data = req.body.data;
-  var quantidade = req.body.quantidade;
-  var valor = req.body.valor;
-  var dolar = req.body.dolar;
-  var amount = req.body.amount;
-  var obs = req.body.obs;
-  var investidor = req.body.investidor;
-console.log(valor)
-  var valorFloat = parseFloat(valor.replace("R$", "").replace(".", "").replace(",", "."));
-  var dolarFloat = parseFloat(dolar.replace("$", ""));
-  var amountFloat = parseFloat(amount.replace("$", "").replace(",", ".").replace(".", ""));
-  console.log(valorFloat)
-  var nextId;
+router.post("/compra/save", adminAuth, async (req, res) => {
+  let id = req.body.id;
+  let code = req.body.code;
+  let data = req.body.data;
+  let quantidade = req.body.quantidade;
+  let valor = req.body.valor;
+  let dolar = req.body.dolar;
+  let amount = req.body.amount;
+  let obs = req.body.obs;
+  let investidor = req.body.investidor;
+
+  let valorFloat = parseFloat(valor.replace("R$", "").replace(".", "").replace(",", "."));
+  let dolarFloat = parseFloat(dolar.replace("$", ""));
+  let amountFloat = parseFloat(amount.replace("$", "").replace(",", ".").replace(".", ""));
+
+
+  let nextId;
+  let nextCode;
+
 
   if (!id) {
-    // Consulta SQL para buscar o último ID salvo na tabela Compra
-    Compra.findOne({
-      order: [['id', 'DESC']],
-      limit: 1
-    }).then((compra) => {
-      nextId = compra ? compra.id + 1 : 1; // Definir o próximo ID
-      checkIfCodeExists(nextId);
-    });
+    try {
+      const compra = await Compra.findOne({
+        order: [['id', 'DESC']],
+        limit: 1
+      });
+      nextId = compra ? compra.id + 1 : 1;
+    } catch (error) {
+      // Tratar o erro de consulta
+      console.error(error);
+      nextId = 1;
+    }
   } else {
     nextId = parseInt(id) + 1;
-    checkIfCodeExists(id);
   }
 
-  function checkIfCodeExists(currentId) {
-    // Consulta SQL para verificar se já existe um registro com o mesmo valor de "code"
-    Compra.findOne({
-      where: { code: code }
-    }).then((compra) => {
-      if (compra) {
-        // Já existe um registro com o mesmo valor de "code"
-        res.send("<script>alert('Já existe um registro com o mesmo código'); history.back();</script>");
+  if (!code) {
+    try {
+      const lastCompra = await Compra.findOne({
+        order: [['code', 'DESC']],
+        limit: 1
+      });
+  
+      if (lastCompra) {
+        const lastCode = lastCompra.code.toString();
+        const incrementedCode = (parseInt(lastCode) + 1).toString();
+        nextCode = parseInt(incrementedCode);
       } else {
-        // Não existe um registro com o mesmo valor de "code"
-        insertCompra(currentId);
+        nextCode = 1;
       }
-    });
+    } catch (error) {
+      // Tratar o erro de consulta
+      console.error(error);
+      nextCode = 1;
+    }
+  } else {
+    nextCode = parseInt(code); // Não incrementar o código fornecido
   }
+  
+  insertCompra(nextId, nextCode)
 
-  function insertCompra(currentId) {
+  function insertCompra(nextId, nextCode) {
     var objects = [];
 
     for (var i = 0; i < quantidade; i++) {
       objects.push({
-        id: currentId,
+        id: nextId,
         data: data,
         quantidade: quantidade,
-        code: code,
+        code: nextCode,
         valor: valorFloat / quantidade,
         dolar: dolarFloat,
         amount: amountFloat / quantidade,
         obs: obs,
         investidoreId: investidor,
       });
-      currentId++; // Incrementar o ID para o próximo objeto
+      nextId++; // Incrementar o ID para o próximo objeto
     }
 
     Compra.bulkCreate(objects).then(() => {
