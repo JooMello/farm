@@ -8,6 +8,10 @@ const Venda = connection.define('vendas', {
         type: Sequelize.DATEONLY,
         allowNull: false
     },
+    code: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
     quantidade: {
         type: Sequelize.STRING,
         allowNull: false

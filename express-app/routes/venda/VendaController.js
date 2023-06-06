@@ -91,7 +91,7 @@ router.get('/admin/venda',adminAuth, async (req, res, next) => {
   })
 });
 
-router.get('/admin/venda/new', adminAuth, (req, res) => {
+router.get('/admin/venda/new', adminAuth,(req, res) => {
 
   var cotacaoDolar = Number(cotacao).toLocaleString('en-US', {style: 'currency', currency: 'USD'});
 
@@ -104,52 +104,84 @@ router.get('/admin/venda/new', adminAuth, (req, res) => {
   });
 });
 
-router.post('/venda/save', adminAuth, (req, res) => {
-  var id = req.body.id;
-  var data = req.body.data;
-  var quantidade = req.body.quantidade;
-  var valor = req.body.valor;
-  var dolar = req.body.dolar;
-  var amount = req.body.amount;
-  var obs = req.body.obs;
-  var investidor = req.body.investidor;
+router.post('/venda/save', adminAuth,async (req, res) => {
+  let id = req.body.id;
+  let code = req.body.code;
+  let data = req.body.data;
+  let quantidade = req.body.quantidade;
+  let valor = req.body.valor;
+  let dolar = req.body.dolar;
+  let amount = req.body.amount;
+  let obs = req.body.obs;
+  let investidor = req.body.investidor;
 
-  var valorFloat = valor.replace(".", "").replace(",", ".");
-  var amountFloat = amount.replace("$", "");
+  let valorFloat = parseFloat(valor.replace("R$", "").replace(".", "").replace(",", "."));
+  let dolarFloat = parseFloat(dolar.replace("$", ""));
+  let amountFloat = parseFloat(amount.replace("$", "").replace(",", ".").replace(".", ""));
 
-   Venda.create(
-   {
-    id: id,
-    data: data,
-    quantidade: quantidade,
-    valor: valorFloat,
-    dolar: dolar,
-    amount: amountFloat,
-    obs: obs,
-    investidoreId: investidor
-  })
-  .then(() => {
-    // Formata a data para o padrão "DD/MM/YYYY"
-    var dataFormatada = moment(data, "YYYY-MM-DD").format("DD/MM/YYYY");
-    var valorFormatado = Number(valor).toLocaleString("pt-BR", {
-      style: "currency",
-      currency: "BRL",
+  if (!id) {
+    try {
+      const venda = await Venda.findOne({
+        order: [['id', 'DESC']],
+        limit: 1
+      });
+      nextId = venda ? venda.id + 1 : 1;
+    } catch (error) {
+      // Tratar o erro de consulta
+      console.error(error);
+      nextId = 1;
+    }
+  } else {
+    nextId = parseInt(id) + 1;
+  }
+
+  if (!code) {
+    try {
+      const lastVenda = await Venda.findOne({
+        order: [['code', 'DESC']],
+        limit: 1
+      });
+  
+      if (lastVenda) {
+        const lastCode = lastVenda.code.toString();
+        const incrementedCode = (parseInt(lastCode) + 1).toString();
+        nextCode = parseInt(incrementedCode);
+      } else {
+        nextCode = 1;
+      }
+    } catch (error) {
+      // Tratar o erro de consulta
+      console.error(error);
+      nextCode = 1;
+    }
+  } else {
+    nextCode = parseInt(code); // Não incrementar o código fornecido
+  }
+  
+  insertVenda(nextId, nextCode)
+
+  function insertVenda(nextId, nextCode) {
+    var objects = [];
+
+    for (var i = 0; i < quantidade; i++) {
+      objects.push({
+        id: nextId,
+        data: data,
+        quantidade: quantidade,
+        code: nextCode,
+        valor: valorFloat / quantidade,
+        dolar: dolarFloat,
+        amount: amountFloat / quantidade,
+        obs: obs,
+        investidoreId: investidor,
+      });
+      nextId++; // Incrementar o ID para o próximo objeto
+    }
+
+    Venda.bulkCreate(objects).then(() => {
+      res.redirect("/admin/venda");
     });
-
-    // Enviar mensagem no WhatsApp quando a página inicial for acessada
-    client.messages
-      .create({
-        from: "whatsapp:+14155238886",
-        to: "whatsapp:+556593589187",
-        body: `Olá, essa é uma mensagem de notificação:
-    Nova Venda de Gado
-    Data: ${dataFormatada}
-    Valor: ${valorFormatado}`,
-      })
-      .then((message) => console.log(message.sid));
-
-    res.redirect("/admin/venda");
-  });
+  }
 });
 
 router.get("/admin/venda/edit/:id", adminAuth, (req, res) => {
