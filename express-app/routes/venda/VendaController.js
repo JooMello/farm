@@ -54,46 +54,72 @@ router.get('/admin/venda',adminAuth, async (req, res, next) => {
      raw: true,
     nest: true,
   }).then((vendas) => {
-    Investidor.findAll().then(async(investidores) => {
-      vendas.forEach((venda) => {
-        venda.data = moment(venda.data).format('DD/MM/YYYY');
+    vendas.forEach((venda) => {
+      venda.data = moment(venda.data).format("DD/MM/YYYY");
+    });
+    Investidor.findAll().then(async (investidores) => {
+      //////////////////////Quantidade
+      var quantidade = await Venda.count();
+
+      //////////////////////valor Venda
+      var amountT = await Venda.findOne({
+        attributes: [sequelize.fn("sum", sequelize.col("valor"))],
+
+        raw: true,
       });
-          //////////////////////Quantidade
-    var amountQ = await Venda.findOne({
-      attributes: [sequelize.fn("sum", sequelize.col("quantidade"))],
+      var ValorVenda = Number(amountT["sum(`valor`)"]).toLocaleString("pt-BR", {
+        style: "currency",
+        currency: "BRL",
+      });
+
+      //////////////////////valor Venda em dolar
+      var amountD = await Venda.findOne({
+        attributes: [sequelize.fn("sum", sequelize.col("amount"))],
+
+        raw: true,
+      });
+      var TotalVendaDolar = Number(amountD["sum(`amount`)"]).toLocaleString(
+        "pt-BR",
+        { style: "currency", currency: "BRL" }
+      );
+
       
-      raw: true
-    });
-    var quantidade = (Number(amountQ['sum(`quantidade`)']))
-    
-          //////////////////////valor Venda
-          var amountT = await Venda.findOne({
-            attributes: [sequelize.fn("sum", sequelize.col("valor"))],
-           
-            raw: true
-          });
-          var ValorVenda = (Number(amountT['sum(`valor`)'])).toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
-      
-          
-          //////////////////////valor Venda em dolar
-    var amountD = await Venda.findOne({
-      attributes: [sequelize.fn("sum", sequelize.col("amount"))],
-     
-      raw: true
-    });
-    var TotalVendaDolar = (Number(amountD['sum(`amount`)'])).toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
-      res.render('admin/venda/index', {
+      var amountU = await Venda.findOne({
+        attributes: [
+          [
+            sequelize.fn(
+              "avg",
+              sequelize.fn("DISTINCT", sequelize.col("valor"))
+            ),
+            "media",
+          ],
+        ],
+        distinct: true,
+        raw: true,
+      });
+
+       var mediaVenda = Number(amountU["media"]).toLocaleString("pt-BR", {
+         style: "currency",
+         currency: "BRL",
+       });
+
+      res.render("admin/venda/index", {
         vendas: vendas,
-        investidores: investidores,
-        quantidade, ValorVenda, TotalVendaDolar,
+        investidores: investidores,mediaVenda,
+        quantidade,
+        ValorVenda,
+        TotalVendaDolar,
       });
-    })
+    });
   })
 });
 
 router.get('/admin/venda/new', adminAuth,(req, res) => {
 
-  var cotacaoDolar = Number(cotacao).toLocaleString('en-US', {style: 'currency', currency: 'USD'});
+   var cotacaoDolar = Number(cotacao).toLocaleString("en-US", {
+     style: "currency",
+     currency: "USD",
+   });
 
   Investidor.findAll().then((investidores) => {
     res.render('admin/venda/new', {
@@ -104,7 +130,7 @@ router.get('/admin/venda/new', adminAuth,(req, res) => {
   });
 });
 
-router.post('/venda/save', adminAuth,async (req, res) => {
+router.post("/venda/save", adminAuth, async (req, res) => {
   let id = req.body.id;
   let code = req.body.code;
   let data = req.body.data;
@@ -118,6 +144,10 @@ router.post('/venda/save', adminAuth,async (req, res) => {
   let valorFloat = parseFloat(valor.replace("R$", "").replace(".", "").replace(",", "."));
   let dolarFloat = parseFloat(dolar.replace("$", ""));
   let amountFloat = parseFloat(amount.replace("$", "").replace(",", ".").replace(".", ""));
+
+  
+  let nextId;
+  let nextCode;
 
   if (!id) {
     try {

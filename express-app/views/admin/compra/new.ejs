@@ -6,7 +6,7 @@
         <br />
         <div class="card">
           <div class="card-header">
-            <h2>Novo Compra</h2>
+            <h2>Nova Compra</h2>
           </div>
           <div class="card-body">
             <form method="POST" action="/compra/save">
@@ -24,7 +24,7 @@
               </div>
               <br />
               <div class="input--with-addon currency-input">
-                <label>Data Compra</label>
+                <label>Data Venda</label>
                 <div class="input__container numeral-input">
                   <input type="date" name="data" required class="input form-control form-control-danger" /><!---->
                 </div>
@@ -43,8 +43,8 @@
               <div class="input--with-addon currency-input">
                 <label>Valor da venda</label>
                 <div class="input__container text-input">
-                  <input type="text" name="valor" id="valor" required
-                    class="input form-control form-control-danger" /><!---->
+                  <input type="text" name="valor" id="valor" required class="input form-control form-control-danger"
+                    onkeyup="formatCurrency(this)" /><!---->
                 </div>
                 <!----><!---->
               </div>
@@ -52,8 +52,7 @@
               <div class="input--with-addon currency-input">
                 <label>Númeração do Brinco</label>
                 <div class="input__container text-input">
-                  <input type="number" name="id" id="id"
-                    class="input form-control form-control-danger" /><!---->
+                  <input type="number" name="id" id="id" class="input form-control form-control-danger" /><!---->
                 </div>
                 <!----><!---->
               </div>
@@ -68,10 +67,9 @@
               </div>
               <br>
               <div class="input--with-addon currency-input">
-                <label>Compra - Dolar</label>
+                <label>Venda - Dolar</label>
                 <div class="input__container text-input">
-                  <input type="text" name="amount" id="amount" required
-                    class="input form-control form-control-danger" /><!---->
+                  <input type="text" name="amount" id="amount" required class="input form-control form-control-danger" /><!---->
                 </div>
                 <!----><!---->
               </div>
@@ -80,13 +78,12 @@
                 <label>Descrição</label>
                 <div class="input__container text-input">
                   <textarea type="text" name="obs" id="obs" required class="input form-control form-control-danger">
-                    </textarea>
+                                    </textarea>
                 </div>
                 <!----><!---->
               </div>
               <br />
               <div class="row">
-
                 <div class="col"></div>
                 <div class="col-3">
                   <button class="btn btn-success form-control">Salvar</button>

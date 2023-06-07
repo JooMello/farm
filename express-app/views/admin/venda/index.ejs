@@ -1,199 +1,206 @@
-<%- include ("../../partials/header.ejs") %> <%- include
-("../../partials/navbar.ejs") %>
+<%- include ("../../partials/header.ejs") %> <%- include ("../../partials/navbar.ejs") %>
 
-<body>
-    <div class="container">
-      <hr />
-      <h2>Vendas</h2>
-  
-      <hr />
-      <div class="row g-2">
-
-        <div class="col-2">
-          <div class="card">
-      <a class="btn btn-success form-control" href="/admin/venda/new"
-      >Nova Venda</a>
-    </div>
-    </div>
-
-   <div class="col-2">
-    <div class="card text-center">
-       <div class="dropdown">
-<button class="btn dropdown-toggle form-control" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-Investidor
-</button>
-<ul class="dropdown-menu">
-  <li >
-    <a class="dropdown-item"  href="/admin/venda">TODOS</a>
-  </li>
- <% investidores.forEach(investidor => { %>
-<li >
-        <a class="dropdown-item"  href="/venda/<%= investidor.id %>"><%= investidor.name %></a>
-    </li>
- <% }) %>
-</ul>
-</div>
-
-    </div>
-   </div>
-<div class="col-4">
-  <div class="card">
-    <div class="dropdown">
-      <button class="btn dropdown-toggle form-control" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-        Periodo
-      </button>
-      <ul class="dropdown-menu">
-        <li>
-          <form action="/venda" method="get">
-            <div class="mb-3">
-              <label for="start" class="form-label">Data de início:</label>
-              <input type="date" class="form-control" id="start" name="start">
+    <body>
+      <div class="container">
+        <hr />
+        <h2>Vendas</h2>
+        <hr />
+        <div class="row g-2">
+          <div class="col-2">
+            <div class="card">
+              <a class="btn btn-success form-control" href="/admin/venda/new">Nova Venda</a>
             </div>
-            <div class="mb-3">
-              <label for="end" class="form-label">Data de fim:</label>
-              <input type="date" class="form-control" id="end" name="end">
-            </div>
-            <button type="submit" class="btn btn-primary">Filtrar</button>
-          </form>
-        </li>
-      </ul>
-    </div>
-  </div>
-</div>
-    <div class="col-3">
-    <div class="card">
-      <!--Barra de Pesquisa-->
-      <form class="form-search">
-        <input
-          class="form-control"
-          type="text"
-          name="search"
-          id="search"
-          placeholder="Pesquisar..."
-        />
-      </form>
-    </div>
-     </div>
+          </div>
+          <div class="col-2">
+            <div class="card text-center">
+              <div class="dropdown">
+                <button class="btn dropdown-toggle form-control" type="button" data-bs-toggle="dropdown"
+                  aria-expanded="false">
+                  Investidor
+                </button>
+                <ul class="dropdown-menu">
+                  <li>
+                    <a class="dropdown-item" href="/admin/venda">TODOS</a>
+                  </li>
+                  <% investidores.forEach(investidor=> { %>
+                    <li>
+                      <a class="dropdown-item" href="/venda/<%= investidor.id %>">
+                        <%= investidor.name %>
+                      </a>
+                    </li>
+                    <% }) %>
+                </ul>
+              </div>
 
-    </div>
-<hr/>
-<div  class="table-responsive-xxl">
-    <table id="tab" data-type="table-menu"  class="table table-hover table-bordered table-sm text-center">
-      <thead class="thead-light">
-        <tr id="table-header">
-          <th>Nome</th>
-          <th>Data Venda</th>
-          <th>Numeração</th>
-          <th>Valor</th>
-          <th>Dolar</th>
-          <th>Venda - Dolar</th>
-          <th>Ações</th>
-        </tr>
-      </thead>
-      <tbody id="demo">
-        <% vendas.forEach(venda => { %>
-          <tr class="pesquisar" href="/<%= venda.id %>">
-          <td><%= venda.investidore.name %></td>
-          <td id="formatData"><%= venda.data %></td>
-          <td><%= venda.quantidade %></td>
-          <td><%= new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(venda.valor) %></td>
-          <td><%= venda.dolar %></td>
-          <td><%= venda.amount %></td>
-          <td>
-            <a
-              href="/admin/venda/edit/<%= venda.id %>"
-              class="btn btn-warning btn-sm"
-              >Editar</a
-            >
-            <form
-              method="POST"
-              action="/venda/delete"
-              style="display: inline;"
-              onsubmit="confirmarDelecao(event, this)"
-            >
-              <input type="hidden" name="id" value="<%= venda.id %>" />
-              <button class="btn btn-danger btn-sm">Deletar</button>
-            </form>
-          </td>
-        </tr>
-        <% }) %>
-      </tbody>
-    </table>
-    <div  class="table1 text-center">
-      <h2>TOTAL</h2>
-      <table id="tab" data-type="table-menu" class="table table-bordered">
-        <thead>
-          <tr id="table-header">
-            <th>Nº de Animais Vendidos</th>
-            <th>Valor Venda</th>
-            <th>Venda - Dolar</th>
-          </tr>
-        </thead>
-        <tbody id="demo">
-            <tr class="pesquisar">
-            <td><%= quantidade %></td>
-            <td><%= ValorVenda %></td>
-            <td><%= TotalVendaDolar %></td>
-          </tr>
-        </tbody>
-      </table>
+            </div>
+          </div>
+          <div class="col-4">
+            <div class="card">
+              <div class="dropdown">
+                <button class="btn dropdown-toggle form-control" type="button" data-bs-toggle="dropdown"
+                  aria-expanded="false">
+                  Periodo
+                </button>
+                <ul class="dropdown-menu">
+                  <li>
+                    <form action="/venda" method="get">
+                      <div class="mb-3">
+                        <label for="start" class="form-label">Data de início:</label>
+                        <input type="date" class="form-control" id="start" name="start">
+                      </div>
+                      <div class="mb-3">
+                        <label for="end" class="form-label">Data de fim:</label>
+                        <input type="date" class="form-control" id="end" name="end">
+                      </div>
+                      <button type="submit" class="btn btn-primary">Filtrar</button>
+                    </form>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="col-3">
+            <div class="card">
+              <!--Barra de Pesquisa-->
+              <form class="form-search">
+                <input class="form-control" type="text" name="search" id="search" placeholder="Pesquisar..." />
+              </form>
+            </div>
+          </div>
+
         </div>
+        <hr />
+        <div class="table-responsive-xxl">
+          <table id="tab" data-type="table-menu" class="table table-hover table-bordered table-sm text-center">
+            <thead class="thead-light">
+              <tr id="table-header">
+                <th>Nome</th>
+                <th>Data Venda</th>
+                <th>Numeração</th>
+                <th>Valor</th>
+                <th>Dolar</th>
+                <th>Venda - Dolar</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="demo">
+              <% vendas.forEach(venda=> { %>
+                <tr class="pesquisar" href="/<%= venda.id %>">
+                  <td>
+                    <%= venda.investidore.name %>
+                  </td>
+                  <td id="formatData">
+                    <%= venda.data %>
+                  </td>
+                  <td>
+                    <%= venda.quantidade %>
+                  </td>
+                  <td>
+                    <%= new Intl.NumberFormat('pt-BR', { style: 'currency' , currency: 'BRL' }).format(venda.valor) %>
+                  </td>
+                  <td>
+                    <%= new Intl.NumberFormat('en-US', { style: 'currency' , currency: 'USD' }).format( venda.dolar) %>
+                  </td>
+                  <td>
+                    <%= new Intl.NumberFormat('en-US', { style: 'currency' , currency: 'USD' }).format(venda.amount) %>
+                  </td>
+                  <td>
+                    <a href="/admin/venda/edit/<%= venda.id %>" class="btn btn-warning btn-sm">Editar</a>
+                    <form method="POST" action="/venda/delete" style="display: inline;"
+                      onsubmit="confirmarDelecao(event, this)">
+                      <input type="hidden" name="id" value="<%= venda.id %>" />
+                      <button class="btn btn-danger btn-sm">Deletar</button>
+                    </form>
+                  </td>
+                </tr>
+                <% }) %>
+            </tbody>
+          </table>
+          <div class="table1 text-center">
+            <h2>TOTAL</h2>
+            <table id="tab" data-type="table-menu" class="table table-bordered">
+              <thead>
+                <tr id="table-header">
+                  <th>Nº de Animais Vendidos</th>
+                  <th>Valor Venda</th>
+                  <th>Venda - Dolar</th>
+                  <th>Média das Vendas</th>
+                </tr>
+              </thead>
+              <tbody id="demo">
+                <tr class="pesquisar">
+                  <td>
+                    <%= quantidade %>
+                  </td>
+                  <td>
+                    <%= ValorVenda %>
+                  </td>
+                  <td>
+                    <%= TotalVendaDolar %>
+                  </td>
+                  <td>
+                    <%= mediaVenda %>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
       <br>
-      </body>
+    </body>
 
 
-<%- include ("../../partials/footer.ejs") %>
+    <%- include ("../../partials/footer.ejs") %>
 
-<script>
-  //delete Script
-  function confirmarDelecao(event, form) {
-    event.preventDefault();
-    var decision = confirm("Você quer deletar esta Venda?");
-    if (decision) {
-      form.submit();
-    }
-  }
-
-  ////////////////////////////
-  // search script
-  const inputSearch = document.querySelector("#search");
-  const tableMenu = document.querySelector("[data-type='table-menu']");
-
-  const trs = Array.from(tableMenu.querySelectorAll("tbody tr"));
-  const trsPesquisar = Array.from(
-    tableMenu.querySelectorAll("tr.pesquisar")
-  );
-
-  inputSearch.addEventListener("input", function() {
-    const str = this.value;
-    if (str) {
-      filterData(str);
-    } else {
-      showAllItems();
-    }
-  });
-
-  function showAllItems() {
-    trs.forEach((tr) => tr.classList.remove("hide"));
-  }
-
-  function filterData(str) {
-    showAllItems();
-    trsPesquisar.forEach((trPesquisar) => {
-      let found = false;
-
-      for (let i=0; i < trs.length; i++) {
-        let tr = trs[i];
-        if (tr.textContent.toLowerCase().includes(str.toLowerCase())) {
-          found = true;
-          tr.classList.remove("hide");
-        } else {
-          tr.classList.add("hide");
+      <script>
+        //delete Script
+        function confirmarDelecao(event, form) {
+          event.preventDefault();
+          var decision = confirm("Você quer deletar esta Venda?");
+          if (decision) {
+            form.submit();
+          }
         }
-      }
-    });
-  }
+
+        ////////////////////////////
+        // search script
+        const inputSearch = document.querySelector("#search");
+        const tableMenu = document.querySelector("[data-type='table-menu']");
+
+        const trs = Array.from(tableMenu.querySelectorAll("tbody tr"));
+        const trsPesquisar = Array.from(
+          tableMenu.querySelectorAll("tr.pesquisar")
+        );
+
+        inputSearch.addEventListener("input", function () {
+          const str = this.value;
+          if (str) {
+            filterData(str);
+          } else {
+            showAllItems();
+          }
+        });
+
+        function showAllItems() {
+          trs.forEach((tr) => tr.classList.remove("hide"));
+        }
+
+        function filterData(str) {
+          showAllItems();
+          trsPesquisar.forEach((trPesquisar) => {
+            let found = false;
+
+            for (let i = 0; i < trs.length; i++) {
+              let tr = trs[i];
+              if (tr.textContent.toLowerCase().includes(str.toLowerCase())) {
+                found = true;
+                tr.classList.remove("hide");
+              } else {
+                tr.classList.add("hide");
+              }
+            }
+          });
+        }
   /////////////////////////////////////////////////
-</script>
+      </script>
