@@ -141,14 +141,6 @@
                 <td>
                   <%= compra.obs%>
                 </td>
-                <td>
-                  <a href="/admin/compra/edit/<%= compra.id %>" class="btn btn-warning btn-sm">Editar</a>
-                  <form method="POST" action="/compra/delete" style="display: inline;"
-                    onsubmit="confirmarDelecao(event, this)">
-                    <input type="hidden" name="id" value="<%= compra.id %>" />
-                    <button class="btn btn-danger btn-sm">Deletar</button>
-                  </form>
-                </td>
               </tr>
               <% }) %>
           </tbody>
@@ -182,14 +174,7 @@
                       <td>
                         <%= venda.obs%>
                       </td>
-                      <td>
-                        <a href="/admin/venda/edit/<%= venda.id %>" class="btn btn-warning btn-sm">Editar</a>
-                        <form method="POST" action="/venda/delete" style="display: inline;"
-                          onsubmit="confirmarDelecao(event, this)">
-                          <input type="hidden" name="id" value="<%= venda.id %>" />
-                          <button class="btn btn-danger btn-sm">Deletar</button>
-                        </form>
-                      </td>
+
                     </tr>
                     <% }) %>
                 </tbody>
