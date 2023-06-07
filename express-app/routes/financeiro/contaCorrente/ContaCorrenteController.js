@@ -4,7 +4,8 @@ const sequelize = require("sequelize");
 const Investidor = require("../../investidor/Investidor");
 const adminAuth = require("../../../middlewares/adminAuth");
 const moment = require('moment');
-
+const Compra = require('../../compra/Compra');
+const Venda = require("../../venda/Venda");
 
 const ContaCorrente = require("../contaCorrente/ContaCorrente");
 
@@ -32,20 +33,85 @@ router.get("/admin/contaCorrente", adminAuth, async (req, res, next) => {
        raw: true,
        nest: true,
      }).then(async (contaCorrente) => {
-      contaCorrente.forEach((contaCorrente) => {
-        contaCorrente.data = moment(contaCorrente.data).format('DD/MM/YYYY');
-      });
-      var amountT = await ContaCorrente.findOne({
-        attributes: [sequelize.fn("sum", sequelize.col("valor"))],
-        raw: true,
-      });
-      var Total = Number(amountT["sum(`valor`)"]).toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+             //////////////////////Capital Investidor
+       Compra.findAll({
+         include: [
+           {
+             model: Investidor,
+           },
+         ],
+         attributes: [
+           "data",
+           "code",
+           "quantidade",
+           [sequelize.fn("SUM", sequelize.col("valor")), "total_valor"],
+           "dolar",
+           [sequelize.fn("SUM", sequelize.col("amount")), "total_amount"],
+           "obs",
+           "investidoreId",
+         ],
+         group: ["data", "code", "quantidade", "dolar", "obs", "investidoreId"],
+         order: [["data", "DESC"]],
+         raw: true,
+         nest: true,
+       }).then(async (compras) => {
+         compras.forEach((compra) => {
+           compra.data = moment(compra.data).format("DD/MM/YYYY");
+         });
+         Venda.findAll({
+           include: [
+             {
+               model: Investidor,
+             },
+           ],
+           attributes: [
+             "data",
+             "code",
+             "quantidade",
+             [sequelize.fn("SUM", sequelize.col("valor")), "total_valor"],
+             "dolar",
+             [sequelize.fn("SUM", sequelize.col("amount")), "total_amount"],
+             "obs",
+             "investidoreId",
+           ],
+           group: [
+             "data",
+             "code",
+             "quantidade",
+             "dolar",
+             "obs",
+             "investidoreId",
+           ],
+           order: [["data", "DESC"]],
+           raw: true,
+           nest: true,
+         }).then(async (vendas) => {
+          vendas.forEach((venda) => {
+            venda.data = moment(venda.data).format("DD/MM/YYYY");
+          });
+           contaCorrente.forEach((contaCorrente) => {
+             contaCorrente.data = moment(contaCorrente.data).format(
+               "DD/MM/YYYY"
+             );
+           });
+           var amountT = await ContaCorrente.findOne({
+             attributes: [sequelize.fn("sum", sequelize.col("valor"))],
+             raw: true,
+           });
+           var Total = Number(amountT["sum(`valor`)"]).toLocaleString("pt-BR", {
+             style: "currency",
+             currency: "BRL",
+           });
            res.render("admin/financeiro/contaCorrente/index", {
+             compras: compras,
+             vendas: vendas,
              investidores: investidores,
              contaCorrente: contaCorrente,
              Total,
            });
          });
+       });
+     });
        });
      });
 

@@ -113,12 +113,94 @@
         <% }) %>
       </tbody>
     </table>
+    <br>
+    <div class="table1 text-center">
+    <h2>Dados de Compras</h2>
+    <hr />
+        <table id="tab" data-type="table-menu" class="table table-bordered text-center">
+          <thead>
+            <tr id="table-header">
+              <th>Nome</th>
+              <th>Data</th>
+              <th>Valor</th>
+              <th>Descrição</th>
+            </tr>
+          </thead>
+          <tbody id="demo">
+            <% compras.forEach(compra=> { %>
+              <tr class="pesquisar" href="">
+                <td>
+                  <%= compra.investidore.name %>
+                </td>
+                <td>
+                  <%= compra.data %>
+                </td>
+                <td>
+                  <%= new Intl.NumberFormat('pt-BR', { style: 'currency' , currency: 'BRL' }).format(compra.total_valor) %>
+                </td>
+                <td>
+                  <%= compra.obs%>
+                </td>
+                <td>
+                  <a href="/admin/compra/edit/<%= compra.id %>" class="btn btn-warning btn-sm">Editar</a>
+                  <form method="POST" action="/compra/delete" style="display: inline;"
+                    onsubmit="confirmarDelecao(event, this)">
+                    <input type="hidden" name="id" value="<%= compra.id %>" />
+                    <button class="btn btn-danger btn-sm">Deletar</button>
+                  </form>
+                </td>
+              </tr>
+              <% }) %>
+          </tbody>
+        </table>
+        </div>
+        <br>
+            <div class="table1 text-center">
+              <h2>Dados de Vendas</h2>
+              <hr />
+              <table id="tab" data-type="table-menu" class="table table-bordered text-center">
+                <thead>
+                  <tr id="table-header">
+                    <th>Nome</th>
+                    <th>Data</th>
+                    <th>Valor</th>
+                    <th>Descrição</th>
+                  </tr>
+                </thead>
+                <tbody id="demo">
+                  <% vendas.forEach(venda=> { %>
+                    <tr class="pesquisar" href="">
+                      <td>
+                        <%= venda.investidore.name %>
+                      </td>
+                      <td>
+                        <%= venda.data %>
+                      </td>
+                      <td>
+                        <%= new Intl.NumberFormat('pt-BR', { style: 'currency' , currency: 'BRL' }).format(venda.total_valor) %>
+                      </td>
+                      <td>
+                        <%= venda.obs%>
+                      </td>
+                      <td>
+                        <a href="/admin/venda/edit/<%= venda.id %>" class="btn btn-warning btn-sm">Editar</a>
+                        <form method="POST" action="/venda/delete" style="display: inline;"
+                          onsubmit="confirmarDelecao(event, this)">
+                          <input type="hidden" name="id" value="<%= venda.id %>" />
+                          <button class="btn btn-danger btn-sm">Deletar</button>
+                        </form>
+                      </td>
+                    </tr>
+                    <% }) %>
+                </tbody>
+              </table>
+            </div>
     <div  class="table1 text-center">
       <h2>TOTAL</h2>
       <table id="tab" data-type="table-menu" class="table table-bordered text-center">
         <thead>
           <tr id="table-header">
-            <th>Valor</th>
+            <th>Saldo Atual</th>
           </tr>
         </thead>
         <tbody id="demo">

@@ -63,11 +63,13 @@ router.get('/admin/estoque', adminAuth, async (req, res, next) => {
         ],
       }).then((mortes) => {
         Investidor.findAll().then(async (investidores) => {
-          var amountT = await ContaCorrente.findOne({
+          //////////////////////Capital Investidor
+          var amountT = await Compra.findOne({
             attributes: [sequelize.fn("sum", sequelize.col("valor"))],
+
             raw: true,
           });
-          var Totalf = Number(amountT["sum(`valor`)"]);
+           var Totalf = Number(amountT["sum(`valor`)"]);
           var Total = Number(amountT["sum(`valor`)"]).toLocaleString("pt-BR", {
             style: "currency",
             currency: "BRL",

@@ -3,19 +3,17 @@ const router = express.Router();
 const Compra = require("./Compra");
 const slugify = require("slugify");
 const sequelize = require("sequelize");
-const {
-  Op
-} = require("sequelize");
+const { Op } = require("sequelize");
 const request = require("request");
 
-const moment = require('moment');
+const moment = require("moment");
 const adminAuth = require("../../middlewares/adminAuth");
 
 const Investidor = require("../investidor/Investidor");
 
-const accountSid = 'AC00fbbfc768402c07243ec830f4e3c2d8';
-const authToken = 'a4bf781cce4033571b1cebd1bab79bd4';
-const client = require('twilio')(accountSid, authToken);
+const accountSid = "AC00fbbfc768402c07243ec830f4e3c2d8";
+const authToken = "a4bf781cce4033571b1cebd1bab79bd4";
+const client = require("twilio")(accountSid, authToken);
 
 //filtragem de dados, por peridodo que eles foram adicionados no BD
 //formatar numeros em valores decimais (.toLocaleFixed(2))
@@ -49,21 +47,21 @@ const Dolar = request(options, callback_dolar);
 
 router.get("/admin/compra", adminAuth, async (req, res, next) => {
   Compra.findAll({
-    include: [{
-      model: Investidor,
-    }, ],
-    order: [
-      ["data", "DESC"]
+    include: [
+      {
+        model: Investidor,
+      },
     ],
+    order: [["data", "DESC"]],
     raw: true,
     nest: true,
   }).then((compras) => {
     compras.forEach((compra) => {
-      compra.data = moment(compra.data).format('DD/MM/YYYY');
+      compra.data = moment(compra.data).format("DD/MM/YYYY");
     });
     Investidor.findAll().then(async (investidores) => {
       //////////////////////Quantidade
-      var quantidade = await Compra.count(); 
+      var quantidade = await Compra.count();
 
       //////////////////////Capital Investidor
       var amountT = await Compra.findOne({
@@ -71,10 +69,13 @@ router.get("/admin/compra", adminAuth, async (req, res, next) => {
 
         raw: true,
       });
-      var CapitalInvestido = Number(amountT["sum(`valor`)"]).toLocaleString('pt-BR', {
-        style: 'currency',
-        currency: 'BRL'
-      });
+      var CapitalInvestido = Number(amountT["sum(`valor`)"]).toLocaleString(
+        "pt-BR",
+        {
+          style: "currency",
+          currency: "BRL",
+        }
+      );
 
       //////////////////////Capital Investidor em dolar
       var amountD = await Compra.findOne({
@@ -86,7 +87,7 @@ router.get("/admin/compra", adminAuth, async (req, res, next) => {
         amountD["sum(`amount`)"]
       ).toLocaleString("en-US", {
         style: "currency",
-        currency: "USD"
+        currency: "USD",
       });
 
       var amountU = await Compra.findOne({
@@ -102,13 +103,11 @@ router.get("/admin/compra", adminAuth, async (req, res, next) => {
         distinct: true,
         raw: true,
       });
-      var mediaCompra = Number(amountU["media"]).toLocaleString(
-        "pt-BR", {
-          style: "currency",
-          currency: "BRL"
-        }
-      );
-
+      var mediaCompra = Number(amountU["media"]).toLocaleString("pt-BR", {
+        style: "currency",
+        currency: "BRL",
+      });
+ console.log(compras);
       res.render("admin/compra/index", {
         compras: compras,
         investidores: investidores,
@@ -122,10 +121,9 @@ router.get("/admin/compra", adminAuth, async (req, res, next) => {
 });
 
 router.get("/admin/compra/new", adminAuth, (req, res) => {
-
-  var cotacaoDolar = Number(cotacao).toLocaleString('en-US', {
-    style: 'currency',
-    currency: 'USD'
+  var cotacaoDolar = Number(cotacao).toLocaleString("en-US", {
+    style: "currency",
+    currency: "USD",
   });
 
   Investidor.findAll().then((investidores) => {
@@ -148,20 +146,22 @@ router.post("/compra/save", adminAuth, async (req, res) => {
   let obs = req.body.obs;
   let investidor = req.body.investidor;
 
-  let valorFloat = parseFloat(valor.replace("R$", "").replace(".", "").replace(",", "."));
+  let valorFloat = parseFloat(
+    valor.replace("R$", "").replace(".", "").replace(",", ".")
+  );
   let dolarFloat = parseFloat(dolar.replace("$", ""));
-  let amountFloat = parseFloat(amount.replace("$", "").replace(",", ".").replace(".", ""));
-
+  let amountFloat = parseFloat(
+    amount.replace("$", "").replace(",", ".").replace(".", "")
+  );
 
   let nextId;
   let nextCode;
 
-
   if (!id) {
     try {
       const compra = await Compra.findOne({
-        order: [['id', 'DESC']],
-        limit: 1
+        order: [["id", "DESC"]],
+        limit: 1,
       });
       nextId = compra ? compra.id + 1 : 1;
     } catch (error) {
@@ -176,10 +176,10 @@ router.post("/compra/save", adminAuth, async (req, res) => {
   if (!code) {
     try {
       const lastCompra = await Compra.findOne({
-        order: [['code', 'DESC']],
-        limit: 1
+        order: [["code", "DESC"]],
+        limit: 1,
       });
-  
+
       if (lastCompra) {
         const lastCode = lastCompra.code.toString();
         const incrementedCode = (parseInt(lastCode) + 1).toString();
@@ -195,8 +195,8 @@ router.post("/compra/save", adminAuth, async (req, res) => {
   } else {
     nextCode = parseInt(code); // Não incrementar o código fornecido
   }
-  
-  insertCompra(nextId, nextCode)
+
+  insertCompra(nextId, nextCode);
 
   function insertCompra(nextId, nextCode) {
     var objects = [];
@@ -255,7 +255,8 @@ router.post("/compra/update", adminAuth, (req, res) => {
 
   var valorFloat = valor.replace(".", "").replace(",", ".");
 
-  Compra.update({
+  Compra.update(
+    {
       data: data,
       quantidade: quantidade,
       valor: valorFloat,
@@ -263,11 +264,13 @@ router.post("/compra/update", adminAuth, (req, res) => {
       amount: amount,
       obs: obs,
       investidoreId: investidor,
-    }, {
+    },
+    {
       where: {
         id: id,
       },
-    })
+    }
+  )
     .then(() => {
       res.redirect("/admin/compra");
     })
