@@ -122,6 +122,7 @@
             <tr id="table-header">
               <th>Nome</th>
               <th>Data</th>
+              <th>Quantidade</th>
               <th>Valor</th>
               <th>Descrição</th>
             </tr>
@@ -134,6 +135,9 @@
                 </td>
                 <td>
                   <%= compra.data %>
+                </td>
+                <td>
+                  <%= compra.quantidade %>
                 </td>
                 <td>
                   <%= new Intl.NumberFormat('pt-BR', { style: 'currency' , currency: 'BRL' }).format(compra.total_valor) %>
@@ -156,6 +160,7 @@
                     <th>Nome</th>
                     <th>Data</th>
                     <th>Valor</th>
+                    <th>Quantidade</th>
                     <th>Descrição</th>
                   </tr>
                 </thead>
@@ -167,6 +172,9 @@
                       </td>
                       <td>
                         <%= venda.data %>
+                      </td>
+                      <td>
+                        <%= venda.quantidade %>
                       </td>
                       <td>
                         <%= new Intl.NumberFormat('pt-BR', { style: 'currency' , currency: 'BRL' }).format(venda.total_valor) %>
@@ -185,11 +193,15 @@
       <table id="tab" data-type="table-menu" class="table table-bordered text-center">
         <thead>
           <tr id="table-header">
+            <th>Capital Investido em Compra</th>
+            <th>Capital Retorno de Venda</th>
             <th>Saldo Atual</th>
           </tr>
         </thead>
         <tbody id="demo">
             <tr class="pesquisar">
+              <td><%= amountCompra %></td>
+              <td><%= amountVenda %></td>
             <td><%= Total %></td>
           </tr>
         </tbody>

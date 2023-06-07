@@ -143,7 +143,9 @@ router.post("/venda/save", adminAuth, async (req, res) => {
 
   let valorFloat = parseFloat(valor.replace("R$", "").replace(".", "").replace(",", "."));
   let dolarFloat = parseFloat(dolar.replace("$", ""));
-  let amountFloat = parseFloat(amount.replace("$", "").replace(",", ".").replace(".", ""));
+  let amountFloat = parseFloat(
+    amount.replace("$", "").replace(",", "")
+  );
 
   
   let nextId;

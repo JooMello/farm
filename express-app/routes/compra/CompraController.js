@@ -151,7 +151,7 @@ router.post("/compra/save", adminAuth, async (req, res) => {
   );
   let dolarFloat = parseFloat(dolar.replace("$", ""));
   let amountFloat = parseFloat(
-    amount.replace("$", "").replace(",", ".").replace(".", "")
+    amount.replace("$", "").replace(",", "")
   );
 
   let nextId;
@@ -159,18 +159,25 @@ router.post("/compra/save", adminAuth, async (req, res) => {
 
   if (!id) {
     try {
-      const compra = await Compra.findOne({
+      const lastCompra = await Compra.findOne({
         order: [["id", "DESC"]],
         limit: 1,
       });
-      nextId = compra ? compra.id + 1 : 1;
+
+      if (lastCompra) {
+        const lastId = lastCompra.id.toString();
+        const incrementedId = (parseInt(lastId) + 1).toString();
+        nextId = parseInt(incrementedId);
+      } else {
+        nextId = 1;
+      }
     } catch (error) {
       // Tratar o erro de consulta
       console.error(error);
       nextId = 1;
     }
   } else {
-    nextId = parseInt(id) + 1;
+    nextId = parseInt(id); // Não incrementar o código fornecido
   }
 
   if (!code) {
