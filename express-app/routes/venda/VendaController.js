@@ -300,20 +300,8 @@ router.post('/venda/delete',adminAuth, (req, res) => {
           id: id,
         },
       }).then(() => {
-                // Enviar mensagem no WhatsApp quando a página inicial for acessada
-        client.messages
-          .create({
-            from: "whatsapp:+14155238886",
-            to: "whatsapp:+556593589187",
-            body: `Olá, essa é uma mensagem de notificação:
-    Uma Venda de Gado foi excluida`,
-          })
-          .then((message) => console.log(message.sid));
         res.redirect("/admin/venda");
       });
-    } else {
-      // NÃO FOR UM NÚMERO
-      res.redirect("/admin/venda");
     }
   } else {
     // NULL

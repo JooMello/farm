@@ -290,10 +290,7 @@ router.post("/compra/delete", adminAuth, (req, res) => {
       }).then(() => {
         res.redirect("/admin/compra");
       });
-    } else {
-      // NÃO FOR UM NÚMERO
-      res.redirect("/admin/compra");
-    }
+    } 
   } else {
     // NULL
     res.redirect("/admin/compra");
