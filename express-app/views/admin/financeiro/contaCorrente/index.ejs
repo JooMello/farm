@@ -113,16 +113,95 @@
         <% }) %>
       </tbody>
     </table>
+    <br>
+    <div class="table1 text-center">
+    <h2>Dados de Compras</h2>
+    <hr />
+        <table id="tab" data-type="table-menu" class="table table-bordered text-center">
+          <thead>
+            <tr id="table-header">
+              <th>Nome</th>
+              <th>Data</th>
+              <th>Quantidade</th>
+              <th>Valor</th>
+              <th>Descrição</th>
+            </tr>
+          </thead>
+          <tbody id="demo">
+            <% compras.forEach(compra=> { %>
+              <tr class="pesquisar" href="">
+                <td>
+                  <%= compra.investidore.name %>
+                </td>
+                <td>
+                  <%= compra.data %>
+                </td>
+                <td>
+                  <%= compra.quantidade %>
+                </td>
+                <td>
+                  <%= new Intl.NumberFormat('pt-BR', { style: 'currency' , currency: 'BRL' }).format(compra.total_valor) %>
+                </td>
+                <td>
+                  <%= compra.obs%>
+                </td>
+              </tr>
+              <% }) %>
+          </tbody>
+        </table>
+        </div>
+        <br>
+            <div class="table1 text-center">
+              <h2>Dados de Vendas</h2>
+              <hr />
+              <table id="tab" data-type="table-menu" class="table table-bordered text-center">
+                <thead>
+                  <tr id="table-header">
+                    <th>Nome</th>
+                    <th>Data</th>
+                    <th>Valor</th>
+                    <th>Quantidade</th>
+                    <th>Descrição</th>
+                  </tr>
+                </thead>
+                <tbody id="demo">
+                  <% vendas.forEach(venda=> { %>
+                    <tr class="pesquisar" href="">
+                      <td>
+                        <%= venda.investidore.name %>
+                      </td>
+                      <td>
+                        <%= venda.data %>
+                      </td>
+                      <td>
+                        <%= venda.quantidade %>
+                      </td>
+                      <td>
+                        <%= new Intl.NumberFormat('pt-BR', { style: 'currency' , currency: 'BRL' }).format(venda.total_valor) %>
+                      </td>
+                      <td>
+                        <%= venda.obs%>
+                      </td>
+
+                    </tr>
+                    <% }) %>
+                </tbody>
+              </table>
+            </div>
     <div  class="table1 text-center">
       <h2>TOTAL</h2>
       <table id="tab" data-type="table-menu" class="table table-bordered text-center">
         <thead>
           <tr id="table-header">
-            <th>Valor</th>
+            <th>Capital Investido em Compra</th>
+            <th>Capital Retorno de Venda</th>
+            <th>Saldo Atual</th>
           </tr>
         </thead>
         <tbody id="demo">
             <tr class="pesquisar">
+              <td><%= amountCompra %></td>
+              <td><%= amountVenda %></td>
             <td><%= Total %></td>
           </tr>
         </tbody>

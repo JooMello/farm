@@ -3,19 +3,17 @@ const router = express.Router();
 const Compra = require("./Compra");
 const slugify = require("slugify");
 const sequelize = require("sequelize");
-const {
-  Op
-} = require("sequelize");
+const { Op } = require("sequelize");
 const request = require("request");
 
-const moment = require('moment');
+const moment = require("moment");
 const adminAuth = require("../../middlewares/adminAuth");
 
 const Investidor = require("../investidor/Investidor");
 
-const accountSid = 'AC00fbbfc768402c07243ec830f4e3c2d8';
-const authToken = '95380828610fd2690e7b53371079bf4c';
-const client = require('twilio')(accountSid, authToken);
+const accountSid = "AC00fbbfc768402c07243ec830f4e3c2d8";
+const authToken = "a4bf781cce4033571b1cebd1bab79bd4";
+const client = require("twilio")(accountSid, authToken);
 
 //filtragem de dados, por peridodo que eles foram adicionados no BD
 //formatar numeros em valores decimais (.toLocaleFixed(2))
@@ -49,26 +47,21 @@ const Dolar = request(options, callback_dolar);
 
 router.get("/admin/compra", adminAuth, async (req, res, next) => {
   Compra.findAll({
-    include: [{
-      model: Investidor,
-    }, ],
-    order: [
-      ["data", "DESC"]
+    include: [
+      {
+        model: Investidor,
+      },
     ],
+    order: [["data", "DESC"]],
     raw: true,
     nest: true,
   }).then((compras) => {
     compras.forEach((compra) => {
-      compra.data = moment(compra.data).format('DD/MM/YYYY');
+      compra.data = moment(compra.data).format("DD/MM/YYYY");
     });
     Investidor.findAll().then(async (investidores) => {
       //////////////////////Quantidade
-      var amountQ = await Compra.findOne({
-        attributes: [sequelize.fn("sum", sequelize.col("quantidade"))],
-
-        raw: true,
-      });
-      var quantidade = Number(amountQ["sum(`quantidade`)"]);
+      var quantidade = await Compra.count();
 
       //////////////////////Capital Investidor
       var amountT = await Compra.findOne({
@@ -76,10 +69,13 @@ router.get("/admin/compra", adminAuth, async (req, res, next) => {
 
         raw: true,
       });
-      var CapitalInvestido = Number(amountT["sum(`valor`)"]).toLocaleString('pt-BR', {
-        style: 'currency',
-        currency: 'BRL'
-      });
+      var CapitalInvestido = Number(amountT["sum(`valor`)"]).toLocaleString(
+        "pt-BR",
+        {
+          style: "currency",
+          currency: "BRL",
+        }
+      );
 
       //////////////////////Capital Investidor em dolar
       var amountD = await Compra.findOne({
@@ -91,7 +87,7 @@ router.get("/admin/compra", adminAuth, async (req, res, next) => {
         amountD["sum(`amount`)"]
       ).toLocaleString("en-US", {
         style: "currency",
-        currency: "USD"
+        currency: "USD",
       });
 
       var amountU = await Compra.findOne({
@@ -107,13 +103,11 @@ router.get("/admin/compra", adminAuth, async (req, res, next) => {
         distinct: true,
         raw: true,
       });
-      var mediaCompra = Number(amountU["media"]).toLocaleString(
-        "pt-BR", {
-          style: "currency",
-          currency: "BRL"
-        }
-      );
-
+      var mediaCompra = Number(amountU["media"]).toLocaleString("pt-BR", {
+        style: "currency",
+        currency: "BRL",
+      });
+ console.log(compras);
       res.render("admin/compra/index", {
         compras: compras,
         investidores: investidores,
@@ -127,10 +121,9 @@ router.get("/admin/compra", adminAuth, async (req, res, next) => {
 });
 
 router.get("/admin/compra/new", adminAuth, (req, res) => {
-
-  var cotacaoDolar = Number(cotacao).toLocaleString('en-US', {
-    style: 'currency',
-    currency: 'USD'
+  var cotacaoDolar = Number(cotacao).toLocaleString("en-US", {
+    style: "currency",
+    currency: "USD",
   });
 
   Investidor.findAll().then((investidores) => {
@@ -142,47 +135,98 @@ router.get("/admin/compra/new", adminAuth, (req, res) => {
   });
 });
 
-router.post("/compra/save", adminAuth, (req, res) => {
-  var id = req.body.id;
-  var data = req.body.data;
-  var quantidade = req.body.quantidade;
-  var valor = req.body.valor;
-  var dolar = req.body.dolar;
-  var amount = req.body.amount;
-  var obs = req.body.obs;
-  var investidor = req.body.investidor;
+router.post("/compra/save", adminAuth, async (req, res) => {
+  let id = req.body.id;
+  let code = req.body.code;
+  let data = req.body.data;
+  let quantidade = req.body.quantidade;
+  let valor = req.body.valor;
+  let dolar = req.body.dolar;
+  let amount = req.body.amount;
+  let obs = req.body.obs;
+  let investidor = req.body.investidor;
 
-  var valorFloat = valor.replace(".", "").replace(",", ".");
-  var amountFloat = amount.replace("$", "");
+  let valorFloat = parseFloat(
+    valor.replace("R$", "").replace(".", "").replace(",", ".")
+  );
+  let dolarFloat = parseFloat(dolar.replace("$", ""));
+  let amountFloat = parseFloat(
+    amount.replace("$", "").replace(",", "")
+  );
 
-  Compra.create({
-    id: id,
-    data: data,
-    quantidade: quantidade,
-    valor: valorFloat,
-    dolar: dolar,
-    amount: amountFloat,
-    obs: obs,
-    investidoreId: investidor,
-  }).then(() => {
-// Formata a data para o padrão "DD/MM/YYYY"
-var dataFormatada = moment(data, 'YYYY-MM-DD').format('DD/MM/YYYY');
-var valorFormatado = Number(valor).toLocaleString('pt-BR', {
-  style: 'currency',
-  currency: 'BRL'
-});
+  let nextId;
+  let nextCode;
 
-    // Enviar mensagem no WhatsApp quando a página inicial for acessada
-  client.messages.create({
-    from: 'whatsapp:+14155238886',
-    to: 'whatsapp:+556593589187',
-    body: `Olá, essa é uma mensagem de notificação:
-    Compra de Gado
-    Data: ${dataFormatada}
-    Valor R$: ${valorFormatado}`
-  }).then(message => console.log(message.sid));
-    res.redirect("/admin/compra");
-  });
+  if (!id) {
+    try {
+      const lastCompra = await Compra.findOne({
+        order: [["id", "DESC"]],
+        limit: 1,
+      });
+
+      if (lastCompra) {
+        const lastId = lastCompra.id.toString();
+        const incrementedId = (parseInt(lastId) + 1).toString();
+        nextId = parseInt(incrementedId);
+      } else {
+        nextId = 1;
+      }
+    } catch (error) {
+      // Tratar o erro de consulta
+      console.error(error);
+      nextId = 1;
+    }
+  } else {
+    nextId = parseInt(id); // Não incrementar o código fornecido
+  }
+
+  if (!code) {
+    try {
+      const lastCompra = await Compra.findOne({
+        order: [["code", "DESC"]],
+        limit: 1,
+      });
+
+      if (lastCompra) {
+        const lastCode = lastCompra.code.toString();
+        const incrementedCode = (parseInt(lastCode) + 1).toString();
+        nextCode = parseInt(incrementedCode);
+      } else {
+        nextCode = 1;
+      }
+    } catch (error) {
+      // Tratar o erro de consulta
+      console.error(error);
+      nextCode = 1;
+    }
+  } else {
+    nextCode = parseInt(code); // Não incrementar o código fornecido
+  }
+
+  insertCompra(nextId, nextCode);
+
+  function insertCompra(nextId, nextCode) {
+    var objects = [];
+
+    for (var i = 0; i < quantidade; i++) {
+      objects.push({
+        id: nextId,
+        data: data,
+        quantidade: quantidade,
+        code: nextCode,
+        valor: valorFloat / quantidade,
+        dolar: dolarFloat,
+        amount: amountFloat / quantidade,
+        obs: obs,
+        investidoreId: investidor,
+      });
+      nextId++; // Incrementar o ID para o próximo objeto
+    }
+
+    Compra.bulkCreate(objects).then(() => {
+      res.redirect("/admin/compra");
+    });
+  }
 });
 
 router.get("/admin/compra/edit/:id", adminAuth, (req, res) => {
@@ -218,7 +262,8 @@ router.post("/compra/update", adminAuth, (req, res) => {
 
   var valorFloat = valor.replace(".", "").replace(",", ".");
 
-  Compra.update({
+  Compra.update(
+    {
       data: data,
       quantidade: quantidade,
       valor: valorFloat,
@@ -226,11 +271,13 @@ router.post("/compra/update", adminAuth, (req, res) => {
       amount: amount,
       obs: obs,
       investidoreId: investidor,
-    }, {
+    },
+    {
       where: {
         id: id,
       },
-    })
+    }
+  )
     .then(() => {
       res.redirect("/admin/compra");
     })
@@ -250,10 +297,7 @@ router.post("/compra/delete", adminAuth, (req, res) => {
       }).then(() => {
         res.redirect("/admin/compra");
       });
-    } else {
-      // NÃO FOR UM NÚMERO
-      res.redirect("/admin/compra");
-    }
+    } 
   } else {
     // NULL
     res.redirect("/admin/compra");
