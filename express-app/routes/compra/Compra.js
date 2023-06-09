@@ -1,7 +1,6 @@
-
 const Sequelize = require("sequelize");
 const connection = require("../../database/database");
-const Investidor = require("../investidor/Investidor")
+const Investidor = require("../investidor/Investidor");
 
 const Compra = connection.define("compras", {
   data: {
@@ -36,6 +35,6 @@ const Compra = connection.define("compras", {
 Investidor.hasMany(Compra);
 Compra.belongsTo(Investidor);
 
-//Compra.sync({ force: true });
+Compra.sync({ force: true });
 
 module.exports = Compra;
