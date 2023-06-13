@@ -27,6 +27,6 @@ const ContaCorrente = connection.define("contaCorrente", {
 Investidor.hasMany(ContaCorrente);
 ContaCorrente.belongsTo(Investidor);
 
-//ContaCorrente.sync({ force: true });
+ContaCorrente.sync({ force: true });
 
 module.exports = ContaCorrente;

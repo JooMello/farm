@@ -88,6 +88,7 @@ router.get("/admin/contaCorrente", adminAuth, async (req, res, next) => {
          }).then(async (vendas) => {
           vendas.forEach((venda) => {
             venda.data = moment(venda.data).format("DD/MM/YYYY");
+            venda.total_valor = (venda.total_valor) / 2
           });
            contaCorrente.forEach((contaCorrente) => {
              contaCorrente.data = moment(contaCorrente.data).format(
@@ -102,12 +103,29 @@ router.get("/admin/contaCorrente", adminAuth, async (req, res, next) => {
              style: "currency",
              currency: "BRL",
            });
+           var amountC = await Compra.findOne({
+            attributes: [sequelize.fn("sum", sequelize.col("valor"))],
+            raw: true,
+          });
+          var amountCompra = Number(amountC["sum(`valor`)"]).toLocaleString("pt-BR", {
+            style: "currency",
+            currency: "BRL",
+          });
+          var amountV = await Venda.findOne({
+            attributes: [sequelize.fn("sum", sequelize.col("valor"))],
+            raw: true,
+          });
+          var amountVendas = Number(amountV["sum(`valor`)"]) / 2
+          var amountVenda = amountVendas.toLocaleString("pt-BR", {
+            style: "currency",
+            currency: "BRL",
+          });
            res.render("admin/financeiro/contaCorrente/index", {
              compras: compras,
              vendas: vendas,
              investidores: investidores,
              contaCorrente: contaCorrente,
-             Total,
+             Total,amountCompra,amountVenda
            });
          });
        });
