@@ -342,9 +342,36 @@ app.get("/venda", adminAuth, (req, res) => {
           }
         );
 
+                  var amountU = await Venda.findOne({
+                    where: {
+                      data: {
+                        [Op.between]: [start, end],
+                      },
+                    },
+                    attributes: [
+                      [
+                        sequelize.fn(
+                          "avg",
+                          sequelize.fn("DISTINCT", sequelize.col("valor"))
+                        ),
+                        "media",
+                      ],
+                    ],
+                    distinct: true,
+                    raw: true,
+                  });
+
+                  var mediaVenda = Number(amountU["media"]).toLocaleString(
+                    "pt-BR",
+                    {
+                      style: "currency",
+                      currency: "BRL",
+                    }
+                  );
+
         res.render("admin/venda/index", {
           investidores: investidores,
-          vendas: vendas,
+          vendas: vendas,mediaVenda,
           quantidade,
           ValorVenda,
           TotalVendaDolar,
@@ -415,9 +442,34 @@ app.get("/venda/:id", adminAuth, (req, res) => {
           }
         );
 
+              var amountU = await Venda.findOne({
+                where: {
+                  investidoreId: id,
+                },
+                attributes: [
+                  [
+                    sequelize.fn(
+                      "avg",
+                      sequelize.fn("DISTINCT", sequelize.col("valor"))
+                    ),
+                    "media",
+                  ],
+                ],
+                distinct: true,
+                raw: true,
+              });
+
+              var mediaVenda = Number(amountU["media"]).toLocaleString(
+                "pt-BR",
+                {
+                  style: "currency",
+                  currency: "BRL",
+                }
+              );
+
         res.render("admin/venda/index", {
           investidores: investidores,
-          vendas: vendas,
+          vendas: vendas,mediaVenda,
           quantidade,
           ValorVenda,
           TotalVendaDolar,
