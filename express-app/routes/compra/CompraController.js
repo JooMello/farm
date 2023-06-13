@@ -150,9 +150,7 @@ router.post("/compra/save", adminAuth, async (req, res) => {
     valor.replace("R$", "").replace(".", "").replace(",", ".")
   );
   let dolarFloat = parseFloat(dolar.replace("$", ""));
-  let amountFloat = parseFloat(
-    amount.replace("$", "").replace(",", "")
-  );
+  let amountFloat = parseFloat(amount.replace("$", "").replace(",", ""));
 
   let nextId;
   let nextCode;

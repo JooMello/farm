@@ -23,6 +23,6 @@ const Morte = connection.define("mortes", {
 Investidor.hasMany(Morte);
 Morte.belongsTo(Investidor);
 
-Morte.sync({ force: true });
+//Morte.sync({ force: true });
 
 module.exports = Morte;

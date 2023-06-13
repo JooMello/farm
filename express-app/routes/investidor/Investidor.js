@@ -48,6 +48,6 @@ const Investidor = connection.define("investidores", {
   },
 });
 
-Investidor.sync({ force: true });
+//Investidor.sync({ force: true });
 
 module.exports = Investidor;
