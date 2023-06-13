@@ -138,6 +138,7 @@ router.get("/admin/compra/new", adminAuth, (req, res) => {
 router.post("/compra/save", adminAuth, async (req, res) => {
   let id = req.body.id;
   let code = req.body.code;
+   let brinco = req.body.brinco;
   let data = req.body.data;
   let quantidade = req.body.quantidade;
   let valor = req.body.valor;
@@ -152,64 +153,91 @@ router.post("/compra/save", adminAuth, async (req, res) => {
   let dolarFloat = parseFloat(dolar.replace("$", ""));
   let amountFloat = parseFloat(amount.replace("$", "").replace(",", ""));
 
-  let nextId;
-  let nextCode;
+ let nextBrinco = null;
+ let nextCode;
 
-  if (!id) {
-    try {
-      const lastCompra = await Compra.findOne({
-        order: [["id", "DESC"]],
-        limit: 1,
-      });
+ if (brinco === undefined || brinco === "") {
+   try {
+     const lastCompra = await Compra.findOne({
+       order: [["brinco", "DESC"]],
+       limit: 1,
+     });
 
-      if (lastCompra) {
-        const lastId = lastCompra.id.toString();
-        const incrementedId = (parseInt(lastId) + 1).toString();
-        nextId = parseInt(incrementedId);
-      } else {
-        nextId = 1;
-      }
-    } catch (error) {
-      // Tratar o erro de consulta
-      console.error(error);
-      nextId = 1;
-    }
-  } else {
-    nextId = parseInt(id); // Não incrementar o código fornecido
-  }
+     if (lastCompra) {
+       const lastBrinco = lastCompra.brinco;
+       if (typeof lastBrinco === "number") {
+         nextBrinco = lastBrinco + 1;
+       } else {
+         nextBrinco = null;
+       }
+     } else {
+       nextBrinco = null;
+     }
+   } catch (error) {
+     // Tratar o erro de consulta
+     console.error(error);
+     nextBrinco = null;
+   }
+ } else {
+   nextBrinco = parseInt(brinco);
+ }
 
-  if (!code) {
-    try {
-      const lastCompra = await Compra.findOne({
-        order: [["code", "DESC"]],
-        limit: 1,
-      });
+ if (nextBrinco !== null) {
+   try {
+     const existingCompra = await Compra.findOne({
+       where: {
+         brinco: nextBrinco,
+       },
+     });
 
-      if (lastCompra) {
-        const lastCode = lastCompra.code.toString();
-        const incrementedCode = (parseInt(lastCode) + 1).toString();
-        nextCode = parseInt(incrementedCode);
-      } else {
-        nextCode = 1;
-      }
-    } catch (error) {
-      // Tratar o erro de consulta
-      console.error(error);
-      nextCode = 1;
-    }
-  } else {
-    nextCode = parseInt(code); // Não incrementar o código fornecido
-  }
+     if (existingCompra) {
+       // Registro com o mesmo valor de brinco já existe
+       return res
+         .status(400)
+         .json({ error: "Registro com o mesmo valor de brinco já existe" });
+     }
+   } catch (error) {
+     // Tratar o erro de consulta
+     console.error(error);
+     return res
+       .status(500)
+       .json({ error: "Erro ao verificar o valor de brinco" });
+   }
+ }
 
-  insertCompra(nextId, nextCode);
+ if (!code) {
+   try {
+     const lastCompra = await Compra.findOne({
+       order: [["code", "DESC"]],
+       limit: 1,
+     });
 
-  function insertCompra(nextId, nextCode) {
+     if (lastCompra) {
+       const lastCode = lastCompra.code.toString();
+       const incrementedCode = (parseInt(lastCode) + 1).toString();
+       nextCode = parseInt(incrementedCode);
+     } else {
+       nextCode = 1;
+     }
+   } catch (error) {
+     // Tratar o erro de consulta
+     console.error(error);
+     nextCode = 1;
+   }
+ } else {
+   nextCode = parseInt(code); // Não incrementar o código fornecido
+ }
+
+ insertCompra(nextBrinco, nextCode);
+
+  function insertCompra(nextBrinco, nextCode) {
     var objects = [];
 
     for (var i = 0; i < quantidade; i++) {
       objects.push({
-        id: nextId,
+        id: id,
         data: data,
+        brinco: nextBrinco,
         quantidade: quantidade,
         code: nextCode,
         valor: valorFloat / quantidade,
@@ -218,7 +246,9 @@ router.post("/compra/save", adminAuth, async (req, res) => {
         obs: obs,
         investidoreId: investidor,
       });
-      nextId++; // Incrementar o ID para o próximo objeto
+      if (nextBrinco !== null) {
+        nextBrinco++; // Incrementar o ID para o próximo objeto, apenas se brinco não for nulo
+      }
     }
 
     Compra.bulkCreate(objects).then(() => {

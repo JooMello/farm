@@ -133,6 +133,7 @@ router.get('/admin/venda/new', adminAuth,(req, res) => {
 router.post("/venda/save", adminAuth, async (req, res) => {
   let id = req.body.id;
   let code = req.body.code;
+     let brinco = req.body.brinco;
   let data = req.body.data;
   let quantidade = req.body.quantidade;
   let valor = req.body.valor;
@@ -148,66 +149,101 @@ router.post("/venda/save", adminAuth, async (req, res) => {
   );
 
   
-  let nextId;
-  let nextCode;
+ let nextBrinco = null;
+ let nextCode;
 
-  if (!id) {
-    try {
-      const venda = await Venda.findOne({
-        order: [['id', 'DESC']],
-        limit: 1
-      });
-      nextId = venda ? venda.id + 1 : 1;
-    } catch (error) {
-      // Tratar o erro de consulta
-      console.error(error);
-      nextId = 1;
-    }
-  } else {
-    nextId = parseInt(id) + 1;
-  }
+ if (brinco === undefined || brinco === "") {
+   try {
+     const lastVenda = await Venda.findOne({
+       order: [["brinco", "DESC"]],
+       limit: 1,
+     });
 
-  if (!code) {
-    try {
-      const lastVenda = await Venda.findOne({
-        order: [['code', 'DESC']],
-        limit: 1
-      });
-  
-      if (lastVenda) {
-        const lastCode = lastVenda.code.toString();
-        const incrementedCode = (parseInt(lastCode) + 1).toString();
-        nextCode = parseInt(incrementedCode);
-      } else {
-        nextCode = 1;
-      }
-    } catch (error) {
-      // Tratar o erro de consulta
-      console.error(error);
-      nextCode = 1;
-    }
-  } else {
-    nextCode = parseInt(code); // Não incrementar o código fornecido
-  }
-  
-  insertVenda(nextId, nextCode)
+     if (cccccccc) {
+       const lastBrinco = lastVenda.brinco;
+       if (typeof lastBrinco === "number") {
+         nextBrinco = lastBrinco + 1;
+       } else {
+         nextBrinco = null;
+       }
+     } else {
+       nextBrinco = null;
+     }
+   } catch (error) {
+     // Tratar o erro de consulta
+     console.error(error);
+     nextBrinco = null;
+   }
+ } else {
+   nextBrinco = parseInt(brinco);
+ }
+
+ if (nextBrinco !== null) {
+   try {
+     const existingVenda = await Venda.findOne({
+       where: {
+         brinco: nextBrinco,
+       },
+     });
+
+     if (existingVenda) {
+       // Registro com o mesmo valor de brinco já existe
+       return res
+         .status(400)
+         .json({ error: "Registro com o mesmo valor de brinco já existe" });
+     }
+   } catch (error) {
+     // Tratar o erro de consulta
+     console.error(error);
+     return res
+       .status(500)
+       .json({ error: "Erro ao verificar o valor de brinco" });
+   }
+ }
+
+ if (!code) {
+   try {
+     const lastVenda = await Venda.findOne({
+       order: [["code", "DESC"]],
+       limit: 1,
+     });
+
+     if (lastVenda) {
+       const lastCode = lastVenda.code.toString();
+       const incrementedCode = (parseInt(lastCode) + 1).toString();
+       nextCode = parseInt(incrementedCode);
+     } else {
+       nextCode = 1;
+     }
+   } catch (error) {
+     // Tratar o erro de consulta
+     console.error(error);
+     nextCode = 1;
+   }
+ } else {
+   nextCode = parseInt(code); // Não incrementar o código fornecido
+ }
+  insertVenda(nextBrinco, nextCode)
 
   function insertVenda(nextId, nextCode) {
     var objects = [];
 
     for (var i = 0; i < quantidade; i++) {
       objects.push({
-        id: nextId,
+        id: id,
         data: data,
         quantidade: quantidade,
         code: nextCode,
+        brinco: nextBrinco,
         valor: valorFloat / quantidade,
         dolar: dolarFloat,
         amount: amountFloat / quantidade,
         obs: obs,
         investidoreId: investidor,
       });
-      nextId++; // Incrementar o ID para o próximo objeto
+       if (nextBrinco !== null) {
+         nextBrinco++; // Incrementar o ID para o próximo objeto, apenas se brinco não for nulo
+       }
     }
 
     Venda.bulkCreate(objects).then(() => {

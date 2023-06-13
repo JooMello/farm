@@ -2,35 +2,39 @@ const Sequelize = require("sequelize");
 const connection = require("../../database/database");
 const Investidor = require("../investidor/Investidor");
 
-const Venda = connection.define('vendas', {
-    data: {
-        type: Sequelize.DATEONLY,
-        allowNull: false
-    },
-    code: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
-    quantidade: {
-        type: Sequelize.STRING,
-        allowNull: false
-    },
-    valor: {
-         type: Sequelize.STRING,
-        allowNull: false
-    },
-    dolar: {
-         type: Sequelize.STRING,
-        allowNull: false
-    },
-    amount: {
-         type: Sequelize.STRING,
-        allowNull: false
-    },
-    obs: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
+const Venda = connection.define("vendas", {
+  data: {
+    type: Sequelize.DATEONLY,
+    allowNull: false,
+  },
+  code: {
+    type: Sequelize.STRING,
+    allowNull: false,
+  },
+  brinco: {
+    type: Sequelize.STRING,
+    allowNull: true,
+  },
+  quantidade: {
+    type: Sequelize.STRING,
+    allowNull: false,
+  },
+  valor: {
+    type: Sequelize.STRING,
+    allowNull: false,
+  },
+  dolar: {
+    type: Sequelize.STRING,
+    allowNull: false,
+  },
+  amount: {
+    type: Sequelize.STRING,
+    allowNull: false,
+  },
+  obs: {
+    type: Sequelize.STRING,
+    allowNull: false,
+  },
 });
 
 // UM Investidor tem muitas vendas

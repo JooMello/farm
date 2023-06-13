@@ -11,6 +11,10 @@ const Compra = connection.define("compras", {
     type: Sequelize.STRING,
     allowNull: false,
   },
+  brinco: {
+    type: Sequelize.STRING,
+    allowNull: true,
+  },
   quantidade: {
     type: Sequelize.STRING,
     allowNull: false,
