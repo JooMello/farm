@@ -192,9 +192,9 @@ router.post("/compra/save", adminAuth, async (req, res) => {
 
      if (existingCompra) {
        // Registro com o mesmo valor de brinco já existe
-       return res
-         .status(400)
-         .json({ error: "Registro com o mesmo valor de brinco já existe" });
+       return res.send(
+         '<script>alert("Registro com o mesmo valor de brinco já existe"); window.location.href = "/admin/compra/new";</script>'
+       );
      }
    } catch (error) {
      // Tratar o erro de consulta
@@ -278,7 +278,7 @@ router.get("/admin/compra/edit/:id", adminAuth, (req, res) => {
     });
 });
 
-router.post("/compra/update", adminAuth, (req, res) => {
+router.post("/compra/update", adminAuth, async(req, res) => {
   var id = req.body.id;
   var data = req.body.data;
   var quantidade = req.body.quantidade;
@@ -288,15 +288,20 @@ router.post("/compra/update", adminAuth, (req, res) => {
   var obs = req.body.obs;
   var investidor = req.body.investidor;
 
-  var valorFloat = valor.replace(".", "").replace(",", ".");
+  let valorFloat = parseFloat(
+    valor.replace("R$", "").replace(".", "").replace(",", ".")
+  );
+  let dolarFloat = parseFloat(dolar.replace("$", ""));
+  let amountFloat = parseFloat(amount.replace("$", "").replace(",", "."));
+
 
   Compra.update(
     {
       data: data,
       quantidade: quantidade,
       valor: valorFloat,
-      dolar: dolar,
-      amount: amount,
+      dolar: dolarFloat,
+      amount: amountFloat,
       obs: obs,
       investidoreId: investidor,
     },

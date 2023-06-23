@@ -1,57 +1,52 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
 const Venda = require("./Venda");
 const slugify = require("slugify");
 const sequelize = require("sequelize");
 const { Op } = require("sequelize");
-const request = require('request')
-const adminAuth = require("../../middlewares/adminAuth")
+const request = require("request");
+const adminAuth = require("../../middlewares/adminAuth");
 var fs = require("fs");
-const moment = require('moment');
+const moment = require("moment");
 
-const Investidor = require("../investidor/Investidor")
+const Investidor = require("../investidor/Investidor");
 
 const accountSid = "AC00fbbfc768402c07243ec830f4e3c2d8";
 const authToken = "c49b7d7775ef24875c1a6e330bfc1c16";
 const client = require("twilio")(accountSid, authToken);
 
-
-const { host, port, user, pass } = require('../../config/mail.json');
-
+const { host, port, user, pass } = require("../../config/mail.json");
 
 // https://docs.awesomeapi.com.br/
 
-const moedas =  'USD-BRL'
+const moedas = "USD-BRL";
 
 // request{options, callback}
 
-
 const options = {
-    url: `https://economia.awesomeapi.com.br/last/${moedas}`,
-    method: 'GET',
-    headers: {
-        'Accept': 'application/json',
-        'Accept-Charset': 'utf-8'
-    },
-}
+  url: `https://economia.awesomeapi.com.br/last/${moedas}`,
+  method: "GET",
+  headers: {
+    Accept: "application/json",
+    "Accept-Charset": "utf-8",
+  },
+};
 
-const callback_dolar = function(erro, res, body){
-    let json = JSON.parse(body)
-    cotacao = json.USDBRL['bid']
-}
-const Dolar = request(options, callback_dolar)
+const callback_dolar = function (erro, res, body) {
+  let json = JSON.parse(body);
+  cotacao = json.USDBRL["bid"];
+};
+const Dolar = request(options, callback_dolar);
 
-
-
-router.get('/admin/venda',adminAuth, async (req, res, next) => {
+router.get("/admin/venda", adminAuth, async (req, res, next) => {
   Venda.findAll({
-    include: [{
-      model: Investidor,
-    }],
-    order: [
-      ["data", "DESC"]
+    include: [
+      {
+        model: Investidor,
+      },
     ],
-     raw: true,
+    order: [["data", "DESC"]],
+    raw: true,
     nest: true,
   }).then((vendas) => {
     vendas.forEach((venda) => {
@@ -83,7 +78,6 @@ router.get('/admin/venda',adminAuth, async (req, res, next) => {
         { style: "currency", currency: "BRL" }
       );
 
-      
       var amountU = await Venda.findOne({
         attributes: [
           [
@@ -98,34 +92,34 @@ router.get('/admin/venda',adminAuth, async (req, res, next) => {
         raw: true,
       });
 
-       var mediaVenda = Number(amountU["media"]).toLocaleString("pt-BR", {
-         style: "currency",
-         currency: "BRL",
-       });
+      var mediaVenda = Number(amountU["media"]).toLocaleString("pt-BR", {
+        style: "currency",
+        currency: "BRL",
+      });
 
       res.render("admin/venda/index", {
         vendas: vendas,
-        investidores: investidores,mediaVenda,
+        investidores: investidores,
+        mediaVenda,
         quantidade,
         ValorVenda,
         TotalVendaDolar,
       });
     });
-  })
+  });
 });
 
-router.get('/admin/venda/new', adminAuth,(req, res) => {
-
-   var cotacaoDolar = Number(cotacao).toLocaleString("en-US", {
-     style: "currency",
-     currency: "USD",
-   });
+router.get("/admin/venda/new", adminAuth, (req, res) => {
+  var cotacaoDolar = Number(cotacao).toLocaleString("en-US", {
+    style: "currency",
+    currency: "USD",
+  });
 
   Investidor.findAll().then((investidores) => {
-    res.render('admin/venda/new', {
+    res.render("admin/venda/new", {
       investidores: investidores,
       cotacao: cotacao,
-      cotacaoDolar: cotacaoDolar
+      cotacaoDolar: cotacaoDolar,
     });
   });
 });
@@ -133,7 +127,7 @@ router.get('/admin/venda/new', adminAuth,(req, res) => {
 router.post("/venda/save", adminAuth, async (req, res) => {
   let id = req.body.id;
   let code = req.body.code;
-     let brinco = req.body.brinco;
+  let brinco = req.body.brinco;
   let data = req.body.data;
   let quantidade = req.body.quantidade;
   let valor = req.body.valor;
@@ -142,88 +136,87 @@ router.post("/venda/save", adminAuth, async (req, res) => {
   let obs = req.body.obs;
   let investidor = req.body.investidor;
 
-  let valorFloat = parseFloat(valor.replace("R$", "").replace(".", "").replace(",", "."));
-  let dolarFloat = parseFloat(dolar.replace("$", ""));
-  let amountFloat = parseFloat(
-    amount.replace("$", "").replace(",", "")
+  let valorFloat = parseFloat(
+    valor.replace("R$", "").replace(".", "").replace(",", ".")
   );
+  let dolarFloat = parseFloat(dolar.replace("$", ""));
+  let amountFloat = parseFloat(amount.replace("$", "").replace(",", ""));
 
-  
- let nextBrinco = null;
- let nextCode;
+  let nextBrinco = null;
+  let nextCode;
 
- if (brinco === undefined || brinco === "") {
-   try {
-     const lastVenda = await Venda.findOne({
-       order: [["brinco", "DESC"]],
-       limit: 1,
-     });
+  if (brinco === undefined || brinco === "") {
+    try {
+      const lastVenda = await Venda.findOne({
+        order: [["brinco", "DESC"]],
+        limit: 1,
+      });
 
-     if (cccccccc) {
-       const lastBrinco = lastVenda.brinco;
-       if (typeof lastBrinco === "number") {
-         nextBrinco = lastBrinco + 1;
-       } else {
-         nextBrinco = null;
-       }
-     } else {
-       nextBrinco = null;
-     }
-   } catch (error) {
-     // Tratar o erro de consulta
-     console.error(error);
-     nextBrinco = null;
-   }
- } else {
-   nextBrinco = parseInt(brinco);
- }
+      if (cccccccc) {
+        const lastBrinco = lastVenda.brinco;
+        if (typeof lastBrinco === "number") {
+          nextBrinco = lastBrinco + 1;
+        } else {
+          nextBrinco = null;
+        }
+      } else {
+        nextBrinco = null;
+      }
+    } catch (error) {
+      // Tratar o erro de consulta
+      console.error(error);
+      nextBrinco = null;
+    }
+  } else {
+    nextBrinco = parseInt(brinco);
+  }
 
- if (nextBrinco !== null) {
-   try {
-     const existingVenda = await Venda.findOne({
-       where: {
-         brinco: nextBrinco,
-       },
-     });
+  if (nextBrinco !== null) {
+    try {
+      const existingVenda = await Venda.findOne({
+        where: {
+          brinco: nextBrinco,
+        },
+      });
 
-     if (existingVenda) {
-       // Registro com o mesmo valor de brinco já existe
-       return res
-         .status(400)
-         .json({ error: "Registro com o mesmo valor de brinco já existe" });
-     }
-   } catch (error) {
-     // Tratar o erro de consulta
-     console.error(error);
-     return res
-       .status(500)
-       .json({ error: "Erro ao verificar o valor de brinco" });
-   }
- }
+      if (existingVenda) {
+        // Registro com o mesmo valor de brinco já existe
+        return res.send(
+          '<script>alert("Registro com o mesmo valor de brinco já existe"); window.location.href = "/admin/venda/new";</script>'
+        );
+      }
+    } catch (error) {
+      // Tratar o erro de consulta
+      console.error(error);
+      return res
+        .status(500)
+        .json({ error: "Erro ao verificar o valor de brinco" });
+    }
+  }
 
- if (!code) {
-   try {
-     const lastVenda = await Venda.findOne({
-       order: [["code", "DESC"]],
-       limit: 1,
-     });
+  if (!code) {
+    try {
+      const lastVenda = await Venda.findOne({
+        order: [["code", "DESC"]],
+        limit: 1,
+      });
 
-     if (lastVenda) {
-       const lastCode = lastVenda.code.toString();
-       const incrementedCode = (parseInt(lastCode) + 1).toString();
-       nextCode = parseInt(incrementedCode);
-     } else {
-       nextCode = 1;
-     }
-   } catch (error) {
-     // Tratar o erro de consulta
-     console.error(error);
-     nextCode = 1;
-   }
- } else {
-   nextCode = parseInt(code); // Não incrementar o código fornecido
- }
-  insertVenda(nextBrinco, nextCode)
+      if (lastVenda) {
+        const lastCode = lastVenda.code.toString();
+        const incrementedCode = (parseInt(lastCode) + 1).toString();
+        nextCode = parseInt(incrementedCode);
+      } else {
+        nextCode = 1;
+      }
+    } catch (error) {
+      // Tratar o erro de consulta
+      console.error(error);
+      nextCode = 1;
+    }
+  } else {
+    nextCode = parseInt(code); // Não incrementar o código fornecido
+  }
+  insertVenda(nextBrinco, nextCode);
 
   function insertVenda(nextId, nextCode) {
     var objects = [];
@@ -241,9 +234,9 @@ router.post("/venda/save", adminAuth, async (req, res) => {
         obs: obs,
         investidoreId: investidor,
       });
-       if (nextBrinco !== null) {
-         nextBrinco++; // Incrementar o ID para o próximo objeto, apenas se brinco não for nulo
-       }
+      if (nextBrinco !== null) {
+        nextBrinco++; // Incrementar o ID para o próximo objeto, apenas se brinco não for nulo
+      }
     }
 
     Venda.bulkCreate(objects).then(() => {
@@ -255,26 +248,25 @@ router.post("/venda/save", adminAuth, async (req, res) => {
 router.get("/admin/venda/edit/:id", adminAuth, (req, res) => {
   var id = req.params.id;
 
-Venda.findByPk(id)
-.then((venda) => {
-  if (venda != undefined) {
-
-    Investidor.findAll().then((investidores) => {
-    res.render('admin/venda/edit', {
-      venda: venda,
-      investidores: investidores,
+  Venda.findByPk(id)
+    .then((venda) => {
+      if (venda != undefined) {
+        Investidor.findAll().then((investidores) => {
+          res.render("admin/venda/edit", {
+            venda: venda,
+            investidores: investidores,
+          });
+        });
+      } else {
+        res.redirect("/admin/venda");
+      }
     })
-  })
-  } else{
-    res.redirect('/admin/venda');
-  }
-})
-.catch((err) => {
-  res.redirect('/admin/venda');
-})
-})
+    .catch((err) => {
+      res.redirect("/admin/venda");
+    });
+});
 
-router.post('/venda/update', adminAuth,(req, res) => {
+router.post("/venda/update", adminAuth, (req, res) => {
   var id = req.body.id;
   var data = req.body.data;
   var quantidade = req.body.quantidade;
@@ -284,15 +276,18 @@ router.post('/venda/update', adminAuth,(req, res) => {
   var obs = req.body.obs;
   var investidor = req.body.investidor;
 
-  var valorFloat = valor.replace(".", "").replace(",", ".");
-  var amountFloat = amount.replace("$", "");
+  let valorFloat = parseFloat(
+    valor.replace("R$", "").replace(".", "").replace(",", ".")
+  );
+  let dolarFloat = parseFloat(dolar.replace("$", ""));
+  let amountFloat = parseFloat(amount.replace("$", "").replace(",", "."));
 
   Venda.update(
     {
       data: data,
       quantidade: quantidade,
       valor: valorFloat,
-      dolar: dolar,
+      dolar: dolarFloat,
       amount: amountFloat,
       obs: obs,
       investidoreId: investidor,
@@ -304,32 +299,14 @@ router.post('/venda/update', adminAuth,(req, res) => {
     }
   )
     .then(() => {
-      // Formata a data para o padrão "DD/MM/YYYY"
-      var dataFormatada = moment(data, "YYYY-MM-DD").format("DD/MM/YYYY");
-      var valorFormatado = Number(valor).toLocaleString("pt-BR", {
-        style: "currency",
-        currency: "BRL",
-      });
-
-      // Enviar mensagem no WhatsApp quando a página inicial for acessada
-      client.messages
-        .create({
-          from: "whatsapp:+14155238886",
-          to: "whatsapp:+556593589187",
-          body: `Olá, essa é uma mensagem de notificação:
-    Venda de Gado foi editado para
-    Data: ${dataFormatada}
-    Valor: ${valorFormatado}`,
-        })
-        .then((message) => console.log(message.sid));
       res.redirect("/admin/venda");
     })
     .catch((err) => {
       res.send("erro:" + err);
     });
-})
+});
 
-router.post('/venda/delete',adminAuth, (req, res) => {
+router.post("/venda/delete", adminAuth, (req, res) => {
   var id = req.body.id;
   if (id != undefined) {
     if (!isNaN(id)) {
@@ -346,6 +323,5 @@ router.post('/venda/delete',adminAuth, (req, res) => {
     res.redirect("/admin/venda");
   }
 });
-
 
 module.exports = router;
