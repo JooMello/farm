@@ -131,7 +131,9 @@ router.post('/morte/save',adminAuth,   (req, res) => {
     var valor = req.body.valor;
     var investidor = req.body.investidor;
 
-    var valorFloat = valor.replace(".", "").replace(",", ".");
+     let valorFloat = parseFloat(
+    valor.replace("R$", "").replace(".", "").replace(",", ".")
+  );
   
      Morte.create(
      {
@@ -141,7 +143,7 @@ router.post('/morte/save',adminAuth,   (req, res) => {
       investidoreId: investidor,
     })
     .then(() => {
-      res.redirect("/admin/estoque");
+      res.redirect("/admin/estoque/morte");
     });
   });
 
@@ -247,7 +249,9 @@ router.post('/morte/update', adminAuth, (req, res) => {
   var valor = req.body.valor;
   var investidor = req.body.investidor;
 
-  var valorFloat = valor.replace(".", "").replace(",", ".");
+    let valorFloat = parseFloat(
+      valor.replace("R$", "").replace(".", "").replace(",", ".")
+    );
 
   Morte.update({
     data: data,
