@@ -235,32 +235,32 @@ router.post("/compra/save", adminAuth, async (req, res) => {
 
  insertCompra(nextBrinco, nextCode);
 
-  function insertCompra(nextBrinco, nextCode) {
-    var objects = [];
+ function insertCompra() {
+  const brincosArray = Array.from(brincos);
+  const valoresArray = Array.from(valores);
+  const pesosArray = Array.from(pesos);
+  const objects = [];
 
-    for (var i = 0; i < quantidade; i++) {
-      objects.push({
-        id: id,
-        data: data,
-        brinco: nextBrinco,
-        quantidade: quantidade,
-        code: nextCode,
-        valor: valorFloat / quantidade,
-        valor: pesoFloat,
-        dolar: dolarFloat,
-        amount: amountFloat / quantidade,
-        obs: obs,
-        investidoreId: investidor,
-      });
-      if (nextBrinco !== null) {
-        nextBrinco++; // Incrementar o ID para o próximo objeto, apenas se brinco não for nulo
-      }
-    }
-
-    Compra.bulkCreate(objects).then(() => {
-      res.redirect("/admin/compra");
+  for (let i = 0; i < brincosArray.length; i++) {
+    objects.push({
+      id: id,
+      data: data,
+      brinco: brincosArray[i].value,
+      quantidade: quantidade,
+      code: nextCode + i, // Incrementa o código para cada registro
+      valor: parseFloat(valoresArray[i].value.replace(',', '.')),
+      peso: parseFloat(pesosArray[i].value.replace(',', '.')),
+      dolar: dolarFloat,
+      amount: amountFloat,
+      obs: obs,
+      investidoreId: investidor,
     });
   }
+
+  Compra.bulkCreate(objects).then(() => {
+    res.redirect("/admin/compra");
+  });
+}
 });
 
 router.get("/admin/compra/edit/:id", adminAuth, (req, res) => {
