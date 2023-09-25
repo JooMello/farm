@@ -74,6 +74,7 @@
             <th>Data Compra</th>
             <th>Numeração</th>
             <th>Valor</th>
+            <th>Peso</th>
             <th>Dolar</th>
             <th>Compra - Dolar</th>
             <th>Ações</th>
@@ -86,6 +87,7 @@
             <td id="formatData"><%= compra.data %></td>
             <td><%= compra.brinco %></td>
             <td><%= new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(compra.valor) %></td>
+            <td><%= new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(compra.peso) %></td>
             <td><%= new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format( compra.dolar) %></td>
             <td><%= new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(compra.amount) %></td>
             <td>

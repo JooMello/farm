@@ -142,6 +142,7 @@ router.post("/compra/save", adminAuth, async (req, res) => {
   let data = req.body.data;
   let quantidade = req.body.quantidade;
   let valor = req.body.valor;
+  let peso = req.body.peso;
   let dolar = req.body.dolar;
   let amount = req.body.amount;
   let obs = req.body.obs;
@@ -149,6 +150,10 @@ router.post("/compra/save", adminAuth, async (req, res) => {
 
   let valorFloat = parseFloat(
     valor.replace("R$", "").replace(".", "").replace(",", ".")
+  );
+
+  let pesoFloat = parseFloat(
+    peso.replace(".", "").replace(",", ".")
   );
   let dolarFloat = parseFloat(dolar.replace("$", ""));
   let amountFloat = parseFloat(amount.replace("$", "").replace(",", ""));
@@ -241,6 +246,7 @@ router.post("/compra/save", adminAuth, async (req, res) => {
         quantidade: quantidade,
         code: nextCode,
         valor: valorFloat / quantidade,
+        valor: pesoFloat,
         dolar: dolarFloat,
         amount: amountFloat / quantidade,
         obs: obs,
