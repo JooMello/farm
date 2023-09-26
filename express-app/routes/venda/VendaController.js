@@ -38,6 +38,28 @@ const callback_dolar = function (erro, res, body) {
 };
 const Dolar = request(options, callback_dolar);
 
+
+// Função para formatar um valor monetário (R$)
+function formatCurrency(value) {
+  const formattedValue = parseFloat(value.replace("R$", "").replace(".", "").replace(",", "."));
+  return isNaN(formattedValue) ? 0 : formattedValue;
+}
+
+// Função para formatar um valor em dólar ($)
+function formatDollar(value) {
+  const formattedValue = parseFloat(value.replace("$", "").replace(",", ""));
+  return isNaN(formattedValue) ? 0 : formattedValue;
+}
+
+// Função para formatar um valor ou array de valores
+function formatValueOrArray(value) {
+  if (Array.isArray(value)) {
+    return value.map(val => formatCurrency(val));
+  } else {
+    return formatCurrency(value);
+  }
+}
+
 router.get("/admin/venda", adminAuth, async (req, res, next) => {
   Venda.findAll({
     include: [
@@ -109,6 +131,105 @@ router.get("/admin/venda", adminAuth, async (req, res, next) => {
   });
 });
 
+router.get("/admin/venda/view/:code", adminAuth, async (req, res, next) => {
+
+  const code = req.params.code;
+
+  Venda.findAll({
+    where: {
+      code: code,
+    },
+    include: [
+      {
+        model: Investidor,
+      },
+    ],
+    order: [["data", "DESC"]],
+    raw: true,
+    nest: true,
+  }).then((vendas) => {
+    vendas.forEach((venda) => {
+      venda.data = moment(venda.data).format("DD/MM/YYYY");
+    });
+    Investidor.findAll().then(async (investidores) => {
+      
+      //////////////////////Quantidade
+      var quantidadeVenda = await Venda.findOne({
+        where: {
+          code: code, // Condição para encontrar a venda específica
+        },
+        attributes: ['quantidade'], // Substitua 'quantidade' pelo nome correto do campo na tabela venda
+        raw: true,
+      });
+
+      const quantidade = quantidadeVenda ? quantidadeVenda.quantidade : null;
+      //////////////////////Capital Investidor
+      var amountT = await Venda.findOne({
+        where: {
+          code: code,
+        },
+        attributes: [sequelize.fn("sum", sequelize.col("valor"))],
+
+        raw: true,
+      });
+      var ValorVenda = Number(amountT["sum(`valor`)"]).toLocaleString(
+        "pt-BR",
+        {
+          style: "currency",
+          currency: "BRL",
+        }
+      );
+
+      //////////////////////Capital Investidor em dolar
+      var amountD = await Venda.findOne({
+        where: {
+          code: code,
+        },
+        attributes: [sequelize.fn("sum", sequelize.col("amount"))],
+
+        raw: true,
+      });
+      var TotalVendaDolar = Number(
+        amountD["sum(`amount`)"]
+      ).toLocaleString("en-US", {
+        style: "currency",
+        currency: "USD",
+      });
+
+      var amountU = await Venda.findOne({
+        where: {
+          code: code,
+        },
+        attributes: [
+          [
+            sequelize.fn(
+              "avg",
+              sequelize.fn("DISTINCT", sequelize.col("valor"))
+            ),
+            "media",
+          ],
+        ],
+        distinct: true,
+        raw: true,
+      });
+      var mediaVenda = Number(amountU["media"]).toLocaleString("pt-BR", {
+        style: "currency",
+        currency: "BRL",
+      });
+ console.log(vendas);
+      res.render("admin/venda/view", {
+        vendas: vendas,
+        investidores: investidores,
+        quantidade,
+        mediaVenda,
+        ValorVenda,
+        TotalVendaDolar,
+      });
+    });
+  });
+});
+
+
 router.get("/admin/venda/new", adminAuth, (req, res) => {
   var cotacaoDolar = Number(cotacao).toLocaleString("en-US", {
     style: "currency",
@@ -131,119 +252,66 @@ router.post("/venda/save", adminAuth, async (req, res) => {
   let data = req.body.data;
   let quantidade = req.body.quantidade;
   let valor = req.body.valor;
+  let peso = req.body.peso;
   let dolar = req.body.dolar;
   let amount = req.body.amount;
   let obs = req.body.obs;
   let investidor = req.body.investidor;
 
-  let valorFloat = parseFloat(
-    valor.replace("R$", "").replace(".", "").replace(",", ".")
-  );
-  let dolarFloat = parseFloat(dolar.replace("$", ""));
-  let amountFloat = parseFloat(amount.replace("$", "").replace(",", ""));
+    // Formatando os valores
+    const formattedPeso = formatValueOrArray(req.body.peso);
+    const dolarFloat = parseFloat(dolar.replace("$", ""));
+    const amountFloat = parseFloat(amount.replace("$", "").replace(",", ""));
+  
 
-  let nextBrinco = null;
-  let nextCode;
-
-  if (brinco === undefined || brinco === "") {
+    
     try {
+      const existingBrinco = await Venda.findOne({
+        where: {
+          brinco: brinco,
+        },
+      });
+  
+      // Encontrar o último brinco e código
       const lastVenda = await Venda.findOne({
         order: [["brinco", "DESC"]],
         limit: 1,
       });
-
-      if (cccccccc) {
-        const lastBrinco = lastVenda.brinco;
-        if (typeof lastBrinco === "number") {
-          nextBrinco = lastBrinco + 1;
-        } else {
-          nextBrinco = null;
-        }
-      } else {
-        nextBrinco = null;
-      }
-    } catch (error) {
-      // Tratar o erro de consulta
-      console.error(error);
-      nextBrinco = null;
-    }
-  } else {
-    nextBrinco = parseInt(brinco);
-  }
-
-  if (nextBrinco !== null) {
-    try {
-      const existingVenda = await Venda.findOne({
-        where: {
-          brinco: nextBrinco,
-        },
-      });
-
-      if (existingVenda) {
-        // Registro com o mesmo valor de brinco já existe
-        return res.send(
-          '<script>alert("Registro com o mesmo valor de brinco já existe"); window.location.href = "/admin/venda/new";</script>'
-        );
-      }
-    } catch (error) {
-      // Tratar o erro de consulta
-      console.error(error);
-      return res
-        .status(500)
-        .json({ error: "Erro ao verificar o valor de brinco" });
-    }
-  }
-
-  if (!code) {
-    try {
-      const lastVenda = await Venda.findOne({
+  
+      const lastCode = await Venda.findOne({
         order: [["code", "DESC"]],
         limit: 1,
       });
-
-      if (lastVenda) {
-        const lastCode = lastVenda.code.toString();
-        const incrementedCode = (parseInt(lastCode) + 1).toString();
-        nextCode = parseInt(incrementedCode);
-      } else {
-        nextCode = 1;
+  
+  const nextCode = lastCode ? parseInt(lastCode.code) + 1 : 1;
+  
+      const objects = [];
+  
+      for (let i = 0; i < quantidade; i++) {
+        objects.push({
+          id: id,
+          data: data,
+          brinco: brinco[i],
+          quantidade: quantidade,
+          code: nextCode,
+          valor: valor[i],
+          peso: formattedPeso[i],
+          dolar: dolarFloat,
+          amount: amountFloat,
+          obs: obs,
+          investidoreId: investidor,
+        });
       }
-    } catch (error) {
-      // Tratar o erro de consulta
-      console.error(error);
-      nextCode = 1;
-    }
-  } else {
-    nextCode = parseInt(code); // Não incrementar o código fornecido
-  }
-  insertVenda(nextBrinco, nextCode);
-
-  function insertVenda(nextId, nextCode) {
-    var objects = [];
-
-    for (var i = 0; i < quantidade; i++) {
-      objects.push({
-        id: id,
-        data: data,
-        quantidade: quantidade,
-        code: nextCode,
-        brinco: nextBrinco,
-        valor: valorFloat / quantidade,
-        dolar: dolarFloat,
-        amount: amountFloat / quantidade,
-        obs: obs,
-        investidoreId: investidor,
-      });
-      if (nextBrinco !== null) {
-        nextBrinco++; // Incrementar o ID para o próximo objeto, apenas se brinco não for nulo
-      }
-    }
-
-    Venda.bulkCreate(objects).then(() => {
+  
+      // Inserir os registros no banco de dados
+      await Venda.bulkCreate(objects);
+  
       res.redirect("/admin/venda");
-    });
-  }
-});
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "Erro ao salvar os registros no banco de dados" });
+    }
+  });
 
 router.get("/admin/venda/edit/:id", adminAuth, (req, res) => {
   var id = req.params.id;

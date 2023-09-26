@@ -124,7 +124,6 @@
               <th>Data</th>
               <th>Quantidade</th>
               <th>Valor</th>
-              <th>Descrição</th>
             </tr>
           </thead>
           <tbody id="demo">
@@ -142,9 +141,6 @@
                 <td>
                   <%= new Intl.NumberFormat('pt-BR', { style: 'currency' , currency: 'BRL' }).format(compra.total_valor) %>
                 </td>
-                <td>
-                  <%= compra.obs%>
-                </td>
               </tr>
               <% }) %>
           </tbody>
@@ -161,7 +157,6 @@
                     <th>Data</th>
                     <th>Quantidade</th>
                     <th>Valor</th>
-                    <th>Descrição</th>
                   </tr>
                 </thead>
                 <tbody id="demo">
@@ -179,10 +174,7 @@
                       <td>
                         <%= new Intl.NumberFormat('pt-BR', { style: 'currency' , currency: 'BRL' }).format(venda.total_valor) %>
                       </td>
-                      <td>
-                        <%= venda.obs%>
-                      </td>
-
+                     
                     </tr>
                     <% }) %>
                 </tbody>

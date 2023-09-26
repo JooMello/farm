@@ -132,7 +132,7 @@
         </form>
       </div>
     </div>
-    <br />
+    <br /> 
   </div>
 </body>
 
@@ -153,10 +153,6 @@
 Pega valor total da compra divide pelo dolar diario
 -->
 <script>
-  const brincos = document.querySelectorAll('input[name="brinco[]"]');
-const valores = document.querySelectorAll('input[name="valor[]"]');
-const pesos = document.querySelectorAll('input[name="peso[]"]');
-
   const valorTotalInput = document.getElementById('valorTotal');
 
   valorTotalInput.addEventListener('input', event => {
@@ -203,15 +199,15 @@ const pesos = document.querySelectorAll('input[name="peso[]"]');
         const newRow = compraTable.querySelector("tbody").insertRow();
         newRow.insertCell(
           0
-        ).innerHTML = `<input  type="number" class="form-control name="brinco[]" id="brinco"placeholder="Brinco ${i}" />`;
+        ).innerHTML = `<input  type="number" name="brinco" id="brinco" class="form-control placeholder="Brinco ${i}" />`;
         newRow.insertCell(
           1
-        ).innerHTML = `<input class="form-control  type="text"  name="valor[]" id="valor" placeholder="Valor ${i}" value="${(
+        ).innerHTML = `<input class="form-control  type="text"  name="valor" id="valor" placeholder="Valor ${i}" value="${(
           valor
         ).toFixed(2)}"  readonly  />`;
         newRow.insertCell(
           2
-        ).innerHTML = `<input class="form-control type="text" name="peso[]" id="peso" placeholder="Peso ${i}"  onkeyup="formatCurrency(this)"/>`;
+        ).innerHTML = `<input class="form-control type="text" name="peso" id="peso" placeholder="Peso ${i}"  onkeyup="formatCurrency(this)"/>`;
         
       }
     } else {
@@ -248,4 +244,3 @@ const pesos = document.querySelectorAll('input[name="peso[]"]');
     formatCurrency(event.target);
   });
 </script>
-

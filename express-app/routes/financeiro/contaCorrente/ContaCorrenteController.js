@@ -99,10 +99,11 @@ router.get("/admin/contaCorrente", adminAuth, async (req, res, next) => {
              attributes: [sequelize.fn("sum", sequelize.col("valor"))],
              raw: true,
            });
-           var Total = Number(amountT["sum(`valor`)"]).toLocaleString("pt-BR", {
+           var saldo = Number(amountT["sum(`valor`)"]).toLocaleString("pt-BR", {
              style: "currency",
              currency: "BRL",
            });
+           var saldos = Number(amountT["sum(`valor`)"])
            var amountC = await Compra.findOne({
             attributes: [sequelize.fn("sum", sequelize.col("valor"))],
             raw: true,
@@ -111,15 +112,25 @@ router.get("/admin/contaCorrente", adminAuth, async (req, res, next) => {
             style: "currency",
             currency: "BRL",
           });
+          var amountCompras = Number(amountC["sum(`valor`)"])
+
           var amountV = await Venda.findOne({
             attributes: [sequelize.fn("sum", sequelize.col("valor"))],
             raw: true,
           });
-          var amountVendas = Number(amountV["sum(`valor`)"]) / 2
+          var amountVendas = (Number(amountV["sum(`valor`)"]) / 2) /2
           var amountVenda = amountVendas.toLocaleString("pt-BR", {
             style: "currency",
             currency: "BRL",
           });
+          const Total = ((amountCompras - amountVendas) + saldos).toLocaleString("pt-BR", {
+            style: "currency",
+            currency: "BRL",
+          });
+          console.log(amountCompras)
+          console.log(amountVendas)
+          console.log(saldos)
+          console.log(Total)
            res.render("admin/financeiro/contaCorrente/index", {
              compras: compras,
              vendas: vendas,

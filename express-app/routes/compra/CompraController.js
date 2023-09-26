@@ -45,6 +45,28 @@ const callback_dolar = function (erro, res, body) {
 };
 const Dolar = request(options, callback_dolar);
 
+// Função para formatar um valor monetário (R$)
+function formatCurrency(value) {
+  const formattedValue = parseFloat(value.replace("R$", "").replace(".", "").replace(",", "."));
+  return isNaN(formattedValue) ? 0 : formattedValue;
+}
+
+// Função para formatar um valor em dólar ($)
+function formatDollar(value) {
+  const formattedValue = parseFloat(value.replace("$", "").replace(",", ""));
+  return isNaN(formattedValue) ? 0 : formattedValue;
+}
+
+// Função para formatar um valor ou array de valores
+function formatValueOrArray(value) {
+  if (Array.isArray(value)) {
+    return value.map(val => formatCurrency(val));
+  } else {
+    return formatCurrency(value);
+  }
+}
+
+
 router.get("/admin/compra", adminAuth, async (req, res, next) => {
   Compra.findAll({
     include: [
@@ -120,6 +142,105 @@ router.get("/admin/compra", adminAuth, async (req, res, next) => {
   });
 });
 
+
+router.get("/admin/compra/view/:code", adminAuth, async (req, res, next) => {
+
+  const code = req.params.code;
+
+  Compra.findAll({
+    where: {
+      code: code,
+    },
+    include: [
+      {
+        model: Investidor,
+      },
+    ],
+    order: [["data", "DESC"]],
+    raw: true,
+    nest: true,
+  }).then((compras) => {
+    compras.forEach((compra) => {
+      compra.data = moment(compra.data).format("DD/MM/YYYY");
+    });
+    Investidor.findAll().then(async (investidores) => {
+      
+      //////////////////////Quantidade
+      var quantidadeCompra = await Compra.findOne({
+        where: {
+          code: code, // Condição para encontrar a compra específica
+        },
+        attributes: ['quantidade'], // Substitua 'quantidade' pelo nome correto do campo na tabela Compra
+        raw: true,
+      });
+
+      const quantidade = quantidadeCompra ? quantidadeCompra.quantidade : null;
+      //////////////////////Capital Investidor
+      var amountT = await Compra.findOne({
+        where: {
+          code: code,
+        },
+        attributes: [sequelize.fn("sum", sequelize.col("valor"))],
+
+        raw: true,
+      });
+      var CapitalInvestido = Number(amountT["sum(`valor`)"]).toLocaleString(
+        "pt-BR",
+        {
+          style: "currency",
+          currency: "BRL",
+        }
+      );
+
+      //////////////////////Capital Investidor em dolar
+      var amountD = await Compra.findOne({
+        where: {
+          code: code,
+        },
+        attributes: [sequelize.fn("sum", sequelize.col("amount"))],
+
+        raw: true,
+      });
+      var CapitalInvestidoDolar = Number(
+        amountD["sum(`amount`)"]
+      ).toLocaleString("en-US", {
+        style: "currency",
+        currency: "USD",
+      });
+
+      var amountU = await Compra.findOne({
+        where: {
+          code: code,
+        },
+        attributes: [
+          [
+            sequelize.fn(
+              "avg",
+              sequelize.fn("DISTINCT", sequelize.col("valor"))
+            ),
+            "media",
+          ],
+        ],
+        distinct: true,
+        raw: true,
+      });
+      var mediaCompra = Number(amountU["media"]).toLocaleString("pt-BR", {
+        style: "currency",
+        currency: "BRL",
+      });
+ console.log(compras);
+      res.render("admin/compra/view", {
+        compras: compras,
+        investidores: investidores,
+        quantidade,
+        mediaCompra,
+        CapitalInvestido,
+        CapitalInvestidoDolar,
+      });
+    });
+  });
+});
+
 router.get("/admin/compra/new", adminAuth, (req, res) => {
   var cotacaoDolar = Number(cotacao).toLocaleString("en-US", {
     style: "currency",
@@ -136,9 +257,10 @@ router.get("/admin/compra/new", adminAuth, (req, res) => {
 });
 
 router.post("/compra/save", adminAuth, async (req, res) => {
+
   let id = req.body.id;
   let code = req.body.code;
-   let brinco = req.body.brinco;
+  let brinco = req.body.brinco;
   let data = req.body.data;
   let quantidade = req.body.quantidade;
   let valor = req.body.valor;
@@ -147,120 +269,76 @@ router.post("/compra/save", adminAuth, async (req, res) => {
   let amount = req.body.amount;
   let obs = req.body.obs;
   let investidor = req.body.investidor;
+  console.log(code)
+  console.log(brinco)
+  console.log(data)
+  console.log(quantidade)
+  console.log(valor)
+  console.log(peso)
+  console.log(dolar)
 
-  let valorFloat = parseFloat(
-    valor.replace("R$", "").replace(".", "").replace(",", ".")
-  );
+  // ... Resto do seu código ...
 
-  let pesoFloat = parseFloat(
-    peso.replace(".", "").replace(",", ".")
-  );
-  let dolarFloat = parseFloat(dolar.replace("$", ""));
-  let amountFloat = parseFloat(amount.replace("$", "").replace(",", ""));
+  // Formatando os valores
+  const formattedPeso = formatValueOrArray(req.body.peso);
+  const dolarFloat = parseFloat(dolar.replace("$", ""));
+  const amountFloat = parseFloat(amount.replace("$", "").replace(",", ""));
 
- let nextBrinco = null;
- let nextCode;
 
- if (brinco === undefined || brinco === "") {
-   try {
-     const lastCompra = await Compra.findOne({
-       order: [["brinco", "DESC"]],
-       limit: 1,
-     });
 
-     if (lastCompra) {
-       const lastBrinco = lastCompra.brinco;
-       if (typeof lastBrinco === "number") {
-         nextBrinco = lastBrinco + 1;
-       } else {
-         nextBrinco = null;
-       }
-     } else {
-       nextBrinco = null;
-     }
-   } catch (error) {
-     // Tratar o erro de consulta
-     console.error(error);
-     nextBrinco = null;
-   }
- } else {
-   nextBrinco = parseInt(brinco);
- }
 
- if (nextBrinco !== null) {
-   try {
-     const existingCompra = await Compra.findOne({
-       where: {
-         brinco: nextBrinco,
-       },
-     });
-
-     if (existingCompra) {
-       // Registro com o mesmo valor de brinco já existe
-       return res.send(
-         '<script>alert("Registro com o mesmo valor de brinco já existe"); window.location.href = "/admin/compra/new";</script>'
-       );
-     }
-   } catch (error) {
-     // Tratar o erro de consulta
-     console.error(error);
-     return res
-       .status(500)
-       .json({ error: "Erro ao verificar o valor de brinco" });
-   }
- }
-
- if (!code) {
-   try {
-     const lastCompra = await Compra.findOne({
-       order: [["code", "DESC"]],
-       limit: 1,
-     });
-
-     if (lastCompra) {
-       const lastCode = lastCompra.code.toString();
-       const incrementedCode = (parseInt(lastCode) + 1).toString();
-       nextCode = parseInt(incrementedCode);
-     } else {
-       nextCode = 1;
-     }
-   } catch (error) {
-     // Tratar o erro de consulta
-     console.error(error);
-     nextCode = 1;
-   }
- } else {
-   nextCode = parseInt(code); // Não incrementar o código fornecido
- }
-
- insertCompra(nextBrinco, nextCode);
-
- function insertCompra() {
-  const brincosArray = Array.from(brincos);
-  const valoresArray = Array.from(valores);
-  const pesosArray = Array.from(pesos);
-  const objects = [];
-
-  for (let i = 0; i < brincosArray.length; i++) {
-    objects.push({
-      id: id,
-      data: data,
-      brinco: brincosArray[i].value,
-      quantidade: quantidade,
-      code: nextCode + i, // Incrementa o código para cada registro
-      valor: parseFloat(valoresArray[i].value.replace(',', '.')),
-      peso: parseFloat(pesosArray[i].value.replace(',', '.')),
-      dolar: dolarFloat,
-      amount: amountFloat,
-      obs: obs,
-      investidoreId: investidor,
+  try {
+    const existingBrinco = await Compra.findOne({
+      where: {
+        brinco: brinco,
+      },
     });
-  }
 
-  Compra.bulkCreate(objects).then(() => {
+    if (existingBrinco) {
+      // Se algum brinco já existe, você pode tomar alguma ação aqui
+      // Por exemplo, retornar uma mensagem de erro
+      return res.status(400).json({ error: "Brinco já existe na tabela Compra" });
+    }
+
+    // Encontrar o último brinco e código
+    const lastCompra = await Compra.findOne({
+      order: [["brinco", "DESC"]],
+      limit: 1,
+    });
+
+    const lastCode = await Compra.findOne({
+      order: [["code", "DESC"]],
+      limit: 1,
+    });
+
+const nextCode = lastCode ? parseInt(lastCode.code) + 1 : 1;
+
+    const objects = [];
+
+    for (let i = 0; i < quantidade; i++) {
+      objects.push({
+        id: id,
+        data: data,
+        brinco: brinco[i],
+        quantidade: quantidade,
+        code: nextCode,
+        valor: valor[i],
+        peso: formattedPeso[i],
+        dolar: dolarFloat,
+        amount: amountFloat,
+        obs: obs,
+        investidoreId: investidor,
+      });
+    }
+
+    // Inserir os registros no banco de dados
+    await Compra.bulkCreate(objects);
+
     res.redirect("/admin/compra");
-  });
-}
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Erro ao salvar os registros no banco de dados" });
+  }
 });
 
 router.get("/admin/compra/edit/:id", adminAuth, (req, res) => {

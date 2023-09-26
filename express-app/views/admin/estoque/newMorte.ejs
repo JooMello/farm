@@ -51,8 +51,10 @@
                   <div class="input--with-addon currency-input">
                     <label>Valor</label>
                     <div class="input__container text-input">
-                      <input type="text" name="valor" id="valor" required class="input form-control form-control-danger"
-                        onkeyup="formatCurrency(this)" /><!---->
+                      <input type="text" name="valor" id="valor" required class="input form-control form-control-danger "
+                        value="<%= MediaCompraPonderada %>"
+                        onkeyup="formatCurrency(this)" 
+                        readonly/><!---->
                     </div>
                     <!----><!---->
                   </div>

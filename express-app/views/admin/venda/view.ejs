@@ -3,60 +3,12 @@
     <body>
       <div class="container">
         <hr />
-        <h2>Vendas</h2>
+        <h2>Visualização da Venda</h2>
         <hr />
         <div class="row g-2">
           <div class="col-2">
             <div class="card">
-              <a class="btn btn-success form-control" href="/admin/venda/new">Nova Venda</a>
-            </div>
-          </div>
-          <div class="col-2">
-            <div class="card text-center">
-              <div class="dropdown">
-                <button class="btn dropdown-toggle form-control" type="button" data-bs-toggle="dropdown"
-                  aria-expanded="false">
-                  Investidor
-                </button>
-                <ul class="dropdown-menu">
-                  <li>
-                    <a class="dropdown-item" href="/admin/venda">TODOS</a>
-                  </li>
-                  <% investidores.forEach(investidor=> { %>
-                    <li>
-                      <a class="dropdown-item" href="/venda/<%= investidor.id %>">
-                        <%= investidor.name %>
-                      </a>
-                    </li>
-                    <% }) %>
-                </ul>
-              </div>
-
-            </div>
-          </div>
-          <div class="col-4">
-            <div class="card">
-              <div class="dropdown">
-                <button class="btn dropdown-toggle form-control" type="button" data-bs-toggle="dropdown"
-                  aria-expanded="false">
-                  Periodo
-                </button>
-                <ul class="dropdown-menu">
-                  <li>
-                    <form action="/venda" method="get">
-                      <div class="mb-3">
-                        <label for="start" class="form-label">Data de início:</label>
-                        <input type="date" class="form-control" id="start" name="start">
-                      </div>
-                      <div class="mb-3">
-                        <label for="end" class="form-label">Data de fim:</label>
-                        <input type="date" class="form-control" id="end" name="end">
-                      </div>
-                      <button type="submit" class="btn btn-primary">Filtrar</button>
-                    </form>
-                  </li>
-                </ul>
-              </div>
+              <a class="btn btn-success form-control" href="/admin/venda">Todos</a>
             </div>
           </div>
           <div class="col-3">
@@ -109,7 +61,6 @@
                     <%= new Intl.NumberFormat('en-US', { style: 'currency' , currency: 'USD' }).format(venda.amount) %>
                   </td>
                   <td>
-                    <a href="/admin/venda/view/<%= venda.code %>" class="btn btn-primary btn-sm">Visualizar</a>
                     <a href="/admin/venda/edit/<%= venda.id %>" class="btn btn-warning btn-sm">Editar</a>
                     <form method="POST" action="/venda/delete" style="display: inline;"
                       onsubmit="confirmarDelecao(event, this)">
@@ -129,7 +80,6 @@
                   <th>Nº de Animais Vendidos</th>
                   <th>Valor Venda</th>
                   <th>Venda - Dolar</th>
-                  <th>Média das Vendas</th>
                 </tr>
               </thead>
               <tbody id="demo">
@@ -143,9 +93,7 @@
                   <td>
                     <%= TotalVendaDolar %>
                   </td>
-                  <td>
-                    <%= mediaVenda %>
-                  </td>
+
                 </tr>
               </tbody>
             </table>
