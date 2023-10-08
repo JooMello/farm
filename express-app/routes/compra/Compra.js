@@ -23,6 +23,10 @@ const Compra = connection.define("compras", {
     type: Sequelize.STRING,
     allowNull: false,
   },
+  totalAmount: {
+    type: Sequelize.STRING,
+    allowNull: false,
+  },
   peso: {
     type: Sequelize.STRING,
     allowNull: false,

@@ -76,11 +76,8 @@
               <tr id="table-header">
                 <th>Nome</th>
                 <th>Data Venda</th>
-                <th>Numeração</th>
+                <th>Quantidade</th>
                 <th>Valor</th>
-                <th>Peso</th>
-                <th>Dolar</th>
-                <th>Venda - Dolar</th>
                 <th>Ações</th>
               </tr>
             </thead>
@@ -93,29 +90,14 @@
                   <td id="formatData">
                     <%= venda.data %>
                   </td>
-                  <td>
-                    <%= venda.brinco %>
+                  <td id="formatData">
+                    <%= venda.quantidade %>
                   </td>
                   <td>
-                    <%= new Intl.NumberFormat('pt-BR', { style: 'currency' , currency: 'BRL' }).format(venda.valor) %>
-                  </td>
-                  <td>
-                    <%= new Intl.NumberFormat('pt-BR', { style: 'unit', unit: 'kilogram' }).format(venda.peso) %>
-                  </td>
-                  <td>
-                    <%= new Intl.NumberFormat('en-US', { style: 'currency' , currency: 'USD' }).format( venda.dolar) %>
-                  </td>
-                  <td>
-                    <%= new Intl.NumberFormat('en-US', { style: 'currency' , currency: 'USD' }).format(venda.amount) %>
+                    <%= new Intl.NumberFormat('pt-BR', { style: 'currency' , currency: 'BRL' }).format(venda.total_valor) %>
                   </td>
                   <td>
                     <a href="/admin/venda/view/<%= venda.code %>" class="btn btn-primary btn-sm">Visualizar</a>
-                    <a href="/admin/venda/edit/<%= venda.id %>" class="btn btn-warning btn-sm">Editar</a>
-                    <form method="POST" action="/venda/delete" style="display: inline;"
-                      onsubmit="confirmarDelecao(event, this)">
-                      <input type="hidden" name="id" value="<%= venda.id %>" />
-                      <button class="btn btn-danger btn-sm">Deletar</button>
-                    </form>
                   </td>
                 </tr>
                 <% }) %>

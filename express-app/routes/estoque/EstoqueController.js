@@ -76,7 +76,7 @@ router.get('/admin/estoque', adminAuth, async (req, res, next) => {
             raw: true,
           });
            var TotalC = Number(amountC["sum(`valor`)"]);
-           var TotalV = Number(amountV["sum(`valor`)"]);
+           var TotalV = Number(amountV["sum(`valor`)"]) /2;
            const Totalf = (TotalC - TotalV);
           var Total = Totalf.toLocaleString("pt-BR", {
             style: "currency",

@@ -67,6 +67,17 @@ router.get("/admin/venda", adminAuth, async (req, res, next) => {
         model: Investidor,
       },
     ],
+    attributes: [
+      "data",
+      "code",
+      "quantidade",
+      [sequelize.fn("SUM", sequelize.col("valor")), "total_valor"],
+      "dolar",
+      [sequelize.fn("SUM", sequelize.col("amount")), "total_amount"],
+      "obs",
+      "investidoreId",
+    ],
+    group: ["data", "code", "quantidade", "dolar", "obs", "investidoreId"],
     order: [["data", "DESC"]],
     raw: true,
     nest: true,
@@ -252,6 +263,7 @@ router.post("/venda/save", adminAuth, async (req, res) => {
   let data = req.body.data;
   let quantidade = req.body.quantidade;
   let valor = req.body.valor;
+  let totalAmount = req.body.totalAmount;
   let peso = req.body.peso;
   let dolar = req.body.dolar;
   let amount = req.body.amount;
@@ -259,6 +271,8 @@ router.post("/venda/save", adminAuth, async (req, res) => {
   let investidor = req.body.investidor;
 
     // Formatando os valores
+    const valorFloat = parseFloat(valor.replace("R$", "").replace(".", "").replace(",", "."));
+    const totalAmountFloat = parseFloat(totalAmount.replace("R$", "").replace(".", "").replace(",", "."));
     const formattedPeso = formatValueOrArray(req.body.peso);
     const dolarFloat = parseFloat(dolar.replace("$", ""));
     const amountFloat = parseFloat(amount.replace("$", "").replace(",", ""));
@@ -294,7 +308,8 @@ router.post("/venda/save", adminAuth, async (req, res) => {
           brinco: brinco[i],
           quantidade: quantidade,
           code: nextCode,
-          valor: valor[i],
+          valor: valorFloat,
+          totalAmount: totalAmountFloat,
           peso: formattedPeso[i],
           dolar: dolarFloat,
           amount: amountFloat,

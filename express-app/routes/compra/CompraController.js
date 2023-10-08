@@ -74,10 +74,21 @@ router.get("/admin/compra", adminAuth, async (req, res, next) => {
         model: Investidor,
       },
     ],
+    attributes: [
+      "data",
+      "code",
+      "quantidade",
+      [sequelize.fn("SUM", sequelize.col("valor")), "total_valor"],
+      "dolar",
+      [sequelize.fn("SUM", sequelize.col("amount")), "total_amount"],
+      "obs",
+      "investidoreId",
+    ],
+    group: ["data", "code", "quantidade", "dolar", "obs", "investidoreId"],
     order: [["data", "DESC"]],
     raw: true,
     nest: true,
-  }).then((compras) => {
+  }).then(async (compras) => {
     compras.forEach((compra) => {
       compra.data = moment(compra.data).format("DD/MM/YYYY");
     });
@@ -129,7 +140,6 @@ router.get("/admin/compra", adminAuth, async (req, res, next) => {
         style: "currency",
         currency: "BRL",
       });
- console.log(compras);
       res.render("admin/compra/index", {
         compras: compras,
         investidores: investidores,
@@ -228,7 +238,6 @@ router.get("/admin/compra/view/:code", adminAuth, async (req, res, next) => {
         style: "currency",
         currency: "BRL",
       });
- console.log(compras);
       res.render("admin/compra/view", {
         compras: compras,
         investidores: investidores,
@@ -264,41 +273,39 @@ router.post("/compra/save", adminAuth, async (req, res) => {
   let data = req.body.data;
   let quantidade = req.body.quantidade;
   let valor = req.body.valor;
+  let totalAmount = req.body.totalAmount;
   let peso = req.body.peso;
   let dolar = req.body.dolar;
   let amount = req.body.amount;
   let obs = req.body.obs;
   let investidor = req.body.investidor;
-  console.log(code)
-  console.log(brinco)
-  console.log(data)
-  console.log(quantidade)
-  console.log(valor)
-  console.log(peso)
-  console.log(dolar)
 
   // ... Resto do seu código ...
 
   // Formatando os valores
+  const valorFloat = parseFloat(valor.replace("R$", "").replace(".", "").replace(",", "."));
+  const totalAmountFloat = parseFloat(totalAmount.replace("R$", "").replace(".", "").replace(",", "."));
   const formattedPeso = formatValueOrArray(req.body.peso);
   const dolarFloat = parseFloat(dolar.replace("$", ""));
   const amountFloat = parseFloat(amount.replace("$", "").replace(",", ""));
 
-
-
-
   try {
-    const existingBrinco = await Compra.findOne({
+
+    const existingBrincos = await Compra.findAll({
       where: {
-        brinco: brinco,
+        brinco: {
+          [Op.not]: '', // Excluir brincos vazios da verificação de duplicatas
+        },
       },
     });
 
-    if (existingBrinco) {
-      // Se algum brinco já existe, você pode tomar alguma ação aqui
-      // Por exemplo, retornar uma mensagem de erro
-      return res.status(400).json({ error: "Brinco já existe na tabela Compra" });
+   // Verifique se há brincos repetidos
+   for (const item of brinco) {
+    const exists = existingBrincos.some((existing) => existing.brinco === item);
+    if (exists) {
+      return res.status(400).json({ error: "Pelo menos um dos brincos já existe" });
     }
+  }
 
     // Encontrar o último brinco e código
     const lastCompra = await Compra.findOne({
@@ -322,7 +329,8 @@ const nextCode = lastCode ? parseInt(lastCode.code) + 1 : 1;
         brinco: brinco[i],
         quantidade: quantidade,
         code: nextCode,
-        valor: valor[i],
+        valor: valorFloat,
+        totalAmount: totalAmountFloat,
         peso: formattedPeso[i],
         dolar: dolarFloat,
         amount: amountFloat,

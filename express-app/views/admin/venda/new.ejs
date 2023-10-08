@@ -38,25 +38,42 @@
                   <label>Quantidade</label>
                   <div class="input__container text-input">
                     <input type="number" name="quantidade" id="quantidade" required
-                      class="input form-control form-control-danger" /><!---->
+                      class="input form-control form-control-danger"
+                      oninput="calculateTotalAmount()" /><!---->
                   </div>
                   <!----><!---->
                 </div>
                 <br />
                 <div class="input--with-addon currency-input">
-                  <label>Valor da venda</label>
+                  <label>Valor Unitário</label>
                   <div class="input__container text-input">
                     <input
-                      type="text"
-                      name="valorTotal"
-                        id="valorTotal"
-                      required
+                    type="text"
+                    name="valor"
+                    id="valor"
+                    required
                       class="input form-control form-control-danger"
                       onkeyup="formatCurrency(this)"
+                      oninput="calculateTotalAmount()"
                     /><!---->
                   </div>
                   <!----><!---->
                 </div>
+              <br />
+              <div class="input--with-addon currency-input">
+                <label>Valor Total</label>
+                <div class="input__container text-input">
+                  <input
+                    type="text"
+                    name="totalAmount"
+                    id="totalAmount"
+                    required
+                    class="input form-control form-control-danger"
+                    onkeyup="formatCurrency(this)"
+                  /><!---->
+                </div>
+                <!----><!---->
+              </div>
               <br />
                   <div class="input--with-addon currency-input">
                     <label>Dolar</label>
@@ -128,8 +145,39 @@
       <!-- script pegar valores (quantidade, unitario) multiplicar e apresentar no input total.
 Pega valor total da compra divide pelo dolar diario
 -->
+
 <script>
-  const valorTotalInput = document.getElementById('valorTotal');
+  function calculateTotalAmount() {
+    const quantidadeInput = document.getElementById("quantidade");
+    const valorInput = document.getElementById("valor");
+    const totalAmountInput = document.getElementById("totalAmount");
+
+    const quantidade = parseFloat(quantidadeInput.value) || 0;
+    const valor = parseCurrency(valorInput.value) || 0;
+    const totalAmount = quantidade * valor;
+
+    // Formate o valor total como moeda
+    totalAmountInput.value = formatCurrencyValue(totalAmount);
+  }
+
+  function parseCurrency(currencyString) {
+    const value = currencyString.replace(/[^\d.,]/g, "");
+    return parseFloat(value.replace(',', '.')) || 0;
+  }
+
+  function formatCurrencyValue(value) {
+    return new Intl.NumberFormat("pt-BR", {
+      style: "currency",
+      currency: "BRL",
+    }).format(value);
+  }
+
+  // Chame a função inicialmente para calcular o valor total
+  calculateTotalAmount();
+</script>
+
+<script>
+  const valorTotalInput = document.getElementById('valor');
   
   valorTotalInput.addEventListener('input', event => {
     // Remove todos os caracteres não numéricos do valor de entrada
@@ -164,7 +212,7 @@ Pega valor total da compra divide pelo dolar diario
       const quantidade = parseInt(quantidadeInput.value) || 0;
       const valorTotal = parseCurrency(valorTotalInput.value) || 0;
   
-      const valor =  valorTotal / quantidade;
+      const valor =  valorTotal;
   
       // Limpa a tabela atual
       vendaTable.querySelector("tbody").innerHTML = "";
@@ -180,7 +228,7 @@ Pega valor total da compra divide pelo dolar diario
           ).innerHTML = `<input  type="number" name="brinco" id="brinco" class="form-control placeholder="Brinco ${i}" />`;
           newRow.insertCell(
             1
-          ).innerHTML = `<input class="form-control  type="text"  name="valor" id="valor" placeholder="Valor ${i}" value="${(
+          ).innerHTML = `<input class="form-control  type="text"  name="valor1" id="valor1" placeholder="Valor ${i}" value="${(
             valor
           ).toFixed(2)}"  readonly  />`;
           newRow.insertCell(
