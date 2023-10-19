@@ -11,6 +11,10 @@ const Compra = connection.define("compras", {
     type: Sequelize.STRING,
     allowNull: false,
   },
+  identificador: {
+    type: Sequelize.STRING,
+    allowNull: true,
+  },
   brinco: {
     type: Sequelize.STRING,
     allowNull: true,

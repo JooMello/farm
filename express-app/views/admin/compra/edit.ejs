@@ -37,6 +37,23 @@
           />
           </div><br />
           <div class="input--with-addon currency-input">
+            <label>Quantidade</label>
+            <div class="input__container text-input">
+              <input
+                type="number"
+                name="quantidade"
+                id="quantidade"
+                required
+                class="input form-control form-control-danger"
+                value="<%= compra.quantidade %>"
+                oninput="calculateTotalAmount()"
+                readonly
+              /><!---->
+            </div>
+            <!----><!---->
+          </div>
+          <br />
+          <div class="input--with-addon currency-input">
             <label>Valor Unitário</label>
             <div class="input__container numeral-input">
               <input
@@ -50,12 +67,27 @@
             </div>
             <!----><!---->
           </div>
-          <br>
+          <br />
+          <div class="input--with-addon currency-input">
+            <label>Valor Total</label>
+            <div class="input__container text-input">
+              <input
+                type="text"
+                name="totalAmount"
+                id="totalAmount"
+                required
+                class="input form-control form-control-danger"
+                value="<%= compra.totalAmount %>"
+                onkeyup="formatCurrency(this)"
+              /><!---->
+            </div>
+            <!----><!---->
+          </div>
+          <br />
           <div class="input--with-addon currency-input">
             <label>Brinco</label>
             <div class="input__container numeral-input">
               <input
-                required="required"
                 type="number"
                 name="brinco"
                 id="brinco"
@@ -70,7 +102,6 @@
             <label>Peso</label>
             <div class="input__container numeral-input">
               <input
-                required="required"
                 type="text"
                 name="peso"
                 id="peso"
@@ -118,6 +149,32 @@
             <!----><!---->
           </div>
           <br />
+            <div class="input--with-addon currency-input">
+              <div class="input__container numeral-input" style="display: none;">
+              <input
+                type="number"
+                name="code"
+                id="code"
+                value="<%= compra.code %>"
+                class="input form-control form-control-danger"
+             /><!---->
+            </div>
+            <!----><!---->
+          </div>
+          <br />
+
+          <div class="input--with-addon currency-input">
+            <div class="input__container numeral-input" style="display: none;">
+            <input
+              type="number"
+              name="identificador"
+              id="identificador"
+              value="<%= compra.identificador %>"
+              class="input form-control form-control-danger"
+           /><!---->
+          </div>
+          <!----><!---->
+        </div>
           <button class="btn btn-success">Atualizar</button>
         </form>
       </div>

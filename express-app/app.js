@@ -20,6 +20,7 @@ const moment = require("moment");
 
 var investidorRouter = require("./routes/investidor/InvestidorController");
 var compraRouter = require("./routes/compra/CompraController");
+var historicoRouter = require("./routes/compra/CompraController");
 var vendaRouter = require("./routes/venda/VendaController");
 var relatorioRouter = require("./routes/relatorio/RelatorioController");
 var estoqueRouter = require("./routes/estoque/EstoqueController");
@@ -33,6 +34,7 @@ const Venda = require("./routes/venda/Venda");
 const Morte = require("./routes/estoque/Estoque");
 const User = require("./routes/users/User");
 const  ContaCorrente = require("./routes/financeiro/contaCorrente/ContaCorrente");
+const Historico = require("./routes/historico/Historico")
 
 //view engine setup
 app.set("views", path.join(__dirname, "views"));
@@ -60,6 +62,7 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use("/", routes);
 app.use("/", investidorRouter);
 app.use("/", compraRouter);
+app.use("/", historicoRouter);
 app.use("/", vendaRouter);
 app.use("/", relatorioRouter);
 app.use("/", estoqueRouter);
