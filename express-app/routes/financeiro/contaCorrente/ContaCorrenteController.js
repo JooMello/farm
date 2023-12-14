@@ -6,7 +6,7 @@ const adminAuth = require("../../../middlewares/adminAuth");
 const moment = require('moment');
 const Compra = require('../../compra/Compra');
 const Venda = require("../../venda/Venda");
-
+const Morte = require("../estoque/Estoque")
 const ContaCorrente = require("../contaCorrente/ContaCorrente");
 
 //filtragem de dados, por peridodo que eles foram adicionados no BD
@@ -114,32 +114,34 @@ router.get("/admin/contaCorrente", adminAuth, async (req, res, next) => {
           });
           var amountCompras = Number(amountC["sum(`valor`)"])
 
+          Venda.count().then(async (totalVendas) => {
+            console.log(totalVendas)
+
           var amountV = await Venda.findOne({
-            attributes: [sequelize.fn("sum", sequelize.col("valor"))],
+            attributes: [sequelize.fn("sum", sequelize.col("totalAmount"))],
             raw: true,
           });
-          var amountVendas = (Number(amountV["sum(`valor`)"]) / 2) /2
+          var amountVendas = (Number(amountV["sum(`totalAmount`)"]) / totalVendas) 
           var amountVenda = amountVendas.toLocaleString("pt-BR", {
             style: "currency",
             currency: "BRL",
           });
-          const Total = ((amountCompras - amountVendas) + saldos).toLocaleString("pt-BR", {
+          const Total = ((saldos) ).toLocaleString("pt-BR", {
             style: "currency",
             currency: "BRL",
           });
-          console.log(amountCompras)
-          console.log(amountVendas)
-          console.log(saldos)
-          console.log(Total)
+          
+
            res.render("admin/financeiro/contaCorrente/index", {
              compras: compras,
              vendas: vendas,
              investidores: investidores,
              contaCorrente: contaCorrente,
-             Total,amountCompra,amountVenda
+             Total,amountCompra,amountVenda, 
            });
          });
        });
+      })
      });
        });
      });

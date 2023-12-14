@@ -6,6 +6,7 @@ const slugify = require("slugify");
 const sequelize = require("sequelize");
 const { Op } = require("sequelize");
 const request = require("request");
+const ContaCorrente = require("../financeiro/contaCorrente/ContaCorrente");
 
 const moment = require("moment");
 const adminAuth = require("../../middlewares/adminAuth");
@@ -178,8 +179,6 @@ router.get("/admin/compra/view/:code", adminAuth, async (req, res, next) => {
       compra.data = moment(compra.data).format("DD/MM/YYYY");
     });
     Investidor.findAll().then(async (investidores) => {
-      Historico.findAll().then(async (historico) => {
-      
       //////////////////////Quantidade
       var quantidadeCompra = await Compra.findOne({
         where: {
@@ -250,14 +249,12 @@ router.get("/admin/compra/view/:code", adminAuth, async (req, res, next) => {
         mediaCompra,
         CapitalInvestido,
         CapitalInvestidoDolar,
-        historico,
       });
-    });
     });
   });
 });
 
-router.get("/admin/historico/view/:identificador", adminAuth, async (req, res, next) => {
+router.get("/admin/compra/view/historico/:identificador", adminAuth, async (req, res, next) => {
 
   const identificador = req.params.identificador;
 
@@ -273,82 +270,14 @@ router.get("/admin/historico/view/:identificador", adminAuth, async (req, res, n
     order: [["data", "DESC"]],
     raw: true,
     nest: true,
-  }).then((compras) => {
-    compras.forEach((compra) => {
-      compra.data = moment(compra.data).format("DD/MM/YYYY");
+  }).then((historicos) => {
+    historicos.forEach((historico) => {
+      historico.data = moment(historico.data).format("DD/MM/YYYY");
     });
     Investidor.findAll().then(async (investidores) => {
-      
-      //////////////////////Quantidade
-      var quantidadeCompra = await Compra.findOne({
-        where: {
-          identificador: identificador, // Condição para encontrar a compra específica
-        },
-        attributes: ['quantidade'], // Substitua 'quantidade' pelo nome correto do campo na tabela Compra
-        raw: true,
-      });
-
-      const quantidade = quantidadeCompra ? quantidadeCompra.quantidade : null;
-      //////////////////////Capital Investidor
-      var amountT = await Compra.findOne({
-        where: {
-          identificador: identificador,
-        },
-        attributes: [sequelize.fn("sum", sequelize.col("valor"))],
-
-        raw: true,
-      });
-      var CapitalInvestido = Number(amountT["sum(`valor`)"]).toLocaleString(
-        "pt-BR",
-        {
-          style: "currency",
-          currency: "BRL",
-        }
-      );
-
-      //////////////////////Capital Investidor em dolar
-      var amountD = await Compra.findOne({
-        where: {
-          identificador: identificador,
-        },
-        attributes: [sequelize.fn("sum", sequelize.col("amount"))],
-
-        raw: true,
-      });
-      var CapitalInvestidoDolar = Number(
-        amountD["sum(`amount`)"]
-      ).toLocaleString("en-US", {
-        style: "currency",
-        currency: "USD",
-      });
-
-      var amountU = await Compra.findOne({
-        where: {
-          identificador: identificador,
-        },
-        attributes: [
-          [
-            sequelize.fn(
-              "avg",
-              sequelize.fn("DISTINCT", sequelize.col("valor"))
-            ),
-            "media",
-          ],
-        ],
-        distinct: true,
-        raw: true,
-      });
-      var mediaCompra = Number(amountU["media"]).toLocaleString("pt-BR", {
-        style: "currency",
-        currency: "BRL",
-      });
-      res.render("admin/compra/view", {
-        compras: compras,
+      res.render("admin/compra/historico", {
+        historicos: historicos,
         investidores: investidores,
-        quantidade,
-        mediaCompra,
-        CapitalInvestido,
-        CapitalInvestidoDolar,
       });
     });
   });
@@ -383,8 +312,7 @@ router.post("/compra/save", adminAuth, async (req, res) => {
   let amount = req.body.amount;
   let obs = req.body.obs;
   let investidor = req.body.investidor;
-  let identificador = id;
-
+  let identificador = req.body.identificador;
   // ... Resto do seu código ...
 
   // Formatando os valores
@@ -395,6 +323,22 @@ router.post("/compra/save", adminAuth, async (req, res) => {
   const amountFloat = parseFloat(amount.replace("$", "").replace(",", ""));
 
   try {
+
+    // Encontrar o investidor pelo id
+    const investidorObj = await Investidor.findOne({
+      where: {
+        id: investidor,
+      },
+    });
+
+    // Verificar se o investidor foi encontrado
+    if (!investidorObj) {
+      return res.status(400).json({ error: "Investidor não encontrado" });
+    }
+
+    // Obter o valor do campo "letras" do investidor
+    const letrasDoInvestidor = investidorObj.letras;
+
 
     const existingBrincos = await Compra.findAll({
       where: {
@@ -425,13 +369,26 @@ router.post("/compra/save", adminAuth, async (req, res) => {
 
 const nextCode = lastCode ? parseInt(lastCode.code) + 1 : 1;
 
+const lastIdentificador = await Compra.findOne({
+  attributes: [
+    [sequelize.fn("MAX", sequelize.col("identificador")), "lastIdentificador"],
+  ],
+});
+
+let nextIdentificador = 1;
+
+if (lastIdentificador && lastIdentificador.dataValues.lastIdentificador) {
+  nextIdentificador = lastIdentificador.dataValues.lastIdentificador + 1;
+}
+
+
     const objects = [];
 
     for (let i = 0; i < quantidade; i++) {
       objects.push({
         id: id,
         data: data,
-        brinco: brinco[i],
+        brinco: letrasDoInvestidor + brinco[i],
         quantidade: quantidade,
         code: nextCode,
         valor: valorFloat,
@@ -441,14 +398,22 @@ const nextCode = lastCode ? parseInt(lastCode.code) + 1 : 1;
         amount: amountFloat,
         obs: obs,
         investidoreId: investidor,
-        identificador:identificador,
+        identificador: nextIdentificador,
 
       });
+      nextIdentificador++; 
     }
 
     // Inserir os registros no banco de dados
     await Compra.bulkCreate(objects);
     await Historico.bulkCreate(objects);
+    ContaCorrente.create({
+      data: data,
+      category: 'DEBITO',
+      valor: - totalAmountFloat,
+      obs: 'Débito referente a compra de gado',
+      investidoreId: investidor,
+    })
 
     res.redirect("/admin/compra");
   } catch (error) {
@@ -518,7 +483,6 @@ router.post("/compra/update", adminAuth, async(req, res) => {
   )
   Historico.create(
     {
-      id: id,
         data: data,
         brinco: brinco,
         quantidade: quantidade,

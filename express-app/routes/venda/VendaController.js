@@ -8,6 +8,10 @@ const request = require("request");
 const adminAuth = require("../../middlewares/adminAuth");
 var fs = require("fs");
 const moment = require("moment");
+const ContaCorrente = require("../financeiro/contaCorrente/ContaCorrente");
+const Compra = require("../compra/Compra")
+const Morte = require("../estoque/Estoque")
+
 
 const Investidor = require("../investidor/Investidor");
 
@@ -276,9 +280,48 @@ router.post("/venda/save", adminAuth, async (req, res) => {
     const formattedPeso = formatValueOrArray(req.body.peso);
     const dolarFloat = parseFloat(dolar.replace("$", ""));
     const amountFloat = parseFloat(amount.replace("$", "").replace(",", ""));
+
+      //////////////////////mortes
+  var amountQ = await Morte.findOne({
+    attributes: [sequelize.fn("sum", sequelize.col("quantidade"))],
+    raw: true,
+  });
+  var morte = Number(amountQ["sum(`quantidade`)"]);
+
+    //////////////////////Valor  mortes
+    var amountQ = await Morte.findOne({
+      attributes: [sequelize.fn("sum", sequelize.col("valor"))],
+      raw: true,
+    });
+    var valorf = Number(amountQ["sum(`valor`)"]);
+    
   
 
-    
+      //////////////////////comprados
+  var comprados = await Compra.count();
+
+  //////////////////////vendidos
+  var vendidos = await Venda.count();
+
+  //////////////////////estoque
+  var estoque = comprados - morte - vendidos;
+
+    var amountU = await Compra.findOne({
+      attributes: [
+        [sequelize.fn("sum", sequelize.col("valor")), "total_valor_compras"],
+      ],
+      raw: true,
+    });
+    var TotalValorCompras = Number(amountU["total_valor_compras"]);
+  
+    var MediaCompraPonderada = ((TotalValorCompras - valorf) / (estoque))
+
+    const valorCompra = (MediaCompraPonderada * quantidade) / 2;
+    const valorReal = totalAmountFloat - valorCompra;
+    console.log(MediaCompraPonderada)
+    console.log(valorCompra)
+    console.log(valorReal)
+
     try {
       const existingBrinco = await Venda.findOne({
         where: {
@@ -320,6 +363,14 @@ router.post("/venda/save", adminAuth, async (req, res) => {
   
       // Inserir os registros no banco de dados
       await Venda.bulkCreate(objects);
+      ContaCorrente.create({
+        data: data,
+        category: 'CREDITO',
+        valor: totalAmountFloat,
+        obs: 'Crédito referente a venda de gado',
+        investidoreId: investidor,
+      })
+  
   
       res.redirect("/admin/venda");
     } catch (error) {

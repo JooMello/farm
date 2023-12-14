@@ -46,6 +46,10 @@ const Investidor = connection.define("investidores", {
     type: Sequelize.TEXT,
     allowNull: false,
   },
+  letras: {
+    type: Sequelize.STRING,
+    allowNull: false,
+  },
 });
 
 //Investidor.sync({ force: true });

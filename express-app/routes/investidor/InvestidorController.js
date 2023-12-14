@@ -58,6 +58,7 @@ router.post('/investidor/save', adminAuth, (req, res, next) => {
   var cidade = req.body.cidade;
   var number = req.body.number;
   var obs = req.body.obs;
+  var letras = req.body.letras;
 
   Investidor.create({
     name: name,
@@ -71,6 +72,7 @@ router.post('/investidor/save', adminAuth, (req, res, next) => {
     cidade: cidade,
     number: number,
     obs: obs,
+    letras: letras,
   })
   .then(() => {
     res.redirect("/admin/investidor");
@@ -107,6 +109,7 @@ router.post('/investidor/update', adminAuth, (req, res) => {
   var cidade = req.body.cidade;
   var number = req.body.number;
   var obs = req.body.obs;
+  var letras = req.body.letras;
 
   Investidor.update({
     name: name,
@@ -120,6 +123,7 @@ router.post('/investidor/update', adminAuth, (req, res) => {
     cidade: cidade,
     number: number,
     obs: obs,
+    letras: letras,
   }, {
     where: {
       id: id,
