@@ -84,7 +84,9 @@ router.get('/admin/estoque', adminAuth, async (req, res, next) => {
           //////////////////////Capital Investidor
           var amountC = await Compra.findOne({
             attributes: [sequelize.fn("sum", sequelize.col("valor"))],
-
+            where: {
+              status: "Em estoque",
+            },
             raw: true,
           });
 
@@ -101,7 +103,13 @@ router.get('/admin/estoque', adminAuth, async (req, res, next) => {
             currency: "BRL",
           });
 
-          var TotalC = TotalCompra.toLocaleString("pt-BR", {
+          var capitalInvestido = await Compra.findOne({
+            attributes: [sequelize.fn("sum", sequelize.col("valor"))],
+            
+            raw: true,
+          });
+          var TotalcapitalInvestido = Number(capitalInvestido["sum(`valor`)"]);
+          var TotalC = TotalcapitalInvestido.toLocaleString("pt-BR", {
             style: "currency",
             currency: "BRL",
           });
