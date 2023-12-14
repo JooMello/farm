@@ -225,7 +225,16 @@ Pega valor total da compra divide pelo dolar diario
           const newRow = vendaTable.querySelector("tbody").insertRow();
           newRow.insertCell(
             0
-          ).innerHTML = `<input  type="number" name="brinco" id="brinco" class="form-control placeholder="Brinco ${i}" />`;
+          ).innerHTML = `
+          <div class="input__container text-input">
+                  <select name="brinco" class="form-control">
+                    <% compras.forEach((compra) => { %>
+                      <option value="<%= compra.brinco %>"><%= compra.brinco %></option>
+                      <% }) %> 
+                  </select>
+                  </div>
+                  </div>`
+                  ;
           newRow.insertCell(
             1
           ).innerHTML = `<input class="form-control  type="text"  name="valor1" id="valor1" placeholder="Valor ${i}" value="${(

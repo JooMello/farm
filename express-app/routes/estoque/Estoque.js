@@ -15,6 +15,14 @@ const Morte = connection.define("mortes", {
     type: Sequelize.STRING,
     allowNull: false,
   },
+  brinco: {
+    type: Sequelize.STRING,
+    allowNull: false,
+  },
+  peso: {
+    type: Sequelize.STRING,
+    allowNull: false,
+  },
 });
 
 // UM Investidor tem muitas compras

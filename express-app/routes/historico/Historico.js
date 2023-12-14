@@ -47,6 +47,10 @@ const Historico = connection.define("historicos", {
     type: Sequelize.STRING,
     allowNull: true,
   },
+  status: {
+    type: Sequelize.STRING,
+    allowNull: true,
+  },
 });
 
 // UM Investidor tem muitas compras

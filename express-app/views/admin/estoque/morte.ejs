@@ -83,6 +83,8 @@ Investidor
       <tr id="table-header">
         <th>Nome</th>
         <th>Data</th>
+        <th>Brinco</th>
+        <th>Peso</th>
         <th>Mortes</th>
         <th>Valor</th>
         <th>Ações</th>
@@ -93,6 +95,8 @@ Investidor
         <tr class="pesquisar" href="/<%= morte.id %>">
         <td><%= morte.investidore.name %></td>
         <td><%= morte.data %></td>
+        <td><%= morte.brinco %></td>
+        <td><%= morte.peso %></td>
         <td><%= morte.quantidade %></td>
         <td><%= new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(morte.valor) %></td>
         

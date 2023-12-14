@@ -399,6 +399,7 @@ if (lastIdentificador && lastIdentificador.dataValues.lastIdentificador) {
         obs: obs,
         investidoreId: investidor,
         identificador: nextIdentificador,
+        status: "Em estoque",
 
       });
       nextIdentificador++; 
@@ -470,8 +471,7 @@ router.post("/compra/update", adminAuth, async(req, res) => {
       data: data,
       quantidade: quantidade,
       valor: valorFloat,
-      dolar: dolarFloat,
-      amount: amountFloat,
+      peso: formattedPeso,
       obs: obs,
       investidoreId: investidor,
     },

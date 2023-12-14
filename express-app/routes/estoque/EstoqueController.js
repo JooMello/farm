@@ -32,14 +32,32 @@ router.get('/admin/estoque', adminAuth, async (req, res, next) => {
     currency: "BRL",
   });
 
-  //////////////////////comprados
-  var comprados = await Compra.count();
+  var amountCompra = await Compra.findOne({
+    attributes: [sequelize.fn("sum", sequelize.col("valor"))],
+    where: {
+      status: "Em estoque",
+    },
+    raw: true,
+  });
+  
+  var valorCompraTotal = Number(amountCompra["sum(`valor`)"]);
+
+    //////////////////////comprados
+    var compradosTotal = await Compra.count();
+
+
+  var comprados = await Compra.count({
+    where: {
+      status: "Em estoque",
+    },
+  });
+  
 
   //////////////////////vendidos
   var vendidos = await Venda.count();
 
   //////////////////////estoque
-  var estoque = comprados - morte - vendidos;
+  var estoque = compradosTotal - morte - vendidos;
 
   Compra.findAll({
     include: [
@@ -75,13 +93,19 @@ router.get('/admin/estoque', adminAuth, async (req, res, next) => {
 
             raw: true,
           });
-           var TotalC = Number(amountC["sum(`valor`)"]);
+           var TotalCompra = Number(amountC["sum(`valor`)"]);
            var TotalV = Number(amountV["sum(`valor`)"]) /2;
-           const Totalf = (TotalC - TotalV);
+           const Totalf = (TotalCompra - TotalV);
           var Total = Totalf.toLocaleString("pt-BR", {
             style: "currency",
             currency: "BRL",
           });
+
+          var TotalC = TotalCompra.toLocaleString("pt-BR", {
+            style: "currency",
+            currency: "BRL",
+          });
+
 
           var amountU = await Compra.findOne({
             attributes: [
@@ -91,10 +115,17 @@ router.get('/admin/estoque', adminAuth, async (req, res, next) => {
           });
           var TotalValorCompras = Number(amountU["total_valor_compras"]);
       
-          var MediaCompraPonderada = ((TotalValorCompras - valorf) / (estoque)).toLocaleString("pt-BR", {
+          var MediaCompraPonderada = (valorCompraTotal  / (comprados)).toLocaleString("pt-BR", {
             style: "currency",
             currency: "BRL",
           });
+
+              
+  console.log(valorCompraTotal)
+  console.log(comprados)
+  console.log(valorCompraTotal * comprados)
+  console.log(MediaCompraPonderada)
+
 
           var CapitalEstoque = (Totalf - valorf).toLocaleString("pt-BR", {
             style: "currency",
@@ -111,8 +142,10 @@ router.get('/admin/estoque', adminAuth, async (req, res, next) => {
             investidores: investidores,
             morte,
             comprados,
+            compradosTotal,
             vendidos,
             estoque,
+            TotalC,
           });
         });
       });
@@ -130,8 +163,11 @@ router.get('/admin/estoque/newMorte', adminAuth, async (req, res) => {
     //////////////////////vendidos
     const vendidos = await Venda.count();
 
-    //////////////////////comprados
-    const comprados = await Compra.count();
+    var comprados = await Compra.count({
+      where: {
+        status: "Em estoque",
+      },
+    });
 
   const amountV = await Morte.findOne({
     attributes: [sequelize.fn("sum", sequelize.col("valor"))],
@@ -147,42 +183,82 @@ router.get('/admin/estoque/newMorte', adminAuth, async (req, res) => {
     ],
     raw: true,
   });
-  const TotalValorCompras = Number(amountU["total_valor_compras"]);
+  var amountCompra = await Compra.findOne({
+    attributes: [sequelize.fn("sum", sequelize.col("valor"))],
+    where: {
+      status: "Em estoque",
+    },
+    raw: true,
+  });
+  
+  var valorCompraTotal = Number(amountCompra["sum(`valor`)"]);
 
-  const MediaCompraPonderada = ((TotalValorCompras - valorf) / (comprados - morte - vendidos)).toLocaleString("pt-BR", {
+  var MediaCompraPonderada = (valorCompraTotal  / (comprados)).toLocaleString("pt-BR", {
     style: "currency",
     currency: "BRL",
   });
-  
+  Compra.findAll({
+    where: {
+      status: "Em estoque",
+    }
+  }).then((compras) => {
     Investidor.findAll().then((investidores) => {
       res.render('admin/estoque/newMorte', {
+        compras: compras,
         investidores: investidores,
         MediaCompraPonderada,
       });
     });
   });
+  });
 
-router.post('/morte/save',adminAuth,   (req, res) => {
+router.post('/morte/save',adminAuth, async  (req, res) => {
     var data = req.body.data;
     var quantidade = req.body.quantidade;
     var valor = req.body.valor;
+    var brinco = req.body.brinco;
+    var peso = req.body.peso;
     var investidor = req.body.investidor;
 
      let valorFloat = parseFloat(
     valor.replace("R$", "").replace(".", "").replace(",", ".")
   );
+
+  try {
+  const objects = [];
+
+  for (let i = 0; i < quantidade; i++) {
   
-     Morte.create(
-     {
+    objects.push({
       data: data,
-      quantidade: quantidade,
+      quantidade: 1,
       valor: valorFloat,
+      brinco: brinco[i],
+      peso: peso[i],
       investidoreId: investidor,
-    })
-    .then(() => {
-      res.redirect("/admin/estoque/morte");
     });
-  });
+
+    Compra.update(
+      {
+        status:"Morto"
+      },
+      {
+        where: {
+          brinco: brinco[i],
+        },
+      }
+    )
+
+}
+  
+await Morte.bulkCreate(objects)
+      res.redirect("/admin/estoque/morte");
+    }
+    catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "Erro ao salvar os registros no banco de dados" });
+    }
+    });
 
 router.get('/admin/estoque/morte', adminAuth, async (req, res, next) => {
 

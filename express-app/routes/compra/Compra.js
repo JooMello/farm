@@ -47,6 +47,10 @@ const Compra = connection.define("compras", {
     type: Sequelize.STRING,
     allowNull: false,
   },
+  status: {
+    type: Sequelize.STRING,
+    allowNull: false,
+  },
 });
 
 // UM Investidor tem muitas compras

@@ -28,6 +28,7 @@
           <tr id="table-header">
             <th>Nome</th>
             <th>Data Compra</th>
+            <th>Status</th>
             <th>Brinco</th>
             <th>Valor</th>
             <th>Peso</th>
@@ -40,6 +41,7 @@
           <tr class="pesquisar" href="/<%= historico.id %>">
             <td><%= historico.investidore.name %></td>
             <td id="formatData"><%= historico.data %></td>
+            <td><%= historico.status %></td>
             <td><%= historico.brinco %></td>
             <td><%= new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(historico.valor) %></td>
             <td><%= new Intl.NumberFormat('pt-BR', { style: 'unit', unit: 'kilogram' }).format(historico.peso) %></td>

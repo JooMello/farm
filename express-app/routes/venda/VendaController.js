@@ -11,7 +11,7 @@ const moment = require("moment");
 const ContaCorrente = require("../financeiro/contaCorrente/ContaCorrente");
 const Compra = require("../compra/Compra")
 const Morte = require("../estoque/Estoque")
-
+const Historico = require("../historico/Historico")
 
 const Investidor = require("../investidor/Investidor");
 
@@ -250,13 +250,19 @@ router.get("/admin/venda/new", adminAuth, (req, res) => {
     style: "currency",
     currency: "USD",
   });
-
+  Compra.findAll({
+    where: {
+      status: "Em estoque",
+    }
+  }).then((compras) => {
   Investidor.findAll().then((investidores) => {
     res.render("admin/venda/new", {
+      compras: compras,
       investidores: investidores,
       cotacao: cotacao,
       cotacaoDolar: cotacaoDolar,
     });
+  });
   });
 });
 
@@ -306,6 +312,7 @@ router.post("/venda/save", adminAuth, async (req, res) => {
   //////////////////////estoque
   var estoque = comprados - morte - vendidos;
 
+
     var amountU = await Compra.findOne({
       attributes: [
         [sequelize.fn("sum", sequelize.col("valor")), "total_valor_compras"],
@@ -315,6 +322,8 @@ router.post("/venda/save", adminAuth, async (req, res) => {
     var TotalValorCompras = Number(amountU["total_valor_compras"]);
   
     var MediaCompraPonderada = ((TotalValorCompras - valorf) / (estoque))
+
+
 
     const valorCompra = (MediaCompraPonderada * quantidade) / 2;
     const valorReal = totalAmountFloat - valorCompra;
@@ -341,10 +350,23 @@ router.post("/venda/save", adminAuth, async (req, res) => {
       });
   
   const nextCode = lastCode ? parseInt(lastCode.code) + 1 : 1;
-  
+
+ 
+
       const objects = [];
   
       for (let i = 0; i < quantidade; i++) {
+        const compras = await Compra.findAll({
+          where: {
+            brinco: brinco[i],
+          },
+          attributes: ['identificador'], // Adicione outros atributos que você precisa
+        });
+
+
+        if (compras.length > 0) {
+          console.log(compras[0].identificador);
+
         objects.push({
           id: id,
           data: data,
@@ -358,10 +380,26 @@ router.post("/venda/save", adminAuth, async (req, res) => {
           amount: amountFloat,
           obs: obs,
           investidoreId: investidor,
+          status:"Vendido",
+          identificador: compras[0].identificador, // Ajustado aqui
         });
+   
+        Compra.update(
+          {
+            status:"Vendido"
+          },
+          {
+            where: {
+              brinco: brinco[i],
+            },
+          }
+        )
+      } else {
+        console.log(`Nenhuma compra encontrada para o brinco ${brinco[i]}`);
       }
-  
+    }
       // Inserir os registros no banco de dados
+      await Historico.bulkCreate(objects);
       await Venda.bulkCreate(objects);
       ContaCorrente.create({
         data: data,
