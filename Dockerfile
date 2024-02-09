@@ -1,4 +1,6 @@
-FROM node:carbon
+FROM node:16.19-bullseye-slim
+
+USER root
 
 WORKDIR /usr/src/app
 
@@ -8,7 +10,7 @@ RUN npm install --force
 
 COPY . .
 
-EXPOSE 3000
+EXPOSE 1001
 
 CMD [ "npm", "start" ]
 
