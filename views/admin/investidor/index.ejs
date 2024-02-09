@@ -1,0 +1,145 @@
+<%- include ("../../partials/header.ejs") %> <%- include
+
+("../../partials/navbar.ejs") %>
+
+<body>
+    <div class="container">
+      <hr />
+      <h2>Investidores</h2>
+  
+      <hr />
+      <div class="row g-2">
+        <div class="col-3">
+          <div class="card">
+      <a class="btn btn-primary" href="/admin/investidor/new"
+      >Novo Investidor</a
+    >
+    </div>
+    </div>
+    <div class="col-3">
+      <div class="card">
+        <!--Barra de Pesquisa-->
+        <form class="form-search">
+          <input
+            class="form-control"
+            type="text"
+            name="search"
+            id="search"
+            placeholder="Pesquisar..."
+          />
+        </form>
+      </div>
+       </div>
+       </div>
+    <hr />
+    
+    <div  class="table-responsive-xxl">
+    <table data-type="table-menu" id="tab" class="table table-hover table-bordered table-sm text-center">
+      <thead class="thead-light">
+        <tr>
+          <th scope="col">Nome</th>
+          <th scope="col">Telefone</th>
+          <th scope="col">E-mail</th>
+          <th scope="col">CPF</th>
+          <th scope="col">Letras Brinco</th>
+          <th scope="col">Cep</th>
+          <th scope="col">Logradouro</th>
+          <th scope="col">Número</th>
+          <th scope="col">Complemento</th>
+          <th scope="col">Cidade</th>
+          <th scope="col">UF</th>
+          <th scope="col">Ações</th>
+        </tr>
+      </thead>
+      <tbody  id="demo">
+        <% investidores.forEach(investidor => { %>
+        <tr class="pesquisar">
+          <td scope="row"><%= investidor.name %></td>
+          <td><%= investidor.phone %></td>
+          <td><%= investidor.email %></td>
+          <td><%= investidor.cpf %></td>
+          <td><%= investidor.letras %></td>
+          <td><%= investidor.cep %></td>
+          <td><%= investidor.logradouro %></td>
+          <td><%= investidor.number %></td>
+          <td><%= investidor.obs %></td>
+          <td><%= investidor.cidade %></td>
+          <td><%= investidor.uf %></td>
+          <td>
+            <a
+              href="/admin/investidor/edit/<%= investidor.id %>"
+              class="btn btn-warning btn-sm"
+              >Editar</a
+            >
+            <form
+              method="POST"
+              action="/investidor/delete"
+              style="display: inline;"
+              onsubmit="confirmarDelecao(event, this)"
+            >
+              <input type="hidden" name="id" value="<%= investidor.id %>" />
+              <button class="btn btn-danger btn-sm">Deletar</button>
+            </form>
+          </td>
+        </tr>
+        <% }) %>
+      </tbody>
+    </table>
+    </div>
+      </div>
+      </body>
+
+
+<%- include ("../../partials/footer.ejs") %>
+
+<script>
+  //delete Script
+  function confirmarDelecao(event, form) {
+    event.preventDefault();
+    var decision = confirm("Você quer deletar este Investidor?");
+    if (decision) {
+      form.submit();
+    }
+  }
+
+  ////////////////////////////
+  // search script
+  const inputSearch = document.querySelector("#search");
+  const tableMenu = document.querySelector("[data-type='table-menu']");
+
+  const trs = Array.from(tableMenu.querySelectorAll("tbody tr"));
+  const trsPesquisar = Array.from(
+    tableMenu.querySelectorAll("tr.pesquisar")
+  );
+
+  inputSearch.addEventListener("input", function() {
+    const str = this.value;
+    if (str) {
+      filterData(str);
+    } else {
+      showAllItems();
+    }
+  });
+
+  function showAllItems() {
+    trs.forEach((tr) => tr.classList.remove("hide"));
+  }
+
+  function filterData(str) {
+    showAllItems();
+    trsPesquisar.forEach((trPesquisar) => {
+      let found = false;
+
+      for (let i=0; i < trs.length; i++) {
+        let tr = trs[i];
+        if (tr.textContent.toLowerCase().includes(str.toLowerCase())) {
+          found = true;
+          tr.classList.remove("hide");
+        } else {
+          tr.classList.add("hide");
+        }
+      }
+    });
+  }
+  /////////////////////////////////////////////////
+</script>

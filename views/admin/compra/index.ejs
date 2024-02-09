@@ -1,0 +1,203 @@
+<%- include ("../../partials/header.ejs") %> <%- include
+("../../partials/navbar.ejs") %>
+
+<body>
+  <div class="container">
+    <hr />
+    <h2>Compras</h2>
+    <hr />
+    <div class="row g-2">
+      <div class="col-2">
+        <div class="card">
+          <a class="btn btn-success form-control" href="/admin/compra/new">Nova Compra</a>
+        </div>
+      </div>
+      <div class="col-2">
+        <div class="card text-center">
+          <div class="dropdown">
+            <button class="btn dropdown-toggle form-control" type="button" data-bs-toggle="dropdown"
+              aria-expanded="false">
+              Investidor
+            </button>
+            <ul class="dropdown-menu">
+              <li>
+                <a class="dropdown-item" href="/admin/compra">TODOS</a>
+              </li>
+              <% investidores.forEach(investidor => { %>
+              <li>
+                <a class="dropdown-item" href="/compra/<%= investidor.id %>"><%= investidor.name %></a>
+              </li>
+              <% }) %>
+            </ul>
+          </div>
+        </div>
+      </div>
+<div class="col-4">
+  <div class="card">
+    <div class="dropdown">
+      <button class="btn dropdown-toggle form-control" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+        Periodo
+      </button>
+      <ul class="dropdown-menu">
+        <li>
+          <form action="/compra" method="get">
+            <div class="mb-3">
+              <label for="start" class="form-label">Data de início:</label>
+              <input type="date" class="form-control" id="start" name="start">
+            </div>
+            <div class="mb-3">
+              <label for="end" class="form-label">Data de fim:</label>
+              <input type="date" class="form-control" id="end" name="end">
+            </div>
+            <button type="submit" class="btn btn-primary">Filtrar</button>
+          </form>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
+      <div class="col-3">
+        <div class="card">
+          <!--Barra de Pesquisa-->
+          <form class="form-search">
+            <input class="form-control" type="text" name="search" id="search" placeholder="Pesquisar..." />
+          </form>
+        </div>
+      </div>
+    </div>
+    <hr />
+    <div class="table-responsive-xxl">
+      <table id="tab" data-type="table-menu" class="table table-hover table-bordered table-sm text-center">
+        <thead>
+          <tr id="table-header">
+            <th>Nome</th>
+            <th>Data</th>
+            <th>Quantidade</th>
+            <th>Valor</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="demo">
+          <% compras.forEach(compra=> { %>
+            <tr class="pesquisar" href="">
+              <td>
+                <%= compra.investidore.name %>
+              </td>
+              <td>
+                <%= compra.data %>
+              </td>
+              <td>
+                <%= compra.quantidade %>
+              </td>
+              <td>
+                <%= new Intl.NumberFormat('pt-BR', { style: 'currency' , currency: 'BRL' }).format(compra.total_valor) %>
+              </td>
+              <td>
+                <a href="/admin/compra/view/<%= compra.code %>" class="btn btn-primary btn-sm">Visualizar</a>
+              </td>
+            
+            </tr>
+            <% }) %>
+        </tbody>
+      </table>
+      <div class="table1 text-center">
+        <h2>TOTAL</h2>
+        <table id="tab" data-type="table-menu" class="table table-bordered text-center">
+          <thead>
+            <tr id="table-header">
+              <th>Nº de Animais Comprados</th>
+              <th>Valor Compra</th>
+              <th>Compra - Dolar</th>
+            </tr>
+          </thead>
+          <tbody id="demo">
+            <tr class="pesquisar">
+              <td><%= quantidade %></td>
+              <td><%= CapitalInvestido %></td>
+              <td><%= CapitalInvestidoDolar %></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <br>
+</body>
+
+
+<%- include ("../../partials/footer.ejs") %>
+
+
+
+
+<script>
+  //delete Script
+  function confirmarDelecao(event, form) {
+    event.preventDefault();
+    var decision = confirm("Você quer deletar esta Compra?");
+    if (decision) {
+      form.submit();
+    }
+  }
+
+  ////////////////////////////
+  // search script
+  const inputSearch = document.querySelector("#search");
+  const tableMenu = document.querySelector("[data-type='table-menu']");
+
+  const trs = Array.from(tableMenu.querySelectorAll("tbody tr"));
+  const trsPesquisar = Array.from(
+    tableMenu.querySelectorAll("tr.pesquisar")
+  );
+
+  inputSearch.addEventListener("input", function () {
+    const str = this.value;
+    if (str) {
+      filterData(str);
+    } else {
+      showAllItems();
+    }
+  });
+
+  function showAllItems() {
+    trs.forEach((tr) => tr.classList.remove("hide"));
+  }
+
+  function filterData(str) {
+    showAllItems();
+    trsPesquisar.forEach((trPesquisar) => {
+      let found = false;
+
+      for (let i = 0; i < trs.length; i++) {
+        let tr = trs[i];
+        if (tr.textContent.toLowerCase().includes(str.toLowerCase())) {
+          found = true;
+          tr.classList.remove("hide");
+        } else {
+          tr.classList.add("hide");
+        }
+      }
+    });
+  }
+  /////////////////////////////////////////////////
+</script>
+
+
+
+<script>
+  //filtragem de dados, por peridodo que eles foram adicionados no BD
+  //formatar numeros em valores decimais (.toLocaleFixed(2))
+  Number.prototype.toLocaleFixed = function (n) {
+    return this.toLocaleString(undefined, {
+      minimumFractionDigits: n,
+      maximumFractionDigits: n
+    });
+  };
+
+  valor.addEventListener('td', event => {
+
+    var unitario = 10
+
+    document.getElementById('valor').value = Number(valor).toLocaleFixed(2);
+  })
+</script>

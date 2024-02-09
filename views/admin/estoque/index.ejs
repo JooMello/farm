@@ -1,0 +1,104 @@
+<%- include ("../../partials/header.ejs") %> <%- include
+("../../partials/navbar.ejs") %>
+
+<body>
+  <br />
+    <div class="container">
+      <br />
+      <h2>Estoque</h2>
+  
+      <hr />
+      <div class="row g-2">
+
+        <div class="col-3">
+            <div class="card text-center">
+                <a class="btn btn-primary form-control" href="/admin/estoque/morte"
+                >Mortes</a
+              >
+                </div>
+            </div>
+
+   <div class="col-3">
+    <div class="card text-center">
+       <div class="dropdown">
+<button class="btn dropdown-toggle form-control" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+Investidor
+</button>
+<ul class="dropdown-menu">
+  <li >
+    <a class="dropdown-item"  href="/admin/estoque">TODOS</a>
+  </li>
+ <% investidores.forEach(investidor => { %>
+<li >
+        <a class="dropdown-item"  href="/estoque/<%= investidor.id %>"><%= investidor.name %></a>
+    </li>
+ <% }) %>
+</ul>
+</div>
+
+    </div>
+   </div>
+    </div>
+<hr/>
+
+<div  class="table-responsive-xxl">
+<table id="tab" data-type="table-menu" class="table table-bordered text-center">
+    <thead>      
+      <tr id="table-header">
+        <th>Nº de Animais Comprados</th>
+        <th>Mortes</th>
+        <th>Vendidos</th>
+        <th>Estoque</th>
+      </tr>
+    </thead>
+    <tbody id="demo">
+        <tr class="pesquisar" >
+        <td><%= compradosTotal %></td>
+        <td ><%= morte %></td>
+        <td><%= vendidos %></td>
+        <td><%= estoque %></td>
+      </tr>
+    </tbody>
+  </table>
+  <br>
+<br>
+  <div  class="table1 text-center">
+    <table id="tab" data-type="table-menu" class="table table-bordered text-center">
+      <thead>
+        <tr id="table-header">
+          <th>Capital Investido</th>
+          <th>Média Ponderada</th>
+          <th>Valor Mortes</th>
+        </tr>
+      </thead>
+      <tbody id="demo">
+          <tr class="pesquisar">
+          <td><%= TotalC %></td>
+          <td><%= MediaCompraPonderada %></td>
+          <td><%= valor %></td>
+        </tr>
+      </tbody>
+      </table>
+      
+      <table id="tab" data-type="table-menu" class="table table-bordered text-center">
+      <thead>
+        <tr id="table-header">
+          <th>Capital Estoque</th>
+        </tr>
+      </thead>
+      <tbody id="demo">
+          <tr class="pesquisar">
+          <td><%= CapitalEstoque %></td>
+          
+        </tr>
+      </tbody>
+    </table>
+      </div>
+</div>
+      </div>
+      </body>
+
+
+<%- include ("../../partials/footer.ejs") %>
+
+
