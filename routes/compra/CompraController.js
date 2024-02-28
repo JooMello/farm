@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const Compra = require("./Compra");
-const Historico = require("../historico/Historico")
+const Historico = require("../historico/Historico");
 const slugify = require("slugify");
 const sequelize = require("sequelize");
 const { Op } = require("sequelize");
@@ -49,7 +49,9 @@ const Dolar = request(options, callback_dolar);
 
 // Função para formatar um valor monetário (R$)
 function formatCurrency(value) {
-  const formattedValue = parseFloat(value.replace("R$", "").replace(".", "").replace(",", "."));
+  const formattedValue = parseFloat(
+    value.replace("R$", "").replace(".", "").replace(",", ".")
+  );
   return isNaN(formattedValue) ? 0 : formattedValue;
 }
 
@@ -62,12 +64,11 @@ function formatDollar(value) {
 // Função para formatar um valor ou array de valores
 function formatValueOrArray(value) {
   if (Array.isArray(value)) {
-    return value.map(val => formatCurrency(val));
+    return value.map((val) => formatCurrency(val));
   } else {
     return formatCurrency(value);
   }
 }
-
 
 router.get("/admin/compra", adminAuth, async (req, res, next) => {
   Compra.findAll({
@@ -96,70 +97,68 @@ router.get("/admin/compra", adminAuth, async (req, res, next) => {
     });
     Investidor.findAll().then(async (investidores) => {
       Historico.findAll().then(async (historico) => {
-      //////////////////////Quantidade
-      var quantidade = await Compra.count();
+        //////////////////////Quantidade
+        var quantidade = await Compra.count();
 
-      //////////////////////Capital Investidor
-      var amountT = await Compra.findOne({
-        attributes: [sequelize.fn("sum", sequelize.col("valor"))],
+        //////////////////////Capital Investidor
+        var amountT = await Compra.findOne({
+          attributes: [sequelize.fn("sum", sequelize.col("valor"))],
 
-        raw: true,
-      });
-      var CapitalInvestido = Number(amountT["sum(`valor`)"]).toLocaleString(
-        "pt-BR",
-        {
+          raw: true,
+        });
+        var CapitalInvestido = Number(amountT["sum(`valor`)"]).toLocaleString(
+          "pt-BR",
+          {
+            style: "currency",
+            currency: "BRL",
+          }
+        );
+
+        //////////////////////Capital Investidor em dolar
+        var amountD = await Compra.findOne({
+          attributes: [sequelize.fn("sum", sequelize.col("amount"))],
+
+          raw: true,
+        });
+        var CapitalInvestidoDolar = Number(
+          amountD["sum(`amount`)"]
+        ).toLocaleString("en-US", {
+          style: "currency",
+          currency: "USD",
+        });
+
+        var amountU = await Compra.findOne({
+          attributes: [
+            [
+              sequelize.fn(
+                "avg",
+                sequelize.fn("DISTINCT", sequelize.col("valor"))
+              ),
+              "media",
+            ],
+          ],
+          distinct: true,
+          raw: true,
+        });
+        var mediaCompra = Number(amountU["media"]).toLocaleString("pt-BR", {
           style: "currency",
           currency: "BRL",
-        }
-      );
-
-      //////////////////////Capital Investidor em dolar
-      var amountD = await Compra.findOne({
-        attributes: [sequelize.fn("sum", sequelize.col("amount"))],
-
-        raw: true,
+        });
+        res.render("admin/compra/index", {
+          compras: compras,
+          investidores: investidores,
+          historico,
+          quantidade,
+          mediaCompra,
+          CapitalInvestido,
+          CapitalInvestidoDolar,
+        });
       });
-      var CapitalInvestidoDolar = Number(
-        amountD["sum(`amount`)"]
-      ).toLocaleString("en-US", {
-        style: "currency",
-        currency: "USD",
-      });
-
-      var amountU = await Compra.findOne({
-        attributes: [
-          [
-            sequelize.fn(
-              "avg",
-              sequelize.fn("DISTINCT", sequelize.col("valor"))
-            ),
-            "media",
-          ],
-        ],
-        distinct: true,
-        raw: true,
-      });
-      var mediaCompra = Number(amountU["media"]).toLocaleString("pt-BR", {
-        style: "currency",
-        currency: "BRL",
-      });
-      res.render("admin/compra/index", {
-        compras: compras,
-        investidores: investidores,
-        historico,
-        quantidade,
-        mediaCompra,
-        CapitalInvestido,
-        CapitalInvestidoDolar,
-      });
-    });
     });
   });
 });
 
-
 router.get("/admin/compra/view/:code", adminAuth, async (req, res, next) => {
-
   const code = req.params.code;
 
   Compra.findAll({
@@ -184,7 +183,7 @@ router.get("/admin/compra/view/:code", adminAuth, async (req, res, next) => {
         where: {
           code: code, // Condição para encontrar a compra específica
         },
-        attributes: ['quantidade'], // Substitua 'quantidade' pelo nome correto do campo na tabela Compra
+        attributes: ["quantidade"], // Substitua 'quantidade' pelo nome correto do campo na tabela Compra
         raw: true,
       });
 
@@ -254,34 +253,37 @@ router.get("/admin/compra/view/:code", adminAuth, async (req, res, next) => {
   });
 });
 
-router.get("/admin/compra/view/historico/:identificador", adminAuth, async (req, res, next) => {
+router.get(
+  "/admin/compra/view/historico/:identificador",
+  adminAuth,
+  async (req, res, next) => {
+    const identificador = req.params.identificador;
 
-  const identificador = req.params.identificador;
-
-  Historico.findAll({
-    where: {
-      identificador: identificador,
-    },
-    include: [
-      {
-        model: Investidor,
+    Historico.findAll({
+      where: {
+        identificador: identificador,
       },
-    ],
-    order: [["data", "DESC"]],
-    raw: true,
-    nest: true,
-  }).then((historicos) => {
-    historicos.forEach((historico) => {
-      historico.data = moment(historico.data).format("DD/MM/YYYY");
-    });
-    Investidor.findAll().then(async (investidores) => {
-      res.render("admin/compra/historico", {
-        historicos: historicos,
-        investidores: investidores,
+      include: [
+        {
+          model: Investidor,
+        },
+      ],
+      order: [["data", "DESC"]],
+      raw: true,
+      nest: true,
+    }).then((historicos) => {
+      historicos.forEach((historico) => {
+        historico.data = moment(historico.data).format("DD/MM/YYYY");
+      });
+      Investidor.findAll().then(async (investidores) => {
+        res.render("admin/compra/historico", {
+          historicos: historicos,
+          investidores: investidores,
+        });
       });
     });
-  });
-});
+  }
+);
 
 router.get("/admin/compra/new", adminAuth, (req, res) => {
   var cotacaoDolar = Number(cotacao).toLocaleString("en-US", {
@@ -299,7 +301,6 @@ router.get("/admin/compra/new", adminAuth, (req, res) => {
 });
 
 router.post("/compra/save", adminAuth, async (req, res) => {
-
   let id = req.body.id;
   let code = req.body.code;
   let brinco = req.body.brinco;
@@ -316,14 +317,20 @@ router.post("/compra/save", adminAuth, async (req, res) => {
   // ... Resto do seu código ...
 
   // Formatando os valores
-  const valorFloat = parseFloat(valor.replace("R$", "").replace(".", "").replace(",", "."));
-  const totalAmountFloat = parseFloat(totalAmount.replace("R$", "").replace(".", "").replace(",", "."));
+  const valorFloat = parseFloat(
+    valor.replace("R$", "").replace(".", "").replace(",", ".")
+  );
+  const totalAmountFloat = parseFloat(
+    totalAmount.replace("R$", "").replace(".", "").replace(",", ".")
+  );
   const formattedPeso = formatValueOrArray(req.body.peso);
   const dolarFloat = parseFloat(dolar.replace("$", ""));
   const amountFloat = parseFloat(amount.replace("$", "").replace(",", ""));
 
-  try {
+  console.log(peso);
+  console.log(formattedPeso);
 
+  try {
     // Encontrar o investidor pelo id
     const investidorObj = await Investidor.findOne({
       where: {
@@ -339,22 +346,25 @@ router.post("/compra/save", adminAuth, async (req, res) => {
     // Obter o valor do campo "letras" do investidor
     const letrasDoInvestidor = investidorObj.letras;
 
-
     const existingBrincos = await Compra.findAll({
       where: {
         brinco: {
-          [Op.not]: '', // Excluir brincos vazios da verificação de duplicatas
+          [Op.not]: "", // Excluir brincos vazios da verificação de duplicatas
         },
       },
     });
 
-   // Verifique se há brincos repetidos
-   for (const item of brinco) {
-    const exists = existingBrincos.some((existing) => existing.brinco === item);
-    if (exists) {
-      return res.status(400).json({ error: "Pelo menos um dos brincos já existe" });
+    // Verifique se há brincos repetidos
+    for (const item of brinco) {
+      const exists = existingBrincos.some(
+        (existing) => existing.brinco === item
+      );
+      if (exists) {
+        return res
+          .status(400)
+          .json({ error: "Pelo menos um dos brincos já existe" });
+      }
     }
-  }
 
     // Encontrar o último brinco e código
     const lastCompra = await Compra.findOne({
@@ -367,59 +377,97 @@ router.post("/compra/save", adminAuth, async (req, res) => {
       limit: 1,
     });
 
-const nextCode = lastCode ? parseInt(lastCode.code) + 1 : 1;
+    const nextCode = lastCode ? parseInt(lastCode.code) + 1 : 1;
 
-const lastIdentificador = await Compra.findOne({
-  attributes: [
-    [sequelize.fn("MAX", sequelize.col("identificador")), "lastIdentificador"],
-  ],
-});
+    const lastIdentificador = await Compra.findOne({
+      attributes: [
+        [
+          sequelize.fn("MAX", sequelize.col("identificador")),
+          "lastIdentificador",
+        ],
+      ],
+    });
 
-let nextIdentificador = 1;
+    let nextIdentificador = 1;
 
-if (lastIdentificador && lastIdentificador.dataValues.lastIdentificador) {
-  nextIdentificador = lastIdentificador.dataValues.lastIdentificador + 1;
-}
+    if (lastIdentificador && lastIdentificador.dataValues.lastIdentificador) {
+      nextIdentificador = lastIdentificador.dataValues.lastIdentificador + 1;
+    }
 
+    if (quantidade > 1) {
+      const objects = [];
 
-    const objects = [];
+      for (let i = 0; i < quantidade; i++) {
+        objects.push({
+          id: id,
+          data: data,
+          brinco: letrasDoInvestidor + brinco[i],
+          quantidade: quantidade,
+          code: nextCode,
+          valor: valorFloat,
+          totalAmount: totalAmountFloat,
+          peso: formattedPeso[i],
+          dolar: dolarFloat,
+          amount: amountFloat,
+          obs: obs,
+          investidoreId: investidor,
+          identificador: nextIdentificador,
+          status: "Em estoque",
+        });
+        nextIdentificador++;
+      }
 
-    for (let i = 0; i < quantidade; i++) {
-      objects.push({
+      // Inserir os registros no banco de dados
+      await Compra.bulkCreate(objects);
+      await Historico.bulkCreate(objects);
+      ContaCorrente.create({
+        code: nextCode,
+        data: data,
+        category: "DEBITO",
+        valor: -totalAmountFloat,
+        obs: "Débito referente a compra de gado",
+        investidoreId: investidor,
+      });
+    } else if (quantidade == 1) {
+      const singleObject = {
         id: id,
         data: data,
-        brinco: letrasDoInvestidor + brinco[i],
+        brinco: letrasDoInvestidor + brinco,
         quantidade: quantidade,
         code: nextCode,
         valor: valorFloat,
         totalAmount: totalAmountFloat,
-        peso: formattedPeso[i],
+        peso: formattedPeso,
         dolar: dolarFloat,
         amount: amountFloat,
         obs: obs,
         investidoreId: investidor,
         identificador: nextIdentificador,
         status: "Em estoque",
+      };
 
+      // Inserir o registro no banco de dados
+      await Compra.create(singleObject);
+      await Historico.create(singleObject);
+      ContaCorrente.create({
+        code: nextCode,
+        data: data,
+        category: "DEBITO",
+        valor: -totalAmountFloat,
+        obs: "Débito referente a compra de gado",
+        investidoreId: investidor,
       });
-      nextIdentificador++; 
+      // ... (Remaining code)
+    } else {
+      // Handle the case when quantity is less than 1 if needed
     }
-
-    // Inserir os registros no banco de dados
-    await Compra.bulkCreate(objects);
-    await Historico.bulkCreate(objects);
-    ContaCorrente.create({
-      data: data,
-      category: 'DEBITO',
-      valor: - totalAmountFloat,
-      obs: 'Débito referente a compra de gado',
-      investidoreId: investidor,
-    })
 
     res.redirect("/admin/compra");
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: "Erro ao salvar os registros no banco de dados" });
+    res
+      .status(500)
+      .json({ error: "Erro ao salvar os registros no banco de dados" });
   }
 });
 
@@ -444,7 +492,7 @@ router.get("/admin/compra/edit/:id", adminAuth, (req, res) => {
     });
 });
 
-router.post("/compra/update", adminAuth, async(req, res) => {
+router.post("/compra/update", adminAuth, async (req, res) => {
   let id = req.body.id;
   let code = req.body.code;
   let brinco = req.body.brinco;
@@ -459,18 +507,23 @@ router.post("/compra/update", adminAuth, async(req, res) => {
   let investidor = req.body.investidor;
   let identificador = req.body.identificador;
 
-  const valorFloat = parseFloat(valor.replace("R$", "").replace(".", "").replace(",", "."));
-  const totalAmountFloat = parseFloat(totalAmount.replace("R$", "").replace(".", "").replace(",", "."));
+  const valorFloat = parseFloat(
+    valor.replace("R$", "").replace(".", "").replace(",", ".")
+  );
+  const totalAmountFloat = parseFloat(
+    totalAmount.replace("R$", "").replace(".", "").replace(",", ".")
+  );
   const formattedPeso = formatValueOrArray(req.body.peso);
   const dolarFloat = parseFloat(dolar.replace("$", ""));
   const amountFloat = parseFloat(amount.replace("$", "").replace(",", ""));
-
 
   Compra.update(
     {
       data: data,
       quantidade: quantidade,
+      brinco: brinco,
       valor: valorFloat,
+      totalAmount: totalAmountFloat,
       peso: formattedPeso,
       obs: obs,
       investidoreId: investidor,
@@ -480,23 +533,32 @@ router.post("/compra/update", adminAuth, async(req, res) => {
         id: id,
       },
     }
-  )
-  Historico.create(
+  );
+  ContaCorrente.update(
     {
-        data: data,
-        brinco: brinco,
-        quantidade: quantidade,
-        code: code,
-        valor: valorFloat,
-        totalAmount: totalAmountFloat,
-        peso: formattedPeso,
-        dolar: dolarFloat,
-        amount: amountFloat,
-        obs: obs,
-        investidoreId: investidor,
-        identificador:identificador,
+      data: data,
+      valor: -totalAmountFloat,
     },
-  )
+    {
+      where: {
+        code: code,
+      },
+    }
+  );
+  Historico.create({
+    data: data,
+    brinco: brinco,
+    quantidade: quantidade,
+    code: code,
+    valor: valorFloat,
+    totalAmount: totalAmountFloat,
+    peso: formattedPeso,
+    dolar: dolarFloat,
+    amount: amountFloat,
+    obs: obs,
+    investidoreId: investidor,
+    identificador: identificador,
+  })
     .then(() => {
       res.redirect("/admin/compra");
     })
@@ -516,7 +578,7 @@ router.post("/compra/delete", adminAuth, (req, res) => {
       }).then(() => {
         res.redirect("/admin/compra");
       });
-    } 
+    }
   } else {
     // NULL
     res.redirect("/admin/compra");

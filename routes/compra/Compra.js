@@ -33,7 +33,7 @@ const Compra = connection.define("compras", {
   },
   peso: {
     type: Sequelize.STRING,
-    allowNull: false,
+    allowNull: true,
   },
   dolar: {
     type: Sequelize.STRING,
@@ -45,7 +45,7 @@ const Compra = connection.define("compras", {
   },
   obs: {
     type: Sequelize.STRING,
-    allowNull: false,
+    allowNull: true,
   },
   status: {
     type: Sequelize.STRING,
