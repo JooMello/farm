@@ -95,34 +95,34 @@ router.get("/admin/contaCorrente", adminAuth, async (req, res, next) => {
                "DD/MM/YYYY"
              );
            });
-           var amountT = await ContaCorrente.findOne({
+           const amountT = await ContaCorrente.findOne({
              attributes: [sequelize.fn("sum", sequelize.col("valor"))],
              raw: true,
            });
-           var saldo = Number(amountT["sum(`valor`)"]).toLocaleString("pt-BR", {
+           const saldo = Number(amountT["sum(`valor`)"]).toLocaleString("pt-BR", {
              style: "currency",
              currency: "BRL",
            });
-           var saldos = Number(amountT["sum(`valor`)"])
-           var amountC = await Compra.findOne({
+           const saldos = Number(amountT["sum(`valor`)"])
+           const amountC = await Compra.findOne({
             attributes: [sequelize.fn("sum", sequelize.col("valor"))],
             raw: true,
           });
-          var amountCompra = Number(amountC["sum(`valor`)"]).toLocaleString("pt-BR", {
+          const amountCompra = Number(amountC["sum(`valor`)"]).toLocaleString("pt-BR", {
             style: "currency",
             currency: "BRL",
           });
-          var amountCompras = Number(amountC["sum(`valor`)"])
+          const amountCompras = Number(amountC["sum(`valor`)"])
 
           Venda.count().then(async (totalVendas) => {
             console.log(totalVendas)
 
-          var amountV = await Venda.findOne({
+          const amountV = await Venda.findOne({
             attributes: [sequelize.fn("sum", sequelize.col("totalAmount"))],
             raw: true,
           });
-          var amountVendas = (Number(amountV["sum(`totalAmount`)"]) / totalVendas) 
-          var amountVenda = amountVendas.toLocaleString("pt-BR", {
+          const amountVendas = (Number(amountV["sum(`totalAmount`)"]) / totalVendas) 
+          const amountVenda = amountVendas.toLocaleString("pt-BR", {
             style: "currency",
             currency: "BRL",
           });
@@ -154,19 +154,28 @@ router.get("/admin/contaCorrente/new", adminAuth, (req, res) => {
   });
 });
 
-router.post("/contaCorrente/save", adminAuth, (req, res) => {
-  var data = req.body.data;
-  var category = req.body.category;
-  var valor = req.body.valor;
-  var obs = req.body.obs;
-  var investidor = req.body.investidor;
+router.post("/contaCorrente/save", adminAuth, async (req, res) => {
+  const data = req.body.data;
+  const category = req.body.category;
+  const valor = req.body.valor;
+  const obs = req.body.obs;
+  const investidor = req.body.investidor;
+  const code = req.body.code;
 
-  var valorFloat = valor.replace(".", "").replace(",", ".");
+  const valorFloat = valor.replace(".", "").replace(",", ".");
+
+  const lastCode = await ContaCorrente.findOne({
+    order: [["code", "DESC"]],
+    limit: 1,
+  });
+
+  const nextCode = lastCode ? parseInt(lastCode.code) + 1 : 1;
 
   ContaCorrente.create({
     data: data,
     category: category,
     valor: valorFloat,
+    code: nextCode,
     obs: obs,
     investidoreId: investidor,
   }).then(() => {
@@ -175,7 +184,7 @@ router.post("/contaCorrente/save", adminAuth, (req, res) => {
 });
 
 router.get("/admin/contaCorrente/edit/:id", adminAuth, (req, res) => {
-  var id = req.params.id;
+  const id = req.params.id;
 
   ContaCorrente.findByPk(id)
     .then((contaCorrente) => {
@@ -196,14 +205,14 @@ router.get("/admin/contaCorrente/edit/:id", adminAuth, (req, res) => {
 });
 
 router.post("/contaCorrente/update", adminAuth, (req, res) => {
-  var id = req.body.id;
-  var data = req.body.data;
-  var category = req.body.category;
-  var valor = req.body.valor;
-  var obs = req.body.obs;
-  var investidor = req.body.investidor;
+  const id = req.body.id;
+  const data = req.body.data;
+  const category = req.body.category;
+  const valor = req.body.valor;
+  const obs = req.body.obs;
+  const investidor = req.body.investidor;
 
-  var valorFloat = valor.replace(".", "").replace(",", ".");
+  const valorFloat = valor.replace(".", "").replace(",", ".");
 
   ContaCorrente.update(
     {
@@ -228,7 +237,7 @@ router.post("/contaCorrente/update", adminAuth, (req, res) => {
 });
 
 router.post("/contaCorrente/delete", adminAuth, (req, res) => {
-  var id = req.body.id;
+  const id = req.body.id;
   if (id != undefined) {
     if (!isNaN(id)) {
       ContaCorrente.destroy({

@@ -21,7 +21,7 @@ const Morte = connection.define("mortes", {
   },
   peso: {
     type: Sequelize.STRING,
-    allowNull: false,
+    allowNull: true,
   },
 });
 

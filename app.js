@@ -33,8 +33,7 @@ const Compra = require("./routes/compra/Compra");
 const Venda = require("./routes/venda/Venda");
 const Morte = require("./routes/estoque/Estoque");
 const User = require("./routes/users/User");
-const  ContaCorrente = require("./routes/financeiro/contaCorrente/ContaCorrente");
-const Historico = require("./routes/historico/Historico")
+const  ContaCorrente = require("./routes/financeiro/contaCorrente/ContaCorrente");const Historico = require("./routes/historico/Historico")
 
 //view engine setup
 app.set("views", path.join(__dirname, "views"));
@@ -67,7 +66,7 @@ app.use("/", vendaRouter);
 app.use("/", relatorioRouter);
 app.use("/", estoqueRouter);
 app.use("/", contaCorrenteRouter);
-app.use("/", userRouter);
+app.use("/", userRouter);;
 
 connection
   .authenticate()
