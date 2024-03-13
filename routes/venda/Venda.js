@@ -29,7 +29,7 @@ const Venda = connection.define("vendas", {
   },
   peso: {
     type: Sequelize.STRING,
-    allowNull: false,
+    allowNull: true,
   },
   dolar: {
     type: Sequelize.STRING,
@@ -41,7 +41,7 @@ const Venda = connection.define("vendas", {
   },
   obs: {
     type: Sequelize.STRING,
-    allowNull: false,
+    allowNull: true,
   },
 });
 

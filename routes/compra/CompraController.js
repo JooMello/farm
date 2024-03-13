@@ -316,19 +316,13 @@ router.post("/compra/save", adminAuth, async (req, res) => {
   let identificador = req.body.identificador;
   // ... Resto do seu código ...
 
-  // Formatando os valores
-  const valorFloat = parseFloat(
-    valor.replace("R$", "").replace(".", "").replace(",", ".")
-  );
+
   const totalAmountFloat = parseFloat(
     totalAmount.replace("R$", "").replace(".", "").replace(",", ".")
   );
   const formattedPeso = formatValueOrArray(req.body.peso);
   const dolarFloat = parseFloat(dolar.replace("$", ""));
   const amountFloat = parseFloat(amount.replace("$", "").replace(",", ""));
-
-  console.log(peso);
-  console.log(formattedPeso);
 
   try {
     // Encontrar o investidor pelo id
@@ -398,13 +392,14 @@ router.post("/compra/save", adminAuth, async (req, res) => {
       const objects = [];
 
       for (let i = 0; i < quantidade; i++) {
+        const brincoValue = brinco[i] ? letrasDoInvestidor + brinco[i] : null;
         objects.push({
           id: id,
           data: data,
-          brinco: letrasDoInvestidor + brinco[i],
+          brinco: brincoValue,
           quantidade: quantidade,
           code: nextCode,
-          valor: valorFloat,
+          valor: valor[i],
           totalAmount: totalAmountFloat,
           peso: formattedPeso[i],
           dolar: dolarFloat,
@@ -429,13 +424,14 @@ router.post("/compra/save", adminAuth, async (req, res) => {
         investidoreId: investidor,
       });
     } else if (quantidade == 1) {
+      const brincoValue = brinco ? letrasDoInvestidor + brinco : null;
       const singleObject = {
         id: id,
         data: data,
-        brinco: letrasDoInvestidor + brinco,
+        brinco: brincoValue,
         quantidade: quantidade,
         code: nextCode,
-        valor: valorFloat,
+        valor: valor,
         totalAmount: totalAmountFloat,
         peso: formattedPeso,
         dolar: dolarFloat,
@@ -550,7 +546,7 @@ router.post("/compra/update", adminAuth, async (req, res) => {
     brinco: brinco,
     quantidade: quantidade,
     code: code,
-    valor: valorFloat,
+    valor: valor,
     totalAmount: totalAmountFloat,
     peso: formattedPeso,
     dolar: dolarFloat,

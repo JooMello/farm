@@ -267,21 +267,19 @@ router.get("/admin/venda/new", adminAuth, (req, res) => {
 });
 
 router.post("/venda/save", adminAuth, async (req, res) => {
-  let id = req.body.id;
-  let code = req.body.code;
-  let brinco = req.body.brinco;
-  let data = req.body.data;
-  let quantidade = req.body.quantidade;
-  let valor = req.body.valor;
-  let totalAmount = req.body.totalAmount;
-  let peso = req.body.peso;
-  let dolar = req.body.dolar;
-  let amount = req.body.amount;
-  let obs = req.body.obs;
-  let investidor = req.body.investidor;
+  const id = req.body.id;
+  const code = req.body.code;
+  const brinco = req.body.brinco;
+  const data = req.body.data;
+  const quantidade = req.body.quantidade;
+  const valor = req.body.valor;
+  const totalAmount = req.body.totalAmount;
+  const peso = req.body.peso;
+  const dolar = req.body.dolar;
+  const amount = req.body.amount;
+  const obs = req.body.obs;
+  const investidor = req.body.investidor;
 
-    // Formatando os valores
-    const valorFloat = parseFloat(valor.replace("R$", "").replace(".", "").replace(",", "."));
     const totalAmountFloat = parseFloat(totalAmount.replace("R$", "").replace(".", "").replace(",", "."));
     const formattedPeso = formatValueOrArray(req.body.peso);
     const dolarFloat = parseFloat(dolar.replace("$", ""));
@@ -323,46 +321,41 @@ router.post("/venda/save", adminAuth, async (req, res) => {
   
     var MediaCompraPonderada = ((TotalValorCompras - valorf) / (estoque))
 
-
-
     const valorCompra = (MediaCompraPonderada * quantidade) / 2;
     const valorReal = totalAmountFloat - valorCompra;
-    console.log(MediaCompraPonderada)
-    console.log(valorCompra)
-    console.log(valorReal)
 
     try {
-      const existingBrinco = await Venda.findOne({
-        where: {
-          brinco: brinco,
-        },
-      });
-  
-      // Encontrar o último brinco e código
-      const lastVenda = await Venda.findOne({
-        order: [["brinco", "DESC"]],
-        limit: 1,
-      });
-  
-      const lastCode = await Venda.findOne({
-        order: [["code", "DESC"]],
-        limit: 1,
-      });
-  
-  const nextCode = lastCode ? parseInt(lastCode.code) + 1 : 1;
 
- 
+       // Encontrar o investidor pelo id
+    const investidorObj = await Investidor.findOne({
+      where: {
+        id: investidor,
+      },
+    });
+
+    // Verificar se o investidor foi encontrado
+    if (!investidorObj) {
+      return res.status(400).json({ error: "Investidor não encontrado" });
+    }
+
+    // Obter o valor do campo "letras" do investidor
+    const letrasDoInvestidor = investidorObj.letras;
+            const lastCode = await Venda.findOne({
+              order: [["code", "DESC"]],
+              limit: 1,
+            });
+
+            const nextCode = lastCode ? parseInt(lastCode.code) + 1 : 1;
 
       const objects = [];
   
       for (let i = 0; i < quantidade; i++) {
         const compras = await Compra.findAll({
           where: {
-            brinco: brinco[i],
+            brinco: letrasDoInvestidor + brinco[i],
           },
-          attributes: ['identificador'], // Adicione outros atributos que você precisa
+          attributes: ["identificador"], // Adicione outros atributos que você precisa
         });
-
 
         if (compras.length > 0) {
           console.log(compras[0].identificador);
@@ -370,44 +363,49 @@ router.post("/venda/save", adminAuth, async (req, res) => {
         objects.push({
           id: id,
           data: data,
-          brinco: brinco[i],
+          brinco: letrasDoInvestidor + brinco[i],
           quantidade: quantidade,
           code: nextCode,
-          valor: valorFloat,
+          valor: valor[i],
           totalAmount: totalAmountFloat,
           peso: formattedPeso[i],
           dolar: dolarFloat,
           amount: amountFloat,
           obs: obs,
           investidoreId: investidor,
-          status:"Vendido",
+          status: "Vendido",
           identificador: compras[0].identificador, // Ajustado aqui
         });
    
-        Compra.update(
-          {
-            status:"Vendido"
+if (brinco[i] !== null && brinco[i] !== "") {
+      Compra.update(
+        {
+          status: "Vendido",
+        },
+        {
+          where: {
+            brinco: letrasDoInvestidor + brinco[i],
           },
-          {
-            where: {
-              brinco: brinco[i],
-            },
-          }
-        )
-      } else {
-        console.log(`Nenhuma compra encontrada para o brinco ${brinco[i]}`);
+        }
+      );
+            await Historico.bulkCreate(objects);
+    } else {
+      console.log(`O brinco[${i}] está vazio ou nulo. A atualização não será realizada.`);
+    }
+  } else {
+    console.log(`Nenhuma compra encontrada para o brinco ${brinco[i]}`);
       }
     }
-      // Inserir os registros no banco de dados
-      await Historico.bulkCreate(objects);
+      // Inserir os registros no banco de dado
       await Venda.bulkCreate(objects);
       ContaCorrente.create({
         data: data,
-        category: 'CREDITO',
+        code: nextCode,
+        category: "CREDITO",
         valor: totalAmountFloat,
-        obs: 'Crédito referente a venda de gado',
+        obs: "Crédito referente a venda de gado",
         investidoreId: investidor,
-      })
+      });
   
   
       res.redirect("/admin/venda");
