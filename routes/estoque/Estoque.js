@@ -17,7 +17,7 @@ const Morte = connection.define("mortes", {
   },
   brinco: {
     type: Sequelize.STRING,
-    allowNull: false,
+    allowNull: true,
   },
   peso: {
     type: Sequelize.STRING,

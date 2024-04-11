@@ -208,6 +208,10 @@ router.get('/admin/estoque/newMorte', adminAuth, async (req, res) => {
   Compra.findAll({
     where: {
       status: "Em estoque",
+      brinco: {
+      [Op.not]: null, // Garante que o valor do brinco não seja nulo
+      [Op.ne]: ""    // Garante que o valor do brinco não seja vazio
+    }
     }
   }).then((compras) => {
     Investidor.findAll().then((investidores) => {
@@ -220,7 +224,7 @@ router.get('/admin/estoque/newMorte', adminAuth, async (req, res) => {
   });
   });
 
-router.post('/morte/save',adminAuth, async  (req, res) => {
+  router.post('/morte/save', adminAuth, async (req, res) => {
     var data = req.body.data;
     var quantidade = req.body.quantidade;
     var valor = req.body.valor;
@@ -228,45 +232,49 @@ router.post('/morte/save',adminAuth, async  (req, res) => {
     var peso = req.body.peso;
     var investidor = req.body.investidor;
 
-     let valorFloat = parseFloat(
-    valor.replace("R$", "").replace(".", "").replace(",", ".")
-  );
+    console.log("Dados recebidos:");
+    console.log("Data:", data);
+    console.log("Quantidade:", quantidade);
+    console.log("Valor:", valor);
+    console.log("Brinco:", brinco);
+    console.log("Peso:", peso);
+    console.log("Investidor:", investidor);
 
-  try {
-  const objects = [];
+    let valorFloat = parseFloat(
+        valor.replace("R$", "").replace(".", "").replace(",", ".")
+    );
 
-  for (let i = 0; i < quantidade; i++) {
-  
-    objects.push({
-      data: data,
-      quantidade: 1,
-      valor: valorFloat,
-      brinco: brinco[i],
-      peso: peso[i],
-      investidoreId: investidor,
-    });
+    try {
+        const objects = [];
 
-    Compra.update(
-      {
-        status:"Morto"
-      },
-      {
-        where: {
-          brinco: brinco[i],
-        },
-      }
-    )
+        for (let i = 0; i < quantidade; i++) {
+            let brincoValue = (brinco && brinco[i]) ? brinco[i] : null;
 
-}
-  
-await Morte.bulkCreate(objects)
-      res.redirect("/admin/estoque/morte");
+            objects.push({
+                data: data,
+                quantidade: 1,
+                valor: valorFloat,
+                brinco: brincoValue,
+                peso: peso[i],
+                investidoreId: investidor,
+            });
+
+            if (brincoValue) {
+                await Compra.update(
+                    { status: "Morto" },
+                    { where: { brinco: brincoValue } }
+                );
+            }
+        }
+
+        await Morte.bulkCreate(objects);
+        res.redirect("/admin/estoque/morte");
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Erro ao salvar os registros no banco de dados" });
     }
-    catch (error) {
-      console.error(error);
-      res.status(500).json({ error: "Erro ao salvar os registros no banco de dados" });
-    }
-    });
+});
+
 
 router.get('/admin/estoque/morte', adminAuth, async (req, res, next) => {
 
