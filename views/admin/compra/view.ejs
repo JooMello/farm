@@ -50,11 +50,6 @@
             <td><%= new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(compra.amount) %></td>
             <td>
               <a href="/admin/compra/edit/<%= compra.id %>" class="btn btn-warning btn-sm">Editar</a>
-              <form method="POST" action="/compra/delete" style="display: inline;"
-                onsubmit="confirmarDelecao(event, this)">
-                <input type="hidden" name="id" value="<%= compra.id %>" />
-                <button class="btn btn-danger btn-sm">Deletar</button>
-              </form>
               <a href="/admin/compra/view/historico/<%= compra.identificador %>" class="btn btn-primary btn-sm">Histórico</a>
             </td>
           </tr>

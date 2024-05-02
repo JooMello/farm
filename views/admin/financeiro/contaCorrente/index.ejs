@@ -106,6 +106,7 @@
               onsubmit="confirmarDelecao(event, this)"
             >
               <input type="hidden" name="id" value="<%= contaCorrente.id %>" />
+              <input type="hidden" name="code" value="<%= contaCorrente.code %>" /> <!-- Novo campo para o code -->
               <button class="btn btn-danger btn-sm">Deletar</button>
             </form>
           </td>

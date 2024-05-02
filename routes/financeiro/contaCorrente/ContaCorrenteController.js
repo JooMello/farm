@@ -5,6 +5,7 @@ const Investidor = require("../../investidor/Investidor");
 const adminAuth = require("../../../middlewares/adminAuth");
 const moment = require('moment');
 const Compra = require('../../compra/Compra');
+const Historico = require("../../historico/Historico");
 const Venda = require("../../venda/Venda");
 const Morte = require("../estoque/Estoque")
 const ContaCorrente = require("../contaCorrente/ContaCorrente");
@@ -164,18 +165,11 @@ router.post("/contaCorrente/save", adminAuth, async (req, res) => {
 
   const valorFloat = valor.replace(".", "").replace(",", ".");
 
-  const lastCode = await ContaCorrente.findOne({
-    order: [["code", "DESC"]],
-    limit: 1,
-  });
-
-  const nextCode = lastCode ? parseInt(lastCode.code) + 1 : 1;
-
   ContaCorrente.create({
     data: data,
     category: category,
     valor: valorFloat,
-    code: nextCode,
+    code: code,
     obs: obs,
     investidoreId: investidor,
   }).then(() => {
@@ -238,6 +232,9 @@ router.post("/contaCorrente/update", adminAuth, (req, res) => {
 
 router.post("/contaCorrente/delete", adminAuth, (req, res) => {
   const id = req.body.id;
+  const code = req.body.code;
+  console.log(id)
+  console.log(code)
   if (id != undefined) {
     if (!isNaN(id)) {
       ContaCorrente.destroy({
@@ -245,8 +242,26 @@ router.post("/contaCorrente/delete", adminAuth, (req, res) => {
           id: id,
         },
       }).then(() => {
+        Historico.destroy({
+          where: {
+            code: code,
+          },
+        }).then(() => {
+      Compra.destroy({
+        where: {
+          code: code,
+        },
+      }).then(() => {
+        Venda.destroy({
+          where: {
+            code: code,
+          },
+        }).then(() => {
         res.redirect("/admin/contaCorrente");
       });
+    });
+  });
+});
     } else {
       // NÃO FOR UM NÚMERO
       res.redirect("/admin/contaCorrente");

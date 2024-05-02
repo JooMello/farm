@@ -302,7 +302,7 @@ router.get("/admin/compra/new", adminAuth, (req, res) => {
 
 router.post("/compra/save", adminAuth, async (req, res) => {
   let id = req.body.id;
-  let code = req.body.code;
+  let code = req.body.code ?? 1;
   let brinco = req.body.brinco;
   let data = req.body.data;
   let quantidade = req.body.quantidade;
@@ -366,12 +366,9 @@ router.post("/compra/save", adminAuth, async (req, res) => {
       limit: 1,
     });
 
-    const lastCode = await Compra.findOne({
-      order: [["code", "DESC"]],
-      limit: 1,
-    });
+    const lastCode = await Compra.max('code');
 
-    const nextCode = lastCode ? parseInt(lastCode.code) + 1 : 1;
+    const nextCode = lastCode ? lastCode + 1 : 1;
 
     const lastIdentificador = await Compra.findOne({
       attributes: [
@@ -564,16 +561,28 @@ router.post("/compra/update", adminAuth, async (req, res) => {
 });
 
 router.post("/compra/delete", adminAuth, (req, res) => {
-  var id = req.body.id;
-  if (id != undefined) {
-    if (!isNaN(id)) {
+  var code = req.body.code;
+  if (code != undefined) {
+    if (!isNaN(code)) {
+      ContaCorrente.destroy({
+        where: {
+          code: code,
+        },
+      }).then(() => {
+        Historico.destroy({
+          where: {
+            code: code,
+          },
+        }).then(() => {
       Compra.destroy({
         where: {
-          id: id,
+          code: code,
         },
       }).then(() => {
         res.redirect("/admin/compra");
       });
+    });
+  });
     }
   } else {
     // NULL

@@ -21,7 +21,7 @@ const ContaCorrente = connection.define("contacorrente", {
   },
   code: {
     type: Sequelize.STRING,
-    allowNull: false,
+    allowNull: true,
   },
 });
 
