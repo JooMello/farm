@@ -447,16 +447,22 @@ router.post("/venda/update", adminAuth, (req, res) => {
 });
 
 router.post("/venda/delete", adminAuth, (req, res) => {
-  var id = req.body.id;
-  if (id != undefined) {
-    if (!isNaN(id)) {
+  var code = req.body.code;
+  if (code != undefined) {
+    if (!isNaN(code)) {
+      ContaCorrente.destroy({
+        where: {
+          code: code,
+        },
+      }).then(() => {
       Venda.destroy({
         where: {
-          id: id,
+          code: code,
         },
       }).then(() => {
         res.redirect("/admin/venda");
       });
+    });
     }
   } else {
     // NULL

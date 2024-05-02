@@ -98,6 +98,11 @@
                   </td>
                   <td>
                     <a href="/admin/venda/view/<%= venda.code %>" class="btn btn-primary btn-sm">Visualizar</a>
+                    <form method="POST" action="/venda/delete" style="display: inline;"
+                onsubmit="confirmarDelecao(event, this)">
+                <input type="hidden" name="code" value="<%= venda.code %>" />
+                <button class="btn btn-danger btn-sm">Deletar</button>
+              </form>
                   </td>
                 </tr>
                 <% }) %>
