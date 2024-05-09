@@ -74,7 +74,9 @@ Investidor
       <tbody id="demo">
           <tr class="pesquisar">
           <td><%= TotalC %></td>
-          <td><%= MediaCompraPonderada %></td>
+          <td>
+            <%= new Intl.NumberFormat('pt-BR', { style: 'currency' , currency: 'BRL' }).format(MediaCompraPonderada) %>
+          </td>
           <td><%= valor %></td>
         </tr>
       </tbody>

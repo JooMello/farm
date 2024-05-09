@@ -7,7 +7,7 @@ const sequelize = require("sequelize");
 const { Op } = require("sequelize");
 const request = require("request");
 const ContaCorrente = require("../financeiro/contaCorrente/ContaCorrente");
-
+const Venda = require("../venda/Venda");
 const moment = require("moment");
 const adminAuth = require("../../middlewares/adminAuth");
 
@@ -81,13 +81,14 @@ router.get("/admin/compra", adminAuth, async (req, res, next) => {
       "data",
       "code",
       "quantidade",
+      "mediaPonderada",
       [sequelize.fn("SUM", sequelize.col("valor")), "total_valor"],
       "dolar",
       [sequelize.fn("SUM", sequelize.col("amount")), "total_amount"],
       "obs",
       "investidoreId",
     ],
-    group: ["data", "code", "quantidade", "dolar", "obs", "investidoreId"],
+    group: ["data", "code", "quantidade", "dolar", "mediaPonderada", "obs", "investidoreId"],
     order: [["data", "DESC"]],
     raw: true,
     nest: true,
@@ -314,6 +315,7 @@ router.post("/compra/save", adminAuth, async (req, res) => {
   let obs = req.body.obs;
   let investidor = req.body.investidor;
   let identificador = req.body.identificador;
+  let mediaponderada;
   // ... Resto do seu código ...
 
 
@@ -385,6 +387,32 @@ router.post("/compra/save", adminAuth, async (req, res) => {
       nextIdentificador = lastIdentificador.dataValues.lastIdentificador + 1;
     }
 
+     // Consultar o banco de dados para obter os valores de totalAmount
+     const compras = await Compra.findAll({
+      attributes: ['valor']
+    });
+
+    // Calcular a soma dos valores de totalAmount
+    let totalAmountSum = 0;
+    compras.forEach(compra => {
+      totalAmountSum += parseFloat(compra.valor);
+    });
+    let SumQuantidadeVenda = await Venda.count('quantidade');
+      let sumValue = totalAmountSum + parseFloat(valor);
+      let totalSumQuantidade = await Compra.count();
+      let totalQuantidade = parseFloat(totalSumQuantidade) + parseFloat(quantidade) - parseFloat(SumQuantidadeVenda);
+      let mediaPonderada = sumValue / totalQuantidade;
+
+      console.log(SumQuantidadeVenda)
+      console.log(totalAmountSum)
+      console.log(valor)
+      console.log(sumValue)
+      console.log(totalSumQuantidade)
+      console.log(quantidade)
+      console.log(totalQuantidade)
+      console.log(mediaPonderada)
+
+
     if (quantidade > 1) {
       const objects = [];
 
@@ -401,6 +429,7 @@ router.post("/compra/save", adminAuth, async (req, res) => {
           peso: formattedPeso[i],
           dolar: dolarFloat,
           amount: amountFloat,
+          mediaPonderada: mediaPonderada,
           obs: obs,
           investidoreId: investidor,
           identificador: nextIdentificador,
@@ -433,6 +462,7 @@ router.post("/compra/save", adminAuth, async (req, res) => {
         peso: formattedPeso,
         dolar: dolarFloat,
         amount: amountFloat,
+        mediaPonderada: mediaPonderada,
         obs: obs,
         investidoreId: investidor,
         identificador: nextIdentificador,

@@ -74,6 +74,7 @@
             <th>Data</th>
             <th>Quantidade</th>
             <th>Valor</th>
+            <th>Média ponderada</th>
             <th>Ações</th>
           </tr>
         </thead>
@@ -91,6 +92,9 @@
               </td>
               <td>
                 <%= new Intl.NumberFormat('pt-BR', { style: 'currency' , currency: 'BRL' }).format(compra.total_valor) %>
+              </td>
+              <td>
+                <%= new Intl.NumberFormat('pt-BR', { style: 'currency' , currency: 'BRL' }).format(compra.mediaPonderada) %>
               </td>
               <td>
                 <a href="/admin/compra/view/<%= compra.code %>" class="btn btn-primary btn-sm">Visualizar</a>

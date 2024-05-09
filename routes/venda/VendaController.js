@@ -75,13 +75,16 @@ router.get("/admin/venda", adminAuth, async (req, res, next) => {
       "data",
       "code",
       "quantidade",
+      "mediaPonderada",
+      "valorInvestidor",
+      "valorFazenda",
       [sequelize.fn("SUM", sequelize.col("valor")), "total_valor"],
       "dolar",
       [sequelize.fn("SUM", sequelize.col("amount")), "total_amount"],
       "obs",
       "investidoreId",
     ],
-    group: ["data", "code", "quantidade", "dolar", "obs", "investidoreId"],
+    group: ["data", "code", "quantidade", "dolar", "obs", "investidoreId", "mediaPonderada", "valorInvestidor", "valorFazenda"],
     order: [["data", "DESC"]],
     raw: true,
     nest: true,
@@ -285,45 +288,33 @@ router.post("/venda/save", adminAuth, async (req, res) => {
     const dolarFloat = parseFloat(dolar.replace("$", ""));
     const amountFloat = parseFloat(amount.replace("$", "").replace(",", ""));
 
-      //////////////////////mortes
-  var amountQ = await Morte.findOne({
-    attributes: [sequelize.fn("sum", sequelize.col("quantidade"))],
-    raw: true,
-  });
-  var morte = Number(amountQ["sum(`quantidade`)"]);
 
-    //////////////////////Valor  mortes
-    var amountQ = await Morte.findOne({
-      attributes: [sequelize.fn("sum", sequelize.col("valor"))],
-      raw: true,
-    });
-    var valorf = Number(amountQ["sum(`valor`)"]);
-    
-  
+     // Consultar o banco de dados para obter o último registro de Compra
+ const lastCompra = await Compra.findOne({
+  order: [["createdAt", "DESC"]],
+});
+console.log(lastCompra)
+let MediaCompraPonderada = 0;
 
-      //////////////////////comprados
-  var comprados = await Compra.count();
+    // Verificar se lastCompra.mediaPonderada é nulo ou vazio
+if (lastCompra=== null || lastCompra === "") {
+  // Definir MediaCompraPonderada como 0
+   MediaCompraPonderada = 0;
+} else {
+  // Obter o valor de mediaPonderada do último registro
+   MediaCompraPonderada = lastCompra.mediaPonderada;
+}
+console.log(MediaCompraPonderada)
+const ValorQuantidade = MediaCompraPonderada * quantidade;
+console.log(ValorQuantidade)
+const divisao = ValorQuantidade / 2;
+console.log(divisao)
+const diferenca  = totalAmountFloat - ValorQuantidade;
+console.log(diferenca)
+const valorRecebimento = diferenca + divisao;
+console.log(valorRecebimento)
+const valorFazenda = totalAmountFloat - valorRecebimento;
 
-  //////////////////////vendidos
-  var vendidos = await Venda.count();
-
-  //////////////////////estoque
-  var estoque = comprados - morte - vendidos;
-
-
-    var amountU = await Compra.findOne({
-      attributes: [
-        [sequelize.fn("sum", sequelize.col("valor")), "total_valor_compras"],
-      ],
-      raw: true,
-    });
-    var TotalValorCompras = Number(amountU["total_valor_compras"]);
-  
-    var MediaCompraPonderada = ((TotalValorCompras - valorf) / (estoque))
-
-    const valorCompra = (MediaCompraPonderada * quantidade) / 2;
-    const valorReal = totalAmountFloat - valorCompra;
-    
     try {
        // Encontrar o investidor pelo id
     const investidorObj = await Investidor.findOne({
@@ -360,6 +351,9 @@ router.post("/venda/save", adminAuth, async (req, res) => {
           peso: formattedPeso[i],
           dolar: dolarFloat,
           amount: amountFloat,
+          mediaPonderada: MediaCompraPonderada,
+          valorInvestidor: valorRecebimento,
+          valorFazenda: valorFazenda,
           obs: obs,
           investidoreId: investidor,
           status: "Vendido",
@@ -374,7 +368,7 @@ router.post("/venda/save", adminAuth, async (req, res) => {
             data: data,
             code: nextCode,
             category: "CREDITO",
-            valor: totalAmountFloat,
+            valor: valorRecebimento,
             obs: "Crédito referente a venda de gado",
             investidoreId: investidor,
           });

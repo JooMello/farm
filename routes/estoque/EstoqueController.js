@@ -31,17 +31,7 @@ router.get('/admin/estoque', adminAuth, async (req, res, next) => {
     style: "currency",
     currency: "BRL",
   });
-
-  var amountCompra = await Compra.findOne({
-    attributes: [sequelize.fn("sum", sequelize.col("valor"))],
-    where: {
-      status: "Em estoque",
-    },
-    raw: true,
-  });
   
-  var valorCompraTotal = Number(amountCompra["sum(`valor`)"]);
-
     //////////////////////comprados
     var compradosTotal = await Compra.count();
 
@@ -115,24 +105,34 @@ router.get('/admin/estoque', adminAuth, async (req, res, next) => {
           });
 
 
-          var amountU = await Compra.findOne({
-            attributes: [
-              [sequelize.fn("sum", sequelize.col("valor")), "total_valor_compras"],
-            ],
-            raw: true,
-          });
-          var TotalValorCompras = Number(amountU["total_valor_compras"]);
-      
-          var MediaCompraPonderada = (valorCompraTotal  / (comprados)).toLocaleString("pt-BR", {
-            style: "currency",
-            currency: "BRL",
-          });
 
-              
-  console.log(valorCompraTotal)
-  console.log(comprados)
-  console.log(valorCompraTotal * comprados)
-  console.log(MediaCompraPonderada)
+
+ // Consultar o banco de dados para obter o último registro de Compra
+ const lastCompra = await Compra.findOne({
+  order: [["createdAt", "DESC"]],
+});
+console.log(lastCompra)
+let MediaCompraPonderada = 0;
+
+    // Verificar se lastCompra.mediaPonderada é nulo ou vazio
+if (lastCompra=== null || lastCompra === "") {
+  // Definir MediaCompraPonderada como 0
+   MediaCompraPonderada = 0;
+} else {
+  // Obter o valor de mediaPonderada do último registro
+   MediaCompraPonderada = lastCompra.mediaPonderada;
+}
+        
+            const compras = await Compra.findAll(); // Busca todas as compras
+            const mortes = await Morte.findAll(); // Busca todas as compras
+
+            mortes.forEach(morte => {
+              morteVal = parseFloat(morte.valor); // Converte o valor para um número
+              morteQuant = parseFloat(morte.quantidade); // Converte a quantidade para um número
+
+            });
+        
+
 
 
           var CapitalEstoque = (Totalf - valorf).toLocaleString("pt-BR", {
@@ -166,45 +166,17 @@ router.get('/admin/estoque/newMorte', adminAuth, async (req, res) => {
     attributes: [sequelize.fn("sum", sequelize.col("quantidade"))],
     raw: true,
   });
-  const morte = Number(amountQ["sum(`quantidade`)"]);
 
-    //////////////////////vendidos
-    const vendidos = await Venda.count();
 
-    var comprados = await Compra.count({
-      where: {
-        status: "Em estoque",
-      },
-    });
 
-  const amountV = await Morte.findOne({
-    attributes: [sequelize.fn("sum", sequelize.col("valor"))],
-    raw: true,
+  // Consultar o banco de dados para obter o último registro de Compra
+  const lastCompra = await Compra.findOne({
+    order: [["createdAt", "DESC"]],
   });
-  const valorf = Number(amountV["sum(`valor`)"]);
+      // Obter o valor de mediaPonderada do último registro
+      const MediaCompraPonderada = lastCompra.mediaPonderada;
 
-
-
-  const amountU = await Compra.findOne({
-    attributes: [
-      [sequelize.fn("sum", sequelize.col("valor")), "total_valor_compras"],
-    ],
-    raw: true,
-  });
-  var amountCompra = await Compra.findOne({
-    attributes: [sequelize.fn("sum", sequelize.col("valor"))],
-    where: {
-      status: "Em estoque",
-    },
-    raw: true,
-  });
   
-  var valorCompraTotal = Number(amountCompra["sum(`valor`)"]);
-
-  var MediaCompraPonderada = (valorCompraTotal  / (comprados)).toLocaleString("pt-BR", {
-    style: "currency",
-    currency: "BRL",
-  });
   Compra.findAll({
     where: {
       status: "Em estoque",

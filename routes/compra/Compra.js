@@ -43,6 +43,10 @@ const Compra = connection.define("compras", {
     type: Sequelize.STRING,
     allowNull: false,
   },
+  mediaPonderada: {
+    type: Sequelize.STRING,
+    allowNull: false,
+  },
   obs: {
     type: Sequelize.STRING,
     allowNull: true,

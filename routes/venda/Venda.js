@@ -39,6 +39,18 @@ const Venda = connection.define("vendas", {
     type: Sequelize.STRING,
     allowNull: false,
   },
+  mediaPonderada: {
+    type: Sequelize.STRING,
+    allowNull: false,
+  },
+  valorInvestidor: {
+    type: Sequelize.STRING,
+    allowNull: false,
+  },
+  valorFazenda: {
+    type: Sequelize.STRING,
+    allowNull: false,
+  },
   obs: {
     type: Sequelize.STRING,
     allowNull: true,

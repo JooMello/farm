@@ -77,7 +77,10 @@
                 <th>Nome</th>
                 <th>Data Venda</th>
                 <th>Quantidade</th>
-                <th>Valor</th>
+                <th>Valor Venda</th>
+                <th>Média Ponderada</th>
+                <th>Valor Investidor</th>
+                <th>Valor Fazenda</th>
                 <th>Ações</th>
               </tr>
             </thead>
@@ -95,6 +98,15 @@
                   </td>
                   <td>
                     <%= new Intl.NumberFormat('pt-BR', { style: 'currency' , currency: 'BRL' }).format(venda.total_valor) %>
+                  </td>
+                  <td>
+                    <%= new Intl.NumberFormat('pt-BR', { style: 'currency' , currency: 'BRL' }).format(venda.mediaPonderada) %>
+                  </td>
+                  <td>
+                    <%= new Intl.NumberFormat('pt-BR', { style: 'currency' , currency: 'BRL' }).format(venda.valorInvestidor) %>
+                  </td>
+                  <td>
+                    <%= new Intl.NumberFormat('pt-BR', { style: 'currency' , currency: 'BRL' }).format(venda.valorFazenda) %>
                   </td>
                   <td>
                     <a href="/admin/venda/view/<%= venda.code %>" class="btn btn-primary btn-sm">Visualizar</a>
