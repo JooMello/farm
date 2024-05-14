@@ -93,13 +93,14 @@ app.get("/compra/:id", adminAuth, (req, res) => {
       "data",
       "code",
       "quantidade",
+      "mediaPonderada",
       [sequelize.fn("SUM", sequelize.col("valor")), "total_valor"],
       "dolar",
       [sequelize.fn("SUM", sequelize.col("amount")), "total_amount"],
       "obs",
       "investidoreId",
     ],
-    group: ["data", "code", "quantidade", "dolar", "obs", "investidoreId"],
+    group: ["data", "code", "quantidade", "dolar", "mediaPonderada", "obs", "investidoreId"],
     order: [["data", "DESC"]],
     raw: true,
     nest: true,
@@ -109,15 +110,17 @@ app.get("/compra/:id", adminAuth, (req, res) => {
         compra.data = moment(compra.data).format("DD/MM/YYYY");
       });
       Investidor.findAll().then(async (investidores) => {
-        //////////////////////Quantidade
-        var amountQ = await Compra.findOne({
-          attributes: [sequelize.fn("sum", sequelize.col("quantidade"))],
+        Historico.findAll({
           where: {
             investidoreId: id,
           },
-          raw: true,
+        }).then(async (historico) => {
+        //////////////////////Quantidade
+        var quantidade = await Compra.count({
+          where: {
+            investidoreId: id,
+          },
         });
-        var quantidade = Number(amountQ["sum(`quantidade`)"]);
 
         //////////////////////Capital Investidor
         var amountT = await Compra.findOne({
@@ -169,12 +172,13 @@ app.get("/compra/:id", adminAuth, (req, res) => {
         res.render("admin/compra/index", {
           investidores: investidores,
           compras: compras,
+          historico,
           quantidade,
           mediaCompra,
           CapitalInvestido,
           CapitalInvestidoDolar,
         });
-      });
+      });});
     })
     .catch((err) => {
       res.redirect("admin/compra/index");
@@ -199,13 +203,14 @@ app.get("/compra", adminAuth, (req, res) => {
       "data",
       "code",
       "quantidade",
+      "mediaPonderada",
       [sequelize.fn("SUM", sequelize.col("valor")), "total_valor"],
       "dolar",
       [sequelize.fn("SUM", sequelize.col("amount")), "total_amount"],
       "obs",
       "investidoreId",
     ],
-    group: ["data", "code", "quantidade", "dolar", "obs", "investidoreId"],
+    group: ["data", "code", "quantidade", "dolar", "mediaPonderada", "obs", "investidoreId"],
     order: [["data", "DESC"]],
     raw: true,
     nest: true,
@@ -216,16 +221,13 @@ app.get("/compra", adminAuth, (req, res) => {
       });
       Investidor.findAll().then(async (investidores) => {
         //////////////////////Quantidade
-        var amountQ = await Compra.findOne({
-          attributes: [sequelize.fn("sum", sequelize.col("quantidade"))],
+        var quantidade = await Compra.count({
           where: {
             data: {
               [Op.between]: [start, end],
             },
           },
-          raw: true,
         });
-        var quantidade = Number(amountQ["sum(`quantidade`)"]);
 
         //////////////////////Capital Investidor
         var amountT = await Compra.findOne({
@@ -313,13 +315,16 @@ app.get("/venda", adminAuth, (req, res) => {
       "data",
       "code",
       "quantidade",
+      "mediaPonderada",
+      "valorInvestidor",
+      "valorFazenda",
       [sequelize.fn("SUM", sequelize.col("valor")), "total_valor"],
       "dolar",
       [sequelize.fn("SUM", sequelize.col("amount")), "total_amount"],
       "obs",
       "investidoreId",
     ],
-    group: ["data", "code", "quantidade", "dolar", "obs", "investidoreId"],
+    group: ["data", "code", "quantidade", "dolar", "obs", "investidoreId", "mediaPonderada", "valorInvestidor", "valorFazenda"],
     order: [["data", "DESC"]],
     raw: true,
     nest: true,
@@ -329,17 +334,14 @@ app.get("/venda", adminAuth, (req, res) => {
               venda.data = moment(venda.data).format("DD/MM/YYYY");
             });
       Investidor.findAll().then(async (investidores) => {
-        //////////////////////Quantidade
-        var amountQ = await Venda.findOne({
-          attributes: [sequelize.fn("sum", sequelize.col("quantidade"))],
-          where: {
-            data: {
-              [Op.between]: [start, end],
-            },
-          },
-          raw: true,
-        });
-        var quantidade = Number(amountQ["sum(`quantidade`)"]);
+ //////////////////////Quantidade
+ var quantidade = await Venda.count({
+  where: {
+    data: {
+      [Op.between]: [start, end],
+    },
+  },
+});
 
         //////////////////////valor Venda
         var amountT = await Venda.findOne({
@@ -433,29 +435,32 @@ app.get("/venda/:id", adminAuth, (req, res) => {
       "data",
       "code",
       "quantidade",
+      "mediaPonderada",
+      "valorInvestidor",
+      "valorFazenda",
       [sequelize.fn("SUM", sequelize.col("valor")), "total_valor"],
       "dolar",
       [sequelize.fn("SUM", sequelize.col("amount")), "total_amount"],
       "obs",
       "investidoreId",
     ],
-    group: ["data", "code", "quantidade", "dolar", "obs", "investidoreId"],
+    group: ["data", "code", "quantidade", "dolar", "obs", "investidoreId", "mediaPonderada", "valorInvestidor", "valorFazenda"],
     order: [["data", "DESC"]],
     raw: true,
     nest: true,
   })
     .then((vendas) => {
+      vendas.forEach((venda) => {
+        venda.data = moment(venda.data).format("DD/MM/YYYY");
+      });
       Investidor.findAll().then(async (investidores) => {
         //////////////////////Quantidade
-        var amountQ = await Venda.findOne({
-          attributes: [sequelize.fn("sum", sequelize.col("quantidade"))],
-          where: {
-            investidoreId: id,
-          },
-          raw: true,
-        });
-        var quantidade = Number(amountQ["sum(`quantidade`)"]);
-
+      //////////////////////Quantidade
+      var quantidade = await Venda.count({
+        where: {
+          investidoreId: id,
+        },
+      });
         //////////////////////valor Venda
         var amountT = await Venda.findOne({
           attributes: [sequelize.fn("sum", sequelize.col("valor"))],
@@ -614,17 +619,7 @@ app.get("/contaCorrente/:id", adminAuth, async (req, res, next) => {
               "DD/MM/YYYY"
             );
           });
-          var amountT = await ContaCorrente.findOne({
-            attributes: [sequelize.fn("sum", sequelize.col("valor"))],
-            where: {
-              investidoreId: id,
-            },
-            raw: true,
-          });
-          var Total = Number(amountT["sum(`valor`)"]).toLocaleString("pt-BR", {
-            style: "currency",
-            currency: "BRL",
-          });
+
           var amountC = await Compra.findOne({
             attributes: [sequelize.fn("sum", sequelize.col("valor"))],
             where: {
@@ -639,18 +634,37 @@ app.get("/contaCorrente/:id", adminAuth, async (req, res, next) => {
               currency: "BRL",
             }
           );
-          var amountV = await Venda.findOne({
-            attributes: [sequelize.fn("sum", sequelize.col("valor"))],
+
+          const contaCorrentes = await ContaCorrente.findAll({
             where: {
+              investidoreId: id,
+              obs: "Crédito referente a venda de gado",
+            },
+            attributes: ['valor']
+          });
+
+          let totalVendaSum = 0;
+          contaCorrentes.forEach(contaCorrente => {
+            totalVendaSum += parseFloat(contaCorrente.valor);
+          });
+
+          const amountCompraV = Number(amountC["sum(`valor`)"]);
+
+          const mortes = await Morte.findAll({
+            attributes: ['valor'],
+             where: {
               investidoreId: id,
             },
             raw: true,
           });
-          var amountVendas = Number(amountV["sum(`valor`)"]) / 2;
-          var amountVenda = amountVendas.toLocaleString("pt-BR", {
-            style: "currency",
-            currency: "BRL",
+        
+          let sumMortes = 0;
+          mortes.forEach(morte => {
+            sumMortes += parseFloat(morte.valor);
           });
+
+          const Total = amountCompraV - totalVendaSum - sumMortes;
+
           res.render("admin/financeiro/contaCorrente/index", {
             compras: compras,
             vendas: vendas,
@@ -658,7 +672,7 @@ app.get("/contaCorrente/:id", adminAuth, async (req, res, next) => {
             contaCorrente: contaCorrente,
             Total,
             amountCompra,
-            amountVenda,
+            totalVendaSum,
           });
         });
       });
@@ -761,19 +775,7 @@ app.get("/contaCorrente", adminAuth, async (req, res, next) => {
               "DD/MM/YYYY"
             );
           });
-          var amountT = await ContaCorrente.findOne({
-            attributes: [sequelize.fn("sum", sequelize.col("valor"))],
-            where: {
-              data: {
-                [Op.between]: [start, end],
-              },
-            },
-            raw: true,
-          });
-          var Total = Number(amountT["sum(`valor`)"]).toLocaleString("pt-BR", {
-            style: "currency",
-            currency: "BRL",
-          });
+
           var amountC = await Compra.findOne({
             attributes: [sequelize.fn("sum", sequelize.col("valor"))],
             where: {
@@ -790,20 +792,41 @@ app.get("/contaCorrente", adminAuth, async (req, res, next) => {
               currency: "BRL",
             }
           );
-          var amountV = await Venda.findOne({
-            attributes: [sequelize.fn("sum", sequelize.col("valor"))],
+
+          const contaCorrentes = await ContaCorrente.findAll({
             where: {
+              data: {
+                [Op.between]: [start, end],
+              },
+              obs: "Crédito referente a venda de gado"
+            },
+            attributes: ['valor']
+          });
+
+          let totalVendaSum = 0;
+          contaCorrentes.forEach(contaCorrente => {
+            totalVendaSum += parseFloat(contaCorrente.valor);
+          });
+
+          const amountCompraV = Number(amountC["sum(`valor`)"]);
+
+          const mortes = await Morte.findAll({
+            attributes: ['valor'],
+             where: {
               data: {
                 [Op.between]: [start, end],
               },
             },
             raw: true,
           });
-          var amountVendas = Number(amountV["sum(`valor`)"]) / 2;
-          var amountVenda = amountVendas.toLocaleString("pt-BR", {
-            style: "currency",
-            currency: "BRL",
+        
+          let sumMortes = 0;
+          mortes.forEach(morte => {
+            sumMortes += parseFloat(morte.valor);
           });
+
+          const Total = amountCompraV - totalVendaSum - sumMortes;
+
           res.render("admin/financeiro/contaCorrente/index", {
             compras: compras,
             vendas: vendas,
@@ -811,7 +834,7 @@ app.get("/contaCorrente", adminAuth, async (req, res, next) => {
             contaCorrente: contaCorrente,
             Total,
             amountCompra,
-            amountVenda,
+            totalVendaSum,
           });
         });
       });
@@ -819,277 +842,6 @@ app.get("/contaCorrente", adminAuth, async (req, res, next) => {
   });
 });
 
-//Relatório id
-app.get("/relatorio/:id", adminAuth, async (req, res) => {
-  var id = req.params.id;
-  Investidor.findOne({
-    where: {
-      id: id,
-    },
-    include: [
-      {
-        model: Venda,
-      },
-      {
-        model: Compra,
-      },
-    ],
-  })
-    .then((investidor) => {
-      if (investidor != undefined) {
-        Investidor.findAll().then(async (investidores) => {
-          //////////////////////Quantidade
-          var amountQ = await Venda.findOne({
-            attributes: [sequelize.fn("sum", sequelize.col("quantidade"))],
-            where: {
-              investidoreId: id,
-            },
-            raw: true,
-          });
-          var quantidade = Number(amountQ["sum(`quantidade`)"]);
-
-          //////////////////////média valor
-          var amountU = await Venda.findOne({
-            attributes: [sequelize.fn("avg", sequelize.col("valor"))],
-            where: {
-              investidoreId: id,
-            },
-            raw: true,
-          });
-          var unitarioT = Number(amountU["avg(`valor`)"]);
-          var unitario = Number(amountU["avg(`valor`)"]).toLocaleString(
-            "pt-BR",
-            {
-              style: "currency",
-              currency: "BRL",
-            }
-          );
-
-          /////Valor da Venda
-          var amountVv = await Venda.findOne({
-            attributes: [sequelize.fn("sum", sequelize.col("valor"))],
-            where: {
-              investidoreId: id,
-            },
-            raw: true,
-          });
-          var amountVT = Number(amountVv["sum(`valor`)"]);
-          var amountV = Number(amountVv["sum(`valor`)"]).toLocaleString(
-            "pt-BR",
-            {
-              style: "currency",
-              currency: "BRL",
-            }
-          );
-
-          //////////////////////Capital Investidor
-          var amountT = await Compra.findOne({
-            attributes: [sequelize.fn("sum", sequelize.col("valor"))],
-            where: {
-              investidoreId: id,
-            },
-            raw: true,
-          });
-          var CapitalInvestidoT = Number(amountT["sum(`valor`)"]);
-          var CapitalInvestido = Number(amountT["sum(`valor`)"]).toLocaleFixed(
-            2
-          );
-
-          ///Investimento sobre a Venda
-          var InvVenda = (
-            (Number(CapitalInvestidoT) / Number(amountVT)) *
-            100
-          ).toLocaleString("pt-BR", {
-            style: "currency",
-            currency: "BRL",
-          });
-
-          ///Lucro sobre Investimento
-          var LucroN = Number(amountVT) - Number(CapitalInvestidoT);
-          var Lucro = (
-            Number(amountVT) - Number(CapitalInvestidoT)
-          ).toLocaleString("pt-BR", {
-            style: "currency",
-            currency: "BRL",
-          });
-
-          ///Lucro sobre investimento Fazenda
-          var LucroFN = Number(LucroN) / 2;
-          var LucroF = (Number(LucroN) / 2).toLocaleString("pt-BR", {
-            style: "currency",
-            currency: "BRL",
-          });
-
-          //Percentual Fazenda
-          var percentualF = (
-            (Number(LucroFN) / Number(LucroN)) *
-            100
-          ).toLocaleString("pt-BR", {
-            style: "currency",
-            currency: "BRL",
-          });
-
-          res.render("admin/relatorios/index", {
-            vendas: investidor.vendas,
-            compra: investidor.compras,
-            investidores: investidores,
-            quantidade,
-            unitario,
-            amountV,
-            CapitalInvestido,
-            InvVenda,
-            Lucro,
-            LucroF,
-            percentualF,
-          });
-        });
-      } else {
-        res.redirect("admin/relatorios/index");
-      }
-    })
-    .catch((err) => {
-      res.redirect("admin/relatorios/index");
-    });
-});
-
-
-//data-filter Relatório 
-app.get("/relatorio", adminAuth, async (req, res) => {
-  const { start, end } = req.query; //Obter as datas da rota ao invés do corpo da requisição
-  Investidor.findOne({
-    include: [
-      {
-        model: Venda,
-      },
-      {
-        model: Compra,
-      },
-    ],
-  })
-    .then((investidor) => {
-      if (investidor != undefined) {
-        Investidor.findAll().then(async (investidores) => {
-          //////////////////////Quantidade
-          var amountQ = await Venda.findOne({
-            attributes: [sequelize.fn("sum", sequelize.col("quantidade"))],
-            where: {
-              data: {
-                [Op.between]: [start, end],
-              },
-            },
-            raw: true,
-          });
-          var quantidade = Number(amountQ["sum(`quantidade`)"]);
-
-          //////////////////////média valor
-          var amountU = await Venda.findOne({
-            attributes: [sequelize.fn("avg", sequelize.col("valor"))],
-            where: {
-              data: {
-                [Op.between]: [start, end],
-              },
-            },
-            raw: true,
-          });
-          var unitarioT = Number(amountU["avg(`valor`)"]);
-          var unitario = Number(amountU["avg(`valor`)"]).toLocaleString(
-            "pt-BR",
-            {
-              style: "currency",
-              currency: "BRL",
-            }
-          );
-
-          /////Valor da Venda
-          var amountVv = await Venda.findOne({
-            attributes: [sequelize.fn("sum", sequelize.col("valor"))],
-            where: {
-              data: {
-                [Op.between]: [start, end],
-              },
-            },
-            raw: true,
-          });
-          var amountVT = Number(amountVv["sum(`valor`)"]);
-          var amountV = Number(amountVv["sum(`valor`)"]).toLocaleString(
-            "pt-BR",
-            {
-              style: "currency",
-              currency: "BRL",
-            }
-          );
-
-          //////////////////////Capital Investidor
-          var amountT = await Compra.findOne({
-            attributes: [sequelize.fn("sum", sequelize.col("valor"))],
-            where: {
-              data: {
-                [Op.between]: [start, end],
-              },
-            },
-            raw: true,
-          });
-          var CapitalInvestidoT = Number(amountT["sum(`valor`)"]);
-          var CapitalInvestido = Number(amountT["sum(`valor`)"]).toLocaleFixed(
-            2
-          );
-
-          ///Investimento sobre a Venda
-          var InvVenda = (
-            (Number(CapitalInvestidoT) / Number(amountVT)) *
-            100
-          ).toLocaleString("pt-BR", {
-            style: "currency",
-            currency: "BRL",
-          });
-
-          ///Lucro sobre Investimento
-          var LucroN = Number(amountVT) - Number(CapitalInvestidoT);
-          var Lucro = (
-            Number(amountVT) - Number(CapitalInvestidoT)
-          ).toLocaleString("pt-BR", {
-            style: "currency",
-            currency: "BRL",
-          });
-
-          ///Lucro sobre investimento Fazenda
-          var LucroFN = Number(LucroN) / 2;
-          var LucroF = (Number(LucroN) / 2).toLocaleString("pt-BR", {
-            style: "currency",
-            currency: "BRL",
-          });
-
-          //Percentual Fazenda
-          var percentualF = (
-            (Number(LucroFN) / Number(LucroN)) *
-            100
-          ).toLocaleString("pt-BR", {
-            style: "currency",
-            currency: "BRL",
-          });
-
-          res.render("admin/relatorios/index", {
-            vendas: investidor.vendas,
-            compra: investidor.compras,
-            investidores: investidores,
-            quantidade,
-            unitario,
-            amountV,
-            CapitalInvestido,
-            InvVenda,
-            Lucro,
-            LucroF,
-            percentualF,
-          });
-        });
-      } else {
-        res.redirect("admin/relatorios/index");
-      }
-    })
-    .catch((err) => {
-      res.redirect("admin/relatorios/index");
-    });
-});
 //Estoque
 app.get("/estoque/:id", adminAuth, async (req, res) => {
   var id = req.params.id;
@@ -1136,10 +888,16 @@ app.get("/estoque/:id", adminAuth, async (req, res) => {
     },
     raw: true,
   });
-  var vendidos = Number(amountQv["sum(`quantidade`)"]);
 
-  //////////////////////estoque
-  var estoque = comprados - morte - vendidos;
+
+  //////////////////////vendidos
+  var vendidos = await Venda.count({
+    attributes: [sequelize.fn("sum", sequelize.col("quantidade"))],
+    where: {
+      investidoreId: id,
+    },
+  });
+
 
   Compra.findAll({
     include: [
@@ -1207,7 +965,78 @@ app.get("/estoque/:id", adminAuth, async (req, res) => {
               currency: "BRL",
             });
 
-            var CapitalEstoque = (Totalf - valorf).toLocaleString("pt-BR", {
+            var capitalInvestido = await Compra.findOne({
+              attributes: [sequelize.fn("sum", sequelize.col("valor"))],
+              where: {
+                investidoreId: id,
+              },
+              raw: true,
+            });
+            var TotalcapitalInvestido = Number(capitalInvestido["sum(`valor`)"]);
+            var TotalC = TotalcapitalInvestido.toLocaleString("pt-BR", {
+              style: "currency",
+              currency: "BRL",
+            });
+ // Consultar o banco de dados para obter o último registro de Compra
+ const lastCompra = await Compra.findOne({
+  where: {
+    investidoreId: id,
+  },
+  order: [["createdAt", "DESC"]],
+});
+console.log(lastCompra)
+            let MediaCompraPonderada = 0;
+
+    // Verificar se lastCompra.mediaPonderada é nulo ou vazio
+if (lastCompra=== null || lastCompra === "") {
+  // Definir MediaCompraPonderada como 0
+   MediaCompraPonderada = 0;
+} else {
+  // Obter o valor de mediaPonderada do último registro
+   MediaCompraPonderada = lastCompra.mediaPonderada;
+}
+
+              
+    //////////////////////comprados
+    var compradosTotal = await Compra.count({
+      attributes: [sequelize.fn("sum", sequelize.col("quantidade"))],
+      where: {
+        investidoreId: id,
+      },
+    });
+
+      //////////////////////estoque
+  var estoque = compradosTotal - morte - vendidos;
+
+
+  const mortes = await Morte.findAll({
+    attributes: ['valor'],
+    where: {
+      investidoreId: id,
+    },
+    raw: true,
+  });
+
+  let sumMortes = 0;
+  mortes.forEach(morte => {
+    sumMortes += parseFloat(morte.valor);
+  });
+
+  const contaCorrentes = await ContaCorrente.findAll({
+    where: {
+      investidoreId: id,
+      obs: "Crédito referente a venda de gado",
+      
+    },
+    attributes: ['valor']
+  });
+
+  let totalVendaSum = 0;
+  contaCorrentes.forEach(contaCorrente => {
+    totalVendaSum += parseFloat(contaCorrente.valor);
+  });
+
+            var CapitalEstoque = (TotalcapitalInvestido - totalVendaSum - sumMortes).toLocaleString("pt-BR", {
               style: "currency",
               currency: "BRL",
             });
@@ -1218,12 +1047,15 @@ app.get("/estoque/:id", adminAuth, async (req, res) => {
               valor: valor,
               Total,
               MediaCompra,
+              MediaCompraPonderada,
               CapitalEstoque,
               investidores: investidores,
               morte,
               comprados,
+              compradosTotal,
               vendidos,
               estoque,
+              TotalC
             });
           });
         });

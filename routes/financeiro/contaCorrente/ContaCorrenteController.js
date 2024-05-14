@@ -7,7 +7,7 @@ const moment = require('moment');
 const Compra = require('../../compra/Compra');
 const Historico = require("../../historico/Historico");
 const Venda = require("../../venda/Venda");
-const Morte = require("../estoque/Estoque")
+const Morte = require("../../estoque/Estoque")
 const ContaCorrente = require("../contaCorrente/ContaCorrente");
 
 //filtragem de dados, por peridodo que eles foram adicionados no BD
@@ -96,12 +96,7 @@ router.get("/admin/contaCorrente", adminAuth, async (req, res, next) => {
                "DD/MM/YYYY"
              );
            });
-           const amountT = await ContaCorrente.findOne({
-             attributes: [sequelize.fn("sum", sequelize.col("valor"))],
-             raw: true,
-           });
     
-           const saldos = Number(amountT["sum(`valor`)"])
            const amountC = await Compra.findOne({
             attributes: [sequelize.fn("sum", sequelize.col("valor"))],
             raw: true,
@@ -115,10 +110,6 @@ router.get("/admin/contaCorrente", adminAuth, async (req, res, next) => {
 
           Venda.count().then(async (totalVendas) => {
             console.log(totalVendas)
-
-
-          
-
           const contaCorrentes = await ContaCorrente.findAll({
             where: {
               obs: "Crédito referente a venda de gado",
@@ -130,8 +121,21 @@ router.get("/admin/contaCorrente", adminAuth, async (req, res, next) => {
           contaCorrentes.forEach(contaCorrente => {
             totalVendaSum += parseFloat(contaCorrente.valor);
           });
+
+          const mortes = await Morte.findAll({
+            attributes: ['valor'],
+           raw: true,
+          });
+        
+          let sumMortes = 0;
+          mortes.forEach(morte => {
+            sumMortes += parseFloat(morte.valor);
+          });
+          console.log(amountCompraV)
+console.log(totalVendaSum)
+console.log(sumMortes)
           
-const Total = amountCompraV - totalVendaSum;
+const Total = amountCompraV - totalVendaSum - sumMortes;
            res.render("admin/financeiro/contaCorrente/index", {
              compras: compras,
              vendas: vendas,

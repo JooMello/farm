@@ -131,14 +131,29 @@ if (lastCompra=== null || lastCompra === "") {
               morteQuant = parseFloat(morte.quantidade); // Converte a quantidade para um número
 
             });
-        
+          
+            let sumMortes = 0;
+            mortes.forEach(morte => {
+              sumMortes += parseFloat(morte.valor);
+            });
 
+            const contaCorrentes = await ContaCorrente.findAll({
+              where: {
+                obs: "Crédito referente a venda de gado",
+                
+              },
+              attributes: ['valor']
+            });
+          
+            let totalVendaSum = 0;
+            contaCorrentes.forEach(contaCorrente => {
+              totalVendaSum += parseFloat(contaCorrente.valor);
+            });
 
-
-          var CapitalEstoque = (Totalf - valorf).toLocaleString("pt-BR", {
-            style: "currency",
-            currency: "BRL",
-          });
+            var CapitalEstoque = (TotalcapitalInvestido - totalVendaSum - sumMortes).toLocaleString("pt-BR", {
+              style: "currency",
+              currency: "BRL",
+            });
           res.render("admin/estoque/index", {
             compras: compras,
             vendas: vendas,
