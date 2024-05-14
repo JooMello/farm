@@ -334,12 +334,15 @@ const valorFazenda = totalAmountFloat - valorRecebimento;
     const lastCode = await Venda.max('code');
 
     const nextCode = lastCode ? lastCode + 1 : 1;
+    console.log(valor)
 
+    if (quantidade > 1) {
       const objects = [];
+
   
       for (let i = 0; i < quantidade; i++) {
         const brincoValue = brinco[i] ? letrasDoInvestidor + brinco[i] : null;
-   
+       
         objects.push({
           id: id,
           data: data,
@@ -372,6 +375,42 @@ const valorFazenda = totalAmountFloat - valorRecebimento;
             obs: "Crédito referente a venda de gado",
             investidoreId: investidor,
           });
+
+        } else if (quantidade == 1) {
+
+          const brincoValue = brinco ? letrasDoInvestidor + brinco : null;
+     
+          const singleObject = {
+          id: id,
+          data: data,
+          brinco: brincoValue,
+          quantidade: quantidade,
+          code: nextCode,
+          valor: valor,
+          totalAmount: totalAmountFloat,
+          peso: formattedPeso,
+          dolar: dolarFloat,
+          amount: amountFloat,
+          mediaPonderada: MediaCompraPonderada,
+          valorInvestidor: valorRecebimento,
+          valorFazenda: valorFazenda,
+          obs: obs,
+          investidoreId: investidor,
+          status: "Vendido",
+          };
+
+           // Inserir os registros no banco de dado
+           await Venda.create(singleObject);
+           ContaCorrente.create({
+             data: data,
+             code: nextCode,
+             category: "CREDITO",
+             valor: valorRecebimento,
+             obs: "Crédito referente a venda de gado",
+             investidoreId: investidor,
+           });
+ 
+        }
       res.redirect("/admin/venda");
     } catch (error) {
       console.error(error);

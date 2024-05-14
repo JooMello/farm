@@ -129,7 +129,9 @@
         <tbody id="demo">
             <tr class="pesquisar">
               <td><%= amountCompra %></td>
-              <td><%= amountVenda %></td>
+              <td>
+                <%= new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(totalVendaSum) %>
+</td>
             <td><%= Total %></td>
           </tr>
         </tbody>

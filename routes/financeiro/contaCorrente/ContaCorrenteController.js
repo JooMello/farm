@@ -100,10 +100,7 @@ router.get("/admin/contaCorrente", adminAuth, async (req, res, next) => {
              attributes: [sequelize.fn("sum", sequelize.col("valor"))],
              raw: true,
            });
-           const saldo = Number(amountT["sum(`valor`)"]).toLocaleString("pt-BR", {
-             style: "currency",
-             currency: "BRL",
-           });
+    
            const saldos = Number(amountT["sum(`valor`)"])
            const amountC = await Compra.findOne({
             attributes: [sequelize.fn("sum", sequelize.col("valor"))],
@@ -113,23 +110,26 @@ router.get("/admin/contaCorrente", adminAuth, async (req, res, next) => {
             style: "currency",
             currency: "BRL",
           });
-          const amountCompras = Number(amountC["sum(`valor`)"])
 
           Venda.count().then(async (totalVendas) => {
             console.log(totalVendas)
 
-          const amountV = await Venda.findOne({
-            attributes: [sequelize.fn("sum", sequelize.col("totalAmount"))],
-            raw: true,
-          });
-          const amountVendas = (Number(amountV["sum(`totalAmount`)"]) / totalVendas) 
-          const amountVenda = amountVendas.toLocaleString("pt-BR", {
-            style: "currency",
-            currency: "BRL",
-          });
+
           const Total = ((saldos) ).toLocaleString("pt-BR", {
             style: "currency",
             currency: "BRL",
+          });
+
+          const contaCorrentes = await ContaCorrente.findAll({
+            where: {
+              obs: "Crédito referente a venda de gado",
+            },
+            attributes: ['valor']
+          });
+
+          let totalVendaSum = 0;
+          contaCorrentes.forEach(contaCorrente => {
+            totalVendaSum += parseFloat(contaCorrente.valor);
           });
           
 
@@ -138,7 +138,7 @@ router.get("/admin/contaCorrente", adminAuth, async (req, res, next) => {
              vendas: vendas,
              investidores: investidores,
              contaCorrente: contaCorrente,
-             Total,amountCompra,amountVenda, 
+             Total,amountCompra,totalVendaSum, 
            });
          });
        });

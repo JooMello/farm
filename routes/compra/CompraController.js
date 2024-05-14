@@ -10,6 +10,7 @@ const ContaCorrente = require("../financeiro/contaCorrente/ContaCorrente");
 const Venda = require("../venda/Venda");
 const moment = require("moment");
 const adminAuth = require("../../middlewares/adminAuth");
+const Morte = require("../estoque/Estoque")
 
 const Investidor = require("../investidor/Investidor");
 
@@ -17,7 +18,7 @@ const accountSid = "AC00fbbfc768402c07243ec830f4e3c2d8";
 const authToken = "a4bf781cce4033571b1cebd1bab79bd4";
 const client = require("twilio")(accountSid, authToken);
 
-//filtragem de dados, por peridodo que eles foram adicionados no BD
+//filtragem de dados, por peridodo que eles foram adicionados no BDFméd
 //formatar numeros em valores decimais (.toLocaleFixed(2))
 Number.prototype.toLocaleFixed = function (n) {
   return this.toLocaleString(undefined, {
@@ -391,6 +392,23 @@ router.post("/compra/save", adminAuth, async (req, res) => {
      const compras = await Compra.findAll({
       attributes: ['valor']
     });
+    // Consultar o banco de dados para obter os valores de totalAmount
+    const mortes = await Morte.findAll({
+      attributes: ['valor']
+    });
+    let totalMorteSum = 0;
+    mortes.forEach(morte => {
+      totalMorteSum += parseFloat(morte.valor);
+    });
+
+     // Consultar o banco de dados para obter os valores de totalAmount
+     const vendas = await Venda.findAll({
+      attributes: ['mediaPonderada']
+    });
+    let totalVendaSum = 0;
+    vendas.forEach(venda => {
+      totalVendaSum += parseFloat(venda.mediaPonderada);
+    });
 
     // Calcular a soma dos valores de totalAmount
     let totalAmountSum = 0;
@@ -398,11 +416,13 @@ router.post("/compra/save", adminAuth, async (req, res) => {
       totalAmountSum += parseFloat(compra.valor);
     });
     let SumQuantidadeVenda = await Venda.count('quantidade');
-      let sumValue = totalAmountSum + parseFloat(valor);
+    let SumQuantidadeMorte = await Morte.count('quantidade');
+      let sumValue = totalAmountSum + parseFloat(totalAmountFloat) - totalMorteSum - totalVendaSum;
       let totalSumQuantidade = await Compra.count();
-      let totalQuantidade = parseFloat(totalSumQuantidade) + parseFloat(quantidade) - parseFloat(SumQuantidadeVenda);
+      let totalQuantidade = parseFloat(totalSumQuantidade) + parseFloat(quantidade) - parseFloat(SumQuantidadeVenda) - parseFloat(SumQuantidadeMorte);
       let mediaPonderada = sumValue / totalQuantidade;
 
+      console.log(totalAmountFloat)
       console.log(SumQuantidadeVenda)
       console.log(totalAmountSum)
       console.log(valor)
