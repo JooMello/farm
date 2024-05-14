@@ -132,7 +132,10 @@
               <td>
                 <%= new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(totalVendaSum) %>
 </td>
-            <td><%= Total %></td>
+<td>
+  <%= new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Total) %>
+</td>
+           
           </tr>
         </tbody>
       </table>

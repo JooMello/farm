@@ -106,6 +106,8 @@ router.get("/admin/contaCorrente", adminAuth, async (req, res, next) => {
             attributes: [sequelize.fn("sum", sequelize.col("valor"))],
             raw: true,
           });
+          const amountCompraV = Number(amountC["sum(`valor`)"]);
+
           const amountCompra = Number(amountC["sum(`valor`)"]).toLocaleString("pt-BR", {
             style: "currency",
             currency: "BRL",
@@ -115,10 +117,7 @@ router.get("/admin/contaCorrente", adminAuth, async (req, res, next) => {
             console.log(totalVendas)
 
 
-          const Total = ((saldos) ).toLocaleString("pt-BR", {
-            style: "currency",
-            currency: "BRL",
-          });
+          
 
           const contaCorrentes = await ContaCorrente.findAll({
             where: {
@@ -132,7 +131,7 @@ router.get("/admin/contaCorrente", adminAuth, async (req, res, next) => {
             totalVendaSum += parseFloat(contaCorrente.valor);
           });
           
-
+const Total = amountCompraV - totalVendaSum;
            res.render("admin/financeiro/contaCorrente/index", {
              compras: compras,
              vendas: vendas,
