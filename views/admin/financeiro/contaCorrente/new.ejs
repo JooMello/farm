@@ -37,8 +37,8 @@
                   <select class="form-control" name="category" id="category"
                     onchange="javascript:associaInput();">
                     <option value=""></option>
-                    <option value="DEBITO">Débito</option>
-                    <option value="CREDITO">Crédito</option>
+                    <option value="RETIRADA">RETIRADA</option>
+                    <option value="ENTRADA">ENTRADA</option>
                   </select>
                 </div>
               </div>
@@ -54,7 +54,7 @@
               <br />
               <div class="input--with-addon currency-input">
                 <label>Descrição</label>
-                <textarea class="form-control" name="obs" required></textarea>
+                <textarea class="form-control" name="obs"></textarea>
               </div>
               <br />
               <div class="row">
@@ -97,9 +97,9 @@
           var e = document.getElementById("category");
           var itemSelecionado = e.options[e.selectedIndex].value;
           //injeta no value do input
-          if (itemSelecionado == "DEBITO") {
+          if (itemSelecionado == "RETIRADA") {
             variavel = "-";
-          } else if (itemSelecionado == "CREDITO") {
+          } else if (itemSelecionado == "ENTRADA") {
             variavel = "";
           }
           document.getElementById('valor').value = variavel;

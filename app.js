@@ -648,6 +648,31 @@ app.get("/contaCorrente/:id", adminAuth, async (req, res, next) => {
             totalVendaSum += parseFloat(contaCorrente.valor);
           });
 
+          const contaCorrentesEntrada = await ContaCorrente.findAll({
+            where: {
+              investidoreId: id,
+              category: "ENTRADA",
+            },
+            attributes: ['valor']
+          });
+
+          let totalSumEntrada = 0;
+          contaCorrentesEntrada.forEach(contaCorrentesEntrada => {
+            totalSumEntrada += parseFloat(contaCorrentesEntrada.valor);
+          });
+          const contaCorrentesRetirada = await ContaCorrente.findAll({
+            where: {
+              investidoreId: id,
+              category: "RETIRADA",
+            },
+            attributes: ['valor']
+          });
+
+          let totalSumRetirada = 0;
+          contaCorrentesRetirada.forEach(contaCorrentesRetirada => {
+            totalSumRetirada += parseFloat(contaCorrentesRetirada.valor);
+          });
+
           const amountCompraV = Number(amountC["sum(`valor`)"]);
 
           const mortes = await Morte.findAll({
@@ -663,7 +688,8 @@ app.get("/contaCorrente/:id", adminAuth, async (req, res, next) => {
             sumMortes += parseFloat(morte.valor);
           });
 
-          const Total = amountCompraV - totalVendaSum - sumMortes;
+          const Total = (((totalSumEntrada - amountCompraV) + totalVendaSum) - totalSumRetirada);
+  
 
           res.render("admin/financeiro/contaCorrente/index", {
             compras: compras,
