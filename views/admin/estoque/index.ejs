@@ -68,7 +68,6 @@ Investidor
         <tr id="table-header">
           <th>Capital Investido</th>
           <th>Média Ponderada</th>
-          <th>Valor Mortes</th>
         </tr>
       </thead>
       <tbody id="demo">
@@ -77,24 +76,10 @@ Investidor
           <td>
             <%= new Intl.NumberFormat('pt-BR', { style: 'currency' , currency: 'BRL' }).format(MediaCompraPonderada) %>
           </td>
-          <td><%= valor %></td>
         </tr>
       </tbody>
       </table>
-      
-      <table id="tab" data-type="table-menu" class="table table-bordered text-center">
-      <thead>
-        <tr id="table-header">
-          <th>Capital Estoque</th>
-        </tr>
-      </thead>
-      <tbody id="demo">
-          <tr class="pesquisar">
-          <td><%= CapitalEstoque %></td>
-          
-        </tr>
-      </tbody>
-    </table>
+     
       </div>
 </div>
       </div>

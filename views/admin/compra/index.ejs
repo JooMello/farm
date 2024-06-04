@@ -67,6 +67,24 @@
     </div>
     <hr />
     <div class="table-responsive-xxl">
+      <div class="table1 text-center">
+        <table id="tab" data-type="table-menu" class="table table-bordered text-center">
+          <thead>
+            <tr id="table-header">
+              <th>Nº de Animais Comprados</th>
+              <th>Valor Compra</th>
+              <th>Compra - Dolar</th>
+            </tr>
+          </thead>
+          <tbody id="demo">
+            <tr class="pesquisar">
+              <td><%= quantidade %></td>
+              <td><%= CapitalInvestido %></td>
+              <td><%= CapitalInvestidoDolar %></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
       <table id="tab" data-type="table-menu" class="table table-hover table-bordered table-sm text-center">
         <thead>
           <tr id="table-header">
@@ -110,25 +128,7 @@
             <% }) %>
         </tbody>
       </table>
-      <div class="table1 text-center">
-        <h2>TOTAL</h2>
-        <table id="tab" data-type="table-menu" class="table table-bordered text-center">
-          <thead>
-            <tr id="table-header">
-              <th>Nº de Animais Comprados</th>
-              <th>Valor Compra</th>
-              <th>Compra - Dolar</th>
-            </tr>
-          </thead>
-          <tbody id="demo">
-            <tr class="pesquisar">
-              <td><%= quantidade %></td>
-              <td><%= CapitalInvestido %></td>
-              <td><%= CapitalInvestidoDolar %></td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+     
     </div>
   </div>
   <br>

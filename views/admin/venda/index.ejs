@@ -71,6 +71,31 @@
         </div>
         <hr />
         <div class="table-responsive-xxl">
+
+          <div class="table1 text-center">
+            <table id="tab" data-type="table-menu" class="table table-bordered">
+              <thead>
+                <tr id="table-header">
+                  <th>Nº de Animais Vendidos</th>
+                  <th>Valor Venda</th>
+                  <th>Venda - Dolar</th>
+                </tr>
+              </thead>
+              <tbody id="demo">
+                <tr class="pesquisar">
+                  <td>
+                    <%= quantidade %>
+                  </td>
+                  <td>
+                    <%= ValorVenda %>
+                  </td>
+                  <td>
+                    <%= TotalVendaDolar %>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
           <table id="tab" data-type="table-menu" class="table table-hover table-bordered table-sm text-center">
             <thead class="thead-light">
               <tr id="table-header">
@@ -120,31 +145,7 @@
                 <% }) %>
             </tbody>
           </table>
-          <div class="table1 text-center">
-            <h2>TOTAL</h2>
-            <table id="tab" data-type="table-menu" class="table table-bordered">
-              <thead>
-                <tr id="table-header">
-                  <th>Nº de Animais Vendidos</th>
-                  <th>Valor Venda</th>
-                  <th>Venda - Dolar</th>
-                </tr>
-              </thead>
-              <tbody id="demo">
-                <tr class="pesquisar">
-                  <td>
-                    <%= quantidade %>
-                  </td>
-                  <td>
-                    <%= ValorVenda %>
-                  </td>
-                  <td>
-                    <%= TotalVendaDolar %>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+       
         </div>
       </div>
       <br>
