@@ -49,19 +49,7 @@
                       <!----><!---->
                     </div>
                   <br />
-                  <div class="input--with-addon currency-input">
-                    <label>Valor</label>
-                    <div class="input__container text-input">
-                      <input type="text" name="valor" id="valor" required class="input form-control form-control-danger "
-                        value=
-                        "<%= new Intl.NumberFormat('pt-BR', { style: 'currency' , currency: 'BRL' }).format(MediaCompraPonderada) %>"
-        
-                        onkeyup="formatCurrency(this)" 
-                        readonly/><!---->
-                    </div>
-                    <!----><!---->
-                  </div>
-                <br />
+      
                 <table id="morteTable" style="display: none">
                   <thead>
                     <tr>
@@ -105,26 +93,20 @@ Pega valor total da compra divide pelo dolar diario
 
 
   <script>
-     const valorTotalInput = document.getElementById('valor');
     const quantidadeInput = document.getElementById("quantidade");
     const morteTable = document.getElementById("morteTable");
   
     quantidadeInput.addEventListener("input", updateVendaTable);
-    valorTotalInput.addEventListener("input", updateVendaTable);
   
     function updateVendaTable() {
       const quantidade = parseInt(quantidadeInput.value) || 0;
-      const valorTotal = parseCurrency(valorTotalInput.value) || 0;
-  
-      const valor =  valorTotal;
   
       // Limpa a tabela atual
       morteTable.querySelector("tbody").innerHTML = "";
   
       // Verifica se a tabela deve ser exibida
-      if (quantidade > 0 && valorTotal > 0) {
+      if (quantidade > 0) {
         morteTable.style.display = "table";
-        // Preenche a tabela com base nos valores de quantidade e valor
         for (let i = 1; i <= quantidade; i++) {
           const newRow = morteTable.querySelector("tbody").insertRow();
           newRow.insertCell(

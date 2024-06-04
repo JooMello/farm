@@ -9,9 +9,9 @@ const adminAuth = require("../../middlewares/adminAuth");
 var fs = require("fs");
 const moment = require("moment");
 const ContaCorrente = require("../financeiro/contaCorrente/ContaCorrente");
-const Compra = require("../compra/Compra")
-const Morte = require("../estoque/Estoque")
-const Historico = require("../historico/Historico")
+const Compra = require("../compra/Compra");
+const Morte = require("../estoque/Estoque");
+const Historico = require("../historico/Historico");
 
 const Investidor = require("../investidor/Investidor");
 
@@ -42,10 +42,11 @@ const callback_dolar = function (erro, res, body) {
 };
 const Dolar = request(options, callback_dolar);
 
-
 // Função para formatar um valor monetário (R$)
 function formatCurrency(value) {
-  const formattedValue = parseFloat(value.replace("R$", "").replace(".", "").replace(",", "."));
+  const formattedValue = parseFloat(
+    value.replace("R$", "").replace(".", "").replace(",", ".")
+  );
   return isNaN(formattedValue) ? 0 : formattedValue;
 }
 
@@ -58,7 +59,7 @@ function formatDollar(value) {
 // Função para formatar um valor ou array de valores
 function formatValueOrArray(value) {
   if (Array.isArray(value)) {
-    return value.map(val => formatCurrency(val));
+    return value.map((val) => formatCurrency(val));
   } else {
     return formatCurrency(value);
   }
@@ -84,7 +85,17 @@ router.get("/admin/venda", adminAuth, async (req, res, next) => {
       "obs",
       "investidoreId",
     ],
-    group: ["data", "code", "quantidade", "dolar", "obs", "investidoreId", "mediaPonderada", "valorInvestidor", "valorFazenda"],
+    group: [
+      "data",
+      "code",
+      "quantidade",
+      "dolar",
+      "obs",
+      "investidoreId",
+      "mediaPonderada",
+      "valorInvestidor",
+      "valorFazenda",
+    ],
     order: [["data", "DESC"]],
     raw: true,
     nest: true,
@@ -150,7 +161,6 @@ router.get("/admin/venda", adminAuth, async (req, res, next) => {
 });
 
 router.get("/admin/venda/view/:code", adminAuth, async (req, res, next) => {
-
   const code = req.params.code;
 
   Venda.findAll({
@@ -170,13 +180,12 @@ router.get("/admin/venda/view/:code", adminAuth, async (req, res, next) => {
       venda.data = moment(venda.data).format("DD/MM/YYYY");
     });
     Investidor.findAll().then(async (investidores) => {
-      
       //////////////////////Quantidade
       var quantidadeVenda = await Venda.findOne({
         where: {
           code: code, // Condição para encontrar a venda específica
         },
-        attributes: ['quantidade'], // Substitua 'quantidade' pelo nome correto do campo na tabela venda
+        attributes: ["quantidade"], // Substitua 'quantidade' pelo nome correto do campo na tabela venda
         raw: true,
       });
 
@@ -190,13 +199,10 @@ router.get("/admin/venda/view/:code", adminAuth, async (req, res, next) => {
 
         raw: true,
       });
-      var ValorVenda = Number(amountT["sum(`valor`)"]).toLocaleString(
-        "pt-BR",
-        {
-          style: "currency",
-          currency: "BRL",
-        }
-      );
+      var ValorVenda = Number(amountT["sum(`valor`)"]).toLocaleString("pt-BR", {
+        style: "currency",
+        currency: "BRL",
+      });
 
       //////////////////////Capital Investidor em dolar
       var amountD = await Venda.findOne({
@@ -207,12 +213,13 @@ router.get("/admin/venda/view/:code", adminAuth, async (req, res, next) => {
 
         raw: true,
       });
-      var TotalVendaDolar = Number(
-        amountD["sum(`amount`)"]
-      ).toLocaleString("en-US", {
-        style: "currency",
-        currency: "USD",
-      });
+      var TotalVendaDolar = Number(amountD["sum(`amount`)"]).toLocaleString(
+        "en-US",
+        {
+          style: "currency",
+          currency: "USD",
+        }
+      );
 
       var amountU = await Venda.findOne({
         where: {
@@ -234,7 +241,7 @@ router.get("/admin/venda/view/:code", adminAuth, async (req, res, next) => {
         style: "currency",
         currency: "BRL",
       });
- console.log(vendas);
+      console.log(vendas);
       res.render("admin/venda/view", {
         vendas: vendas,
         investidores: investidores,
@@ -247,7 +254,6 @@ router.get("/admin/venda/view/:code", adminAuth, async (req, res, next) => {
   });
 });
 
-
 router.get("/admin/venda/new", adminAuth, (req, res) => {
   var cotacaoDolar = Number(cotacao).toLocaleString("en-US", {
     style: "currency",
@@ -256,16 +262,16 @@ router.get("/admin/venda/new", adminAuth, (req, res) => {
   Compra.findAll({
     where: {
       status: "Em estoque",
-    }
+    },
   }).then((compras) => {
-  Investidor.findAll().then((investidores) => {
-    res.render("admin/venda/new", {
-      compras: compras,
-      investidores: investidores,
-      cotacao: cotacao,
-      cotacaoDolar: cotacaoDolar,
+    Investidor.findAll().then((investidores) => {
+      res.render("admin/venda/new", {
+        compras: compras,
+        investidores: investidores,
+        cotacao: cotacao,
+        cotacaoDolar: cotacaoDolar,
+      });
     });
-  });
   });
 });
 
@@ -283,40 +289,55 @@ router.post("/venda/save", adminAuth, async (req, res) => {
   const obs = req.body.obs;
   const investidor = req.body.investidor;
 
-    const totalAmountFloat = parseFloat(totalAmount.replace("R$", "").replace(".", "").replace(",", "."));
-    const formattedPeso = formatValueOrArray(req.body.peso);
-    const dolarFloat = parseFloat(dolar.replace("$", ""));
-    const amountFloat = parseFloat(amount.replace("$", "").replace(",", ""));
+  const totalAmountFloat = parseFloat(
+    totalAmount.replace("R$", "").replace(".", "").replace(",", ".")
+  );
+  const formattedPeso = formatValueOrArray(req.body.peso);
+  const dolarFloat = parseFloat(dolar.replace("$", ""));
+  const amountFloat = parseFloat(amount.replace("$", "").replace(",", ""));
 
+  // Consultar o banco de dados para obter o último registro de Compra
+  const lastCompra = await Compra.findOne({
+    where: { investidoreId: investidor },
+    order: [["createdAt", "DESC"]],
+  });
+  console.log(lastCompra);
+  let MediaCompraPonderada = 0;
 
-     // Consultar o banco de dados para obter o último registro de Compra
- const lastCompra = await Compra.findOne({
-  order: [["createdAt", "DESC"]],
-});
-console.log(lastCompra)
-let MediaCompraPonderada = 0;
-
-    // Verificar se lastCompra.mediaPonderada é nulo ou vazio
-if (lastCompra=== null || lastCompra === "") {
-  // Definir MediaCompraPonderada como 0
-   MediaCompraPonderada = 0;
-} else {
+  const nearestCompra = await Compra.findOne({
+    where: {
+      investidoreId: investidor,
+      data: {
+        [Op.lte]: data, // Filtra as datas menores ou iguais à data fornecida
+      },
+    },
+    order: [["createdAt", "DESC"]], // Ordena por data decrescente para obter a mais próxima
+  });
   // Obter o valor de mediaPonderada do último registro
-   MediaCompraPonderada = lastCompra.mediaPonderada;
-}
-console.log(MediaCompraPonderada)
-const ValorQuantidade = MediaCompraPonderada * quantidade;
-console.log(ValorQuantidade)
-const divisao = ValorQuantidade / 2;
-console.log(divisao)
-const diferenca  = totalAmountFloat - ValorQuantidade;
-console.log(diferenca)
-const valorRecebimento = diferenca + divisao;
-console.log(valorRecebimento)
-const valorFazenda = totalAmountFloat - valorRecebimento;
+  MediaCompraPonderada = nearestCompra ? nearestCompra.mediaPonderada : null;
 
-    try {
-       // Encontrar o investidor pelo id
+  // Verificar se lastCompra.mediaPonderada é nulo ou vazio
+  if (lastCompra === null || lastCompra === "") {
+    // Definir MediaCompraPonderada como 0
+    MediaCompraPonderada = 0;
+  } else {
+    // Obter o valor de mediaPonderada do último registro
+    MediaCompraPonderada = nearestCompra ? nearestCompra.mediaPonderada : null;
+  }
+  console.log(MediaCompraPonderada);
+  const ValorQuantidade = MediaCompraPonderada * quantidade;
+  console.log(ValorQuantidade);
+  const divisao = ValorQuantidade / 2;
+  console.log(divisao);
+  const diferenca = totalAmountFloat - ValorQuantidade;
+  console.log(diferenca);
+  const valorRecebimento = diferenca + divisao;
+  console.log(valorRecebimento);
+
+  const capitalLucro = (((totalAmountFloat - (MediaCompraPonderada * quantidade))/2) + (MediaCompraPonderada * quantidade))
+  const valorFazenda = totalAmountFloat - capitalLucro;
+  try {
+    // Encontrar o investidor pelo id
     const investidorObj = await Investidor.findOne({
       where: {
         id: investidor,
@@ -331,18 +352,17 @@ const valorFazenda = totalAmountFloat - valorRecebimento;
     // Obter o valor do campo "letras" do investidor
     const letrasDoInvestidor = investidorObj.letras;
 
-    const lastCode = await Venda.max('code');
+    const lastCode = await Venda.max("code");
 
     const nextCode = lastCode ? lastCode + 1 : 1;
-    console.log(valor)
+    console.log(valor);
 
     if (quantidade > 1) {
       const objects = [];
 
-  
       for (let i = 0; i < quantidade; i++) {
         const brincoValue = brinco[i] ? letrasDoInvestidor + brinco[i] : null;
-       
+
         objects.push({
           id: id,
           data: data,
@@ -355,68 +375,65 @@ const valorFazenda = totalAmountFloat - valorRecebimento;
           dolar: dolarFloat,
           amount: amountFloat,
           mediaPonderada: MediaCompraPonderada,
-          valorInvestidor: valorRecebimento,
+          valorInvestidor: capitalLucro,
           valorFazenda: valorFazenda,
           obs: obs,
           investidoreId: investidor,
           status: "Vendido",
         });
-  
-  
+      }
+
+      // Inserir os registros no banco de dado
+      await Venda.bulkCreate(objects);
+      ContaCorrente.create({
+        data: data,
+        code: nextCode,
+        category: "CREDITO",
+        valor: capitalLucro,
+        obs: "Crédito referente a venda de gado",
+        investidoreId: investidor,
+      });
+    } else if (quantidade == 1) {
+      const brincoValue = brinco ? letrasDoInvestidor + brinco : null;
+
+      const singleObject = {
+        id: id,
+        data: data,
+        brinco: brincoValue,
+        quantidade: quantidade,
+        code: nextCode,
+        valor: valor,
+        totalAmount: totalAmountFloat,
+        peso: formattedPeso,
+        dolar: dolarFloat,
+        amount: amountFloat,
+        mediaPonderada: MediaCompraPonderada,
+        valorInvestidor: capitalLucro,
+        valorFazenda: valorFazenda,
+        obs: obs,
+        investidoreId: investidor,
+        status: "Vendido",
+      };
+
+      // Inserir os registros no banco de dado
+      await Venda.create(singleObject);
+      ContaCorrente.create({
+        data: data,
+        code: nextCode,
+        category: "CREDITO",
+        valor: capitalLucro,
+        obs: "Crédito referente a venda de gado",
+        investidoreId: investidor,
+      });
     }
-
-          // Inserir os registros no banco de dado
-          await Venda.bulkCreate(objects);
-          ContaCorrente.create({
-            data: data,
-            code: nextCode,
-            category: "CREDITO",
-            valor: valorRecebimento,
-            obs: "Crédito referente a venda de gado",
-            investidoreId: investidor,
-          });
-
-        } else if (quantidade == 1) {
-
-          const brincoValue = brinco ? letrasDoInvestidor + brinco : null;
-     
-          const singleObject = {
-          id: id,
-          data: data,
-          brinco: brincoValue,
-          quantidade: quantidade,
-          code: nextCode,
-          valor: valor,
-          totalAmount: totalAmountFloat,
-          peso: formattedPeso,
-          dolar: dolarFloat,
-          amount: amountFloat,
-          mediaPonderada: MediaCompraPonderada,
-          valorInvestidor: valorRecebimento,
-          valorFazenda: valorFazenda,
-          obs: obs,
-          investidoreId: investidor,
-          status: "Vendido",
-          };
-
-           // Inserir os registros no banco de dado
-           await Venda.create(singleObject);
-           ContaCorrente.create({
-             data: data,
-             code: nextCode,
-             category: "CREDITO",
-             valor: valorRecebimento,
-             obs: "Crédito referente a venda de gado",
-             investidoreId: investidor,
-           });
- 
-        }
-      res.redirect("/admin/venda");
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: "Erro ao salvar os registros no banco de dados" });
-    }
-  });
+    res.redirect("/admin/venda");
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .json({ error: "Erro ao salvar os registros no banco de dados" });
+  }
+});
 
 router.get("/admin/venda/edit/:id", adminAuth, (req, res) => {
   var id = req.params.id;
@@ -488,14 +505,14 @@ router.post("/venda/delete", adminAuth, (req, res) => {
           code: code,
         },
       }).then(() => {
-      Venda.destroy({
-        where: {
-          code: code,
-        },
-      }).then(() => {
-        res.redirect("/admin/venda");
+        Venda.destroy({
+          where: {
+            code: code,
+          },
+        }).then(() => {
+          res.redirect("/admin/venda");
+        });
       });
-    });
     }
   } else {
     // NULL

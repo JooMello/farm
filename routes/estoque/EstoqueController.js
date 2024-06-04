@@ -219,17 +219,33 @@ router.get('/admin/estoque/newMorte', adminAuth, async (req, res) => {
     var peso = req.body.peso;
     var investidor = req.body.investidor;
 
-    console.log("Dados recebidos:");
-    console.log("Data:", data);
-    console.log("Quantidade:", quantidade);
-    console.log("Valor:", valor);
-    console.log("Brinco:", brinco);
-    console.log("Peso:", peso);
-    console.log("Investidor:", investidor);
+    let dataObjeto = new Date(data);
 
-    let valorFloat = parseFloat(
-        valor.replace("R$", "").replace(".", "").replace(",", ".")
-    );
+
+  // Consultar o banco de dados para obter o último registro de Compra
+  const nearestCompra = await Compra.findOne({
+    where: {
+      data: {
+            [Op.lte]: data // Filtra as datas menores ou iguais à data fornecida
+        },
+        investidoreId: investidor
+    },
+    order: [["createdAt", "DESC"]] // Ordena por data decrescente para obter a mais próxima
+})
+      // Obter o valor de mediaPonderada do último registro
+      const MediaCompraPonderada = nearestCompra ? nearestCompra.mediaPonderada : null;
+
+
+
+  
+
+ 
+    console.log("Data:", data);
+    console.log("Data formatada:", dataObjeto);
+    console.log("Quantidade:", quantidade);
+    console.log("Valor:", MediaCompraPonderada);
+
+    console.log("Investidor:", investidor);
 
     try {
         const objects = [];
@@ -240,7 +256,7 @@ router.get('/admin/estoque/newMorte', adminAuth, async (req, res) => {
             objects.push({
                 data: data,
                 quantidade: 1,
-                valor: valorFloat,
+                valor: MediaCompraPonderada,
                 brinco: brincoValue,
                 peso: peso[i],
                 investidoreId: investidor,
