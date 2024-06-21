@@ -13,5 +13,3 @@ COPY . .
 EXPOSE 1001
 
 CMD [ "npm", "start" ]
-
-#teste
