@@ -309,11 +309,17 @@ router.post("/compra/save", adminAuth, async (req, res) => {
 
     // Encontrar o último brinco e código
     const lastCompra = await Compra.findOne({
+      where: {
+        investidoreId: investidor,
+      },
       order: [["brinco", "DESC"]],
       limit: 1,
     });
 
     const lastCode = await Compra.findOne({
+      where: {
+        investidoreId: investidor,
+      },
       order: [["code", "DESC"]],
       limit: 1,
     });

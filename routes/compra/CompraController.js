@@ -365,6 +365,9 @@ router.post("/compra/save", adminAuth, async (req, res) => {
 
     // Encontrar o último brinco e código
     const lastCompra = await Compra.findOne({
+      where: {
+        investidoreId: investidor,
+      },
       order: [["brinco", "DESC"]],
       limit: 1,
     });
@@ -374,6 +377,9 @@ router.post("/compra/save", adminAuth, async (req, res) => {
     const nextCode = lastCode ? lastCode + 1 : 1;
 
     const lastIdentificador = await Compra.findOne({
+      where: {
+        investidoreId: investidor,
+      },
       attributes: [
         [
           sequelize.fn("MAX", sequelize.col("identificador")),
@@ -390,11 +396,17 @@ router.post("/compra/save", adminAuth, async (req, res) => {
 
      // Consultar o banco de dados para obter os valores de totalAmount
      const compras = await Compra.findAll({
-      attributes: ['valor']
-    });
+       where: {
+         investidoreId: investidor,
+       },
+       attributes: ["valor"],
+     });
     // Consultar o banco de dados para obter os valores de totalAmount
     const mortes = await Morte.findAll({
-      attributes: ['valor']
+      where: {
+        investidoreId: investidor,
+      },
+      attributes: ["valor"],
     });
     let totalMorteSum = 0;
     mortes.forEach(morte => {
@@ -403,8 +415,11 @@ router.post("/compra/save", adminAuth, async (req, res) => {
 
      // Consultar o banco de dados para obter os valores de totalAmount
      const vendas = await Venda.findAll({
-      attributes: ['mediaPonderada']
-    });
+       where: {
+         investidoreId: investidor,
+       },
+       attributes: ["mediaPonderada"],
+     });
     let totalVendaSum = 0;
     vendas.forEach(venda => {
       totalVendaSum += parseFloat(venda.mediaPonderada);
@@ -415,10 +430,22 @@ router.post("/compra/save", adminAuth, async (req, res) => {
     compras.forEach(compra => {
       totalAmountSum += parseFloat(compra.valor);
     });
-    let SumQuantidadeVenda = await Venda.count('quantidade');
-    let SumQuantidadeMorte = await Morte.count('quantidade');
+    let SumQuantidadeVenda = await Venda.count({
+      where: {
+        investidoreId: investidor,
+      },
+    });
+    let SumQuantidadeMorte = await Morte.count({
+      where: {
+        investidoreId: investidor,
+      },
+    });
       let sumValue = totalAmountSum + parseFloat(totalAmountFloat) - totalMorteSum - totalVendaSum;
-      let totalSumQuantidade = await Compra.count();
+      let totalSumQuantidade = await Compra.count({
+        where: {
+          investidoreId: investidor,
+        },
+      });
       let totalQuantidade = parseFloat(totalSumQuantidade) + parseFloat(quantidade) - parseFloat(SumQuantidadeVenda) - parseFloat(SumQuantidadeMorte);
       let mediaPonderada = sumValue / totalQuantidade;
 
