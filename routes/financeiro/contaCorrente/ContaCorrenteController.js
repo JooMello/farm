@@ -141,10 +141,12 @@ router.get("/admin/contaCorrente", adminAuth, async (req, res, next) => {
             attributes: ['valor']
           });
 
-          let totalSumRetirada = 0;
-          contaCorrentesRetirada.forEach(contaCorrentesRetirada => {
-            totalSumRetirada += parseFloat(contaCorrentesRetirada.valor);
-          });
+       let totalSumRetirada = 0;
+contaCorrentesRetirada.forEach(contaCorrentesRetirada => {
+  totalSumRetirada += parseFloat(contaCorrentesRetirada.valor);
+});
+
+totalSumRetirada = Math.abs(totalSumRetirada);  // Converte para valor absoluto
 
           const mortes = await Morte.findAll({
             attributes: ['valor'],
@@ -156,9 +158,9 @@ router.get("/admin/contaCorrente", adminAuth, async (req, res, next) => {
             sumMortes += parseFloat(morte.valor);
           });
           console.log(amountCompraV)
-console.log(totalVendaSum)
-console.log(sumMortes)
 console.log(totalSumEntrada)
+console.log(amountCompraV);
+console.log(totalVendaSum);
 console.log(totalSumRetirada)
           
 const Total = (((totalSumEntrada - amountCompraV) + totalVendaSum) - totalSumRetirada);

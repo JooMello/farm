@@ -10,7 +10,7 @@ const ContaCorrente = require("../financeiro/contaCorrente/ContaCorrente");
 const Venda = require("../venda/Venda");
 const moment = require("moment");
 const adminAuth = require("../../middlewares/adminAuth");
-const Morte = require("../estoque/Estoque")
+const Morte = require("../estoque/Estoque");
 
 const Investidor = require("../investidor/Investidor");
 
@@ -89,7 +89,15 @@ router.get("/admin/compra", adminAuth, async (req, res, next) => {
       "obs",
       "investidoreId",
     ],
-    group: ["data", "code", "quantidade", "dolar", "mediaPonderada", "obs", "investidoreId"],
+    group: [
+      "data",
+      "code",
+      "quantidade",
+      "dolar",
+      "mediaPonderada",
+      "obs",
+      "investidoreId",
+    ],
     order: [["data", "DESC"]],
     raw: true,
     nest: true,
@@ -319,7 +327,6 @@ router.post("/compra/save", adminAuth, async (req, res) => {
   let mediaponderada;
   // ... Resto do seu código ...
 
-
   const totalAmountFloat = parseFloat(
     totalAmount.replace("R$", "").replace(".", "").replace(",", ".")
   );
@@ -372,7 +379,7 @@ router.post("/compra/save", adminAuth, async (req, res) => {
       limit: 1,
     });
 
-    const lastCode = await Compra.max('code');
+    const lastCode = await Compra.max("code");
 
     const nextCode = lastCode ? lastCode + 1 : 1;
 
@@ -394,13 +401,13 @@ router.post("/compra/save", adminAuth, async (req, res) => {
       nextIdentificador = lastIdentificador.dataValues.lastIdentificador + 1;
     }
 
-     // Consultar o banco de dados para obter os valores de totalAmount
-     const compras = await Compra.findAll({
-       where: {
-         investidoreId: investidor,
-       },
-       attributes: ["valor"],
-     });
+    // Consultar o banco de dados para obter os valores de totalAmount
+    const compras = await Compra.findAll({
+      where: {
+        investidoreId: investidor,
+      },
+      attributes: ["valor"],
+    });
     // Consultar o banco de dados para obter os valores de totalAmount
     const mortes = await Morte.findAll({
       where: {
@@ -409,25 +416,25 @@ router.post("/compra/save", adminAuth, async (req, res) => {
       attributes: ["valor"],
     });
     let totalMorteSum = 0;
-    mortes.forEach(morte => {
+    mortes.forEach((morte) => {
       totalMorteSum += parseFloat(morte.valor);
     });
 
-     // Consultar o banco de dados para obter os valores de totalAmount
-     const vendas = await Venda.findAll({
-       where: {
-         investidoreId: investidor,
-       },
-       attributes: ["mediaPonderada"],
-     });
+    // Consultar o banco de dados para obter os valores de totalAmount
+    const vendas = await Venda.findAll({
+      where: {
+        investidoreId: investidor,
+      },
+      attributes: ["mediaPonderada"],
+    });
     let totalVendaSum = 0;
-    vendas.forEach(venda => {
+    vendas.forEach((venda) => {
       totalVendaSum += parseFloat(venda.mediaPonderada);
     });
 
     // Calcular a soma dos valores de totalAmount
     let totalAmountSum = 0;
-    compras.forEach(compra => {
+    compras.forEach((compra) => {
       totalAmountSum += parseFloat(compra.valor);
     });
     let SumQuantidadeVenda = await Venda.count({
@@ -440,25 +447,32 @@ router.post("/compra/save", adminAuth, async (req, res) => {
         investidoreId: investidor,
       },
     });
-      let sumValue = totalAmountSum + parseFloat(totalAmountFloat) - totalMorteSum - totalVendaSum;
-      let totalSumQuantidade = await Compra.count({
-        where: {
-          investidoreId: investidor,
-        },
-      });
-      let totalQuantidade = parseFloat(totalSumQuantidade) + parseFloat(quantidade) - parseFloat(SumQuantidadeVenda) - parseFloat(SumQuantidadeMorte);
-      let mediaPonderada = sumValue / totalQuantidade;
+    let sumValue =
+      totalAmountSum +
+      parseFloat(totalAmountFloat) -
+      totalMorteSum -
+      totalVendaSum;
+    let totalSumQuantidade = await Compra.count({
+      where: {
+        investidoreId: investidor,
+      },
+    });
+    let totalQuantidade =
+      parseFloat(totalSumQuantidade) +
+      parseFloat(quantidade) -
+      parseFloat(SumQuantidadeVenda) -
+      parseFloat(SumQuantidadeMorte);
+    let mediaPonderada = sumValue / totalQuantidade;
 
-      console.log(totalAmountFloat)
-      console.log(SumQuantidadeVenda)
-      console.log(totalAmountSum)
-      console.log(valor)
-      console.log(sumValue)
-      console.log(totalSumQuantidade)
-      console.log(quantidade)
-      console.log(totalQuantidade)
-      console.log(mediaPonderada)
-
+    console.log(totalAmountFloat);
+    console.log(SumQuantidadeVenda);
+    console.log(totalAmountSum);
+    console.log(valor);
+    console.log(sumValue);
+    console.log(totalSumQuantidade);
+    console.log(quantidade);
+    console.log(totalQuantidade);
+    console.log(mediaPonderada);
 
     if (quantidade > 1) {
       const objects = [];
@@ -651,15 +665,15 @@ router.post("/compra/delete", adminAuth, (req, res) => {
             code: code,
           },
         }).then(() => {
-      Compra.destroy({
-        where: {
-          code: code,
-        },
-      }).then(() => {
-        res.redirect("/admin/compra");
+          Compra.destroy({
+            where: {
+              code: code,
+            },
+          }).then(() => {
+            res.redirect("/admin/compra");
+          });
+        });
       });
-    });
-  });
     }
   } else {
     // NULL
