@@ -68,16 +68,16 @@
     <hr />
     <div class="table-responsive-xxl">
       <div class="table1 text-center">
-        <table id="tab" data-type="table-menu" class="table table-bordered text-center">
+        <table class="table table-bordered text-center">
           <thead>
-            <tr id="table-header">
+            <tr>
               <th>Nº de Animais Comprados</th>
               <th>Valor Compra</th>
               <th>Compra - Dolar</th>
             </tr>
           </thead>
-          <tbody id="demo">
-            <tr class="pesquisar">
+          <tbody>
+            <tr>
               <td><%= quantidade %></td>
               <td><%= CapitalInvestido %></td>
               <td><%= CapitalInvestidoDolar %></td>
@@ -97,6 +97,11 @@
           </tr>
         </thead>
         <tbody id="demo">
+                <% if (compras.length === 0) { %>
+        <tr>
+          <td colspan="6" class="nenhuma">Nenhuma compra</td>
+        </tr>
+      <% } else { %>
           <% compras.forEach(compra=> { %>
             <tr class="pesquisar" href="">
               <td>
@@ -125,13 +130,46 @@
               
             
             </tr>
-            <% }) %>
+          <% }) %>
+      <% } %>
         </tbody>
       </table>
-     
-    </div>
+
+<div class="row">
+  <div class="col"></div>
+  <div class="col-6">
+    <nav aria-label="Page navigation example">
+      <ul class="pagination">
+        <li class="page-item <% if (currentPage === 1) { %>disabled<% } %>">
+          <a class="page-link" href="?page=<%= currentPage - 1 %>" aria-label="Previous">
+            <span aria-hidden="true">Anterior</span>
+          </a>
+        </li>
+        <% for (let i = startPage; i <= endPage; i++) { %>
+          <li class="page-item <% if (i === currentPage) { %>active<% } %>">
+            <a class="page-link" href="?page=<%= i %>"><%= i %></a>
+          </li>
+        <% } %>
+        <li class="page-item <% if (currentPage === totalPages) { %>disabled<% } %>">
+          <a class="page-link" href="?page=<%= currentPage + 1 %>" aria-label="Next">
+            <span aria-hidden="true">Próximo</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
   </div>
+</div>
+
+
+
+
   <br>
+    </div>
+    
+  </div>
+  
+  <br>
+
 </body>
 
 

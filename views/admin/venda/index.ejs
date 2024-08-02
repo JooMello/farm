@@ -73,16 +73,16 @@
         <div class="table-responsive-xxl">
 
           <div class="table1 text-center">
-            <table id="tab" data-type="table-menu" class="table table-bordered">
+            <table   class="table table-bordered">
               <thead>
-                <tr id="table-header">
+                <tr >
                   <th>Nº de Animais Vendidos</th>
                   <th>Valor Venda</th>
                   <th>Venda - Dolar</th>
                 </tr>
               </thead>
-              <tbody id="demo">
-                <tr class="pesquisar">
+              <tbody >
+                <tr >
                   <td>
                     <%= quantidade %>
                   </td>
@@ -145,7 +145,32 @@
                 <% }) %>
             </tbody>
           </table>
-       
+
+<div class="row">
+  <div class="col"></div>
+  <div class="col-6">
+    <nav aria-label="Page navigation example">
+      <ul class="pagination">
+        <li class="page-item <% if (currentPage === 1) { %>disabled<% } %>">
+          <a class="page-link" href="?page=<%= currentPage - 1 %>" aria-label="Previous">
+            <span aria-hidden="true">Anterior</span>
+          </a>
+        </li>
+        <% for (let i = 1; i <= totalPages; i++) { %>
+          <li class="page-item <% if (i === currentPage) { %>active<% } %>">
+            <a class="page-link" href="?page=<%= i %>"><%= i %></a>
+          </li>
+        <% } %>
+        <li class="page-item <% if (currentPage === totalPages) { %>disabled<% } %>">
+          <a class="page-link" href="?page=<%= currentPage + 1 %>" aria-label="Next">
+            <span aria-hidden="true">Próximo</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+  </div>
+</div>
+  <br>
         </div>
       </div>
       <br>

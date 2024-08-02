@@ -66,98 +66,113 @@ function formatValueOrArray(value) {
 }
 
 router.get("/admin/venda", adminAuth, async (req, res, next) => {
-  Venda.findAll({
-    include: [
-      {
-        model: Investidor,
-      },
-    ],
-    attributes: [
-      "data",
-      "code",
-      "quantidade",
-      "mediaPonderada",
-      "valorInvestidor",
-      "valorFazenda",
-      [sequelize.fn("SUM", sequelize.col("valor")), "total_valor"],
-      "dolar",
-      [sequelize.fn("SUM", sequelize.col("amount")), "total_amount"],
-      "obs",
-      "investidoreId",
-    ],
-    group: [
-      "data",
-      "code",
-      "quantidade",
-      "dolar",
-      "obs",
-      "investidoreId",
-      "mediaPonderada",
-      "valorInvestidor",
-      "valorFazenda",
-    ],
-    order: [["data", "DESC"]],
-    raw: true,
-    nest: true,
-  }).then((vendas) => {
-    vendas.forEach((venda) => {
-      venda.data = moment(venda.data).format("DD/MM/YYYY");
-    });
-    Investidor.findAll().then(async (investidores) => {
-      //////////////////////Quantidade
-      var quantidade = await Venda.count();
 
-      //////////////////////valor Venda
-      var amountT = await Venda.findOne({
-        attributes: [sequelize.fn("sum", sequelize.col("valor"))],
+   const page = parseInt(req.query.page) || 1;
+   const limit = 10; // número de itens por página
+   const offset = (page - 1) * limit;
+   
+   const { count, rows: vendas } = await Venda.findAndCountAll({
+     include: [
+       {
+         model: Investidor,
+       },
+     ],
+     attributes: [
+       "data",
+       "code",
+       "quantidade",
+       "mediaPonderada",
+       "valorInvestidor",
+       "valorFazenda",
+       [sequelize.fn("SUM", sequelize.col("valor")), "total_valor"],
+       "dolar",
+       [sequelize.fn("SUM", sequelize.col("amount")), "total_amount"],
+       "obs",
+       "investidoreId",
+     ],
+     group: [
+       "data",
+       "code",
+       "quantidade",
+       "dolar",
+       "obs",
+       "investidoreId",
+       "mediaPonderada",
+       "valorInvestidor",
+       "valorFazenda",
+     ],
+     order: [["data", "DESC"]],
+     raw: true,
+     nest: true,
+     limit: limit,
+     offset: offset,
+   });
+     vendas.forEach((venda) => {
+       venda.data = moment(venda.data).format("DD/MM/YYYY");
+     });
 
-        raw: true,
-      });
-      var ValorVenda = Number(amountT["sum(`valor`)"]).toLocaleString("pt-BR", {
-        style: "currency",
-        currency: "BRL",
-      });
+     
+const totalPages = Math.ceil(count / limit);
 
-      //////////////////////valor Venda em dolar
-      var amountD = await Venda.findOne({
-        attributes: [sequelize.fn("sum", sequelize.col("amount"))],
+     Investidor.findAll().then(async (investidores) => {
+       //////////////////////Quantidade
+       var quantidade = await Venda.count();
 
-        raw: true,
-      });
-      var TotalVendaDolar = Number(amountD["sum(`amount`)"]).toLocaleString(
-        "pt-BR",
-        { style: "currency", currency: "BRL" }
-      );
+       //////////////////////valor Venda
+       var amountT = await Venda.findOne({
+         attributes: [sequelize.fn("sum", sequelize.col("valor"))],
 
-      var amountU = await Venda.findOne({
-        attributes: [
-          [
-            sequelize.fn(
-              "avg",
-              sequelize.fn("DISTINCT", sequelize.col("valor"))
-            ),
-            "media",
-          ],
-        ],
-        distinct: true,
-        raw: true,
-      });
+         raw: true,
+       });
+       var ValorVenda = Number(amountT["sum(`valor`)"]).toLocaleString(
+         "pt-BR",
+         {
+           style: "currency",
+           currency: "BRL",
+         }
+       );
 
-      var mediaVenda = Number(amountU["media"]).toLocaleString("pt-BR", {
-        style: "currency",
-        currency: "BRL",
-      });
+       //////////////////////valor Venda em dolar
+       var amountD = await Venda.findOne({
+         attributes: [sequelize.fn("sum", sequelize.col("amount"))],
 
-      res.render("admin/venda/index", {
-        vendas: vendas,
-        investidores: investidores,
-        mediaVenda,
-        quantidade,
-        ValorVenda,
-        TotalVendaDolar,
-      });
-    });
-  });
+         raw: true,
+       });
+       var TotalVendaDolar = Number(amountD["sum(`amount`)"]).toLocaleString(
+         "en-US",
+         { style: "currency", currency: "USD" }
+       );
+
+       var amountU = await Venda.findOne({
+         attributes: [
+           [
+             sequelize.fn(
+               "avg",
+               sequelize.fn("DISTINCT", sequelize.col("valor"))
+             ),
+             "media",
+           ],
+         ],
+         distinct: true,
+         raw: true,
+       });
+
+       var mediaVenda = Number(amountU["media"]).toLocaleString("pt-BR", {
+         style: "currency",
+         currency: "BRL",
+       });
+
+       res.render("admin/venda/index", {
+         vendas: vendas,
+         investidores: investidores,
+         mediaVenda,
+         quantidade,
+         ValorVenda,
+         TotalVendaDolar,
+         currentPage: page,
+         totalPages: totalPages,
+       });
+     });
 });
 
 router.get("/admin/venda/view/:code", adminAuth, async (req, res, next) => {
@@ -276,6 +291,7 @@ router.get("/admin/venda/new", adminAuth, (req, res) => {
 });
 
 router.post("/venda/save", adminAuth, async (req, res) => {
+  let action = req.body.action; // Capture the action value from the form
   const id = req.body.id;
   const code = req.body.code ?? 1;
   const brinco = req.body.brinco;
@@ -334,7 +350,9 @@ router.post("/venda/save", adminAuth, async (req, res) => {
   const valorRecebimento = diferenca + divisao;
   console.log(valorRecebimento);
 
-  const capitalLucro = (((totalAmountFloat - (MediaCompraPonderada * quantidade))/2) + (MediaCompraPonderada * quantidade))
+  const capitalLucro =
+    (totalAmountFloat - MediaCompraPonderada * quantidade) / 2 +
+    MediaCompraPonderada * quantidade;
   const valorFazenda = totalAmountFloat - capitalLucro;
   try {
     // Encontrar o investidor pelo id
@@ -426,7 +444,13 @@ router.post("/venda/save", adminAuth, async (req, res) => {
         investidoreId: investidor,
       });
     }
-    res.redirect("/admin/venda");
+
+    if (action === "exit") {
+      res.redirect("/admin/venda?success");
+    } else {
+      // Quando for "Salvar e Continuar"
+      res.redirect("/admin/venda/new?message=Registro salvo com sucesso!");
+    }
   } catch (error) {
     console.error(error);
     res

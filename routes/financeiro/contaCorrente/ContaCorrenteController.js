@@ -20,163 +20,191 @@ Number.prototype.toLocaleFixed = function (n) {
 };
 
 router.get("/admin/contaCorrente", adminAuth, async (req, res, next) => {
-  Investidor.findAll({
-    raw: true,
-    nest: true,
-  }).then(async (investidores) => {
-     ContaCorrente.findAll({
-       include: [
-         {
-           model: Investidor,
-         },
-       ],
-       order: [["data", "DESC"]],
-       raw: true,
-       nest: true,
-     }).then(async (contaCorrente) => {
-             //////////////////////Capital Investidor
-       Compra.findAll({
-         include: [
-           {
-             model: Investidor,
-           },
-         ],
-         attributes: [
-           "data",
-           "code",
-           "quantidade",
-           [sequelize.fn("SUM", sequelize.col("valor")), "total_valor"],
-           "dolar",
-           [sequelize.fn("SUM", sequelize.col("amount")), "total_amount"],
-           "obs",
-           "investidoreId",
-         ],
-         group: ["data", "code", "quantidade", "dolar", "obs", "investidoreId"],
-         order: [["data", "DESC"]],
-         raw: true,
-         nest: true,
-       }).then(async (compras) => {
-         compras.forEach((compra) => {
-           compra.data = moment(compra.data).format("DD/MM/YYYY");
-         });
-         Venda.findAll({
-           include: [
-             {
-               model: Investidor,
-             },
-           ],
-           attributes: [
-             "data",
-             "code",
-             "quantidade",
-             [sequelize.fn("SUM", sequelize.col("valor")), "total_valor"],
-             "dolar",
-             [sequelize.fn("SUM", sequelize.col("amount")), "total_amount"],
-             "obs",
-             "investidoreId",
-           ],
-           group: [
-             "data",
-             "code",
-             "quantidade",
-             "dolar",
-             "obs",
-             "investidoreId",
-           ],
-           order: [["data", "DESC"]],
-           raw: true,
-           nest: true,
-         }).then(async (vendas) => {
-          vendas.forEach((venda) => {
-            venda.data = moment(venda.data).format("DD/MM/YYYY");
-            venda.total_valor = (venda.total_valor) / 2
-          });
-           contaCorrente.forEach((contaCorrente) => {
-             contaCorrente.data = moment(contaCorrente.data).format(
-               "DD/MM/YYYY"
-             );
-           });
-    
-           const amountC = await Compra.findOne({
-            attributes: [sequelize.fn("sum", sequelize.col("valor"))],
-            raw: true,
-          });
-          const amountCompraV = Number(amountC["sum(`valor`)"]);
+  const page = parseInt(req.query.page) || 1;
+  const limit = 10; // número de itens por página
+  const offset = (page - 1) * limit;
 
-          const amountCompra = Number(amountC["sum(`valor`)"]).toLocaleString("pt-BR", {
-            style: "currency",
-            currency: "BRL",
-          });
+  try {
+    const investidores = await Investidor.findAll({
+      raw: true,
+      nest: true,
+    });
 
-          Venda.count().then(async (totalVendas) => {
-            console.log(totalVendas)
-          const contaCorrentes = await ContaCorrente.findAll({
-            where: {
-              obs: "Crédito referente a venda de gado",
-            },
-            attributes: ['valor']
-          });
+    const { count, rows: contaCorrente } = await ContaCorrente.findAndCountAll({
+      include: [
+        {
+          model: Investidor,
+        },
+      ],
+      order: [["data", "DESC"]],
+      raw: true,
+      nest: true,
+      limit: limit,
+      offset: offset,
+    });
 
-          let totalVendaSum = 0;
-          contaCorrentes.forEach(contaCorrente => {
-            totalVendaSum += parseFloat(contaCorrente.valor);
-          });
+    contaCorrente.forEach((conta) => {
+      conta.data = moment(conta.data).format("DD/MM/YYYY");
+    });
 
-          const contaCorrentesEntrada = await ContaCorrente.findAll({
-            where: {
-              category: "ENTRADA",
-            },
-            attributes: ['valor']
-          });
+    //////////////////////comprados
+    var ContaCorrenteTotal = await ContaCorrente.count();
+    const totalPages = Math.ceil(count / 2);
+    const maxPagesToShow = 5;
+    let startPage, endPage;
 
-          let totalSumEntrada = 0;
-          contaCorrentesEntrada.forEach(contaCorrentesEntrada => {
-            totalSumEntrada += parseFloat(contaCorrentesEntrada.valor);
-          });
+    if (totalPages <= maxPagesToShow) {
+      startPage = 1;
+      endPage = totalPages;
+    } else {
+      if (page <= Math.ceil(maxPagesToShow / 2)) {
+        startPage = 1;
+        endPage = maxPagesToShow;
+      } else if (page + Math.floor(maxPagesToShow / 2) >= totalPages) {
+        startPage = totalPages - maxPagesToShow + 1;
+        endPage = totalPages;
+      } else {
+        startPage = page - Math.floor(maxPagesToShow / 2);
+        endPage = page + Math.floor(maxPagesToShow / 2);
+      }
+    }
 
-          const contaCorrentesRetirada = await ContaCorrente.findAll({
-            where: {
-              category: "RETIRADA",
-            },
-            attributes: ['valor']
-          });
+    // Capital Investidor
+    const compras = await Compra.findAll({
+      include: [
+        {
+          model: Investidor,
+        },
+      ],
+      attributes: [
+        "data",
+        "code",
+        "quantidade",
+        [sequelize.fn("SUM", sequelize.col("valor")), "total_valor"],
+        "dolar",
+        [sequelize.fn("SUM", sequelize.col("amount")), "total_amount"],
+        "obs",
+        "investidoreId",
+      ],
+      group: ["data", "code", "quantidade", "dolar", "obs", "investidoreId"],
+      order: [["data", "DESC"]],
+      raw: true,
+      nest: true,
+    });
 
-       let totalSumRetirada = 0;
-contaCorrentesRetirada.forEach(contaCorrentesRetirada => {
-  totalSumRetirada += parseFloat(contaCorrentesRetirada.valor);
+    compras.forEach((compra) => {
+      compra.data = moment(compra.data).format("DD/MM/YYYY");
+    });
+
+    const vendas = await Venda.findAll({
+      include: [
+        {
+          model: Investidor,
+        },
+      ],
+      attributes: [
+        "data",
+        "code",
+        "quantidade",
+        [sequelize.fn("SUM", sequelize.col("valor")), "total_valor"],
+        "dolar",
+        [sequelize.fn("SUM", sequelize.col("amount")), "total_amount"],
+        "obs",
+        "investidoreId",
+      ],
+      group: ["data", "code", "quantidade", "dolar", "obs", "investidoreId"],
+      order: [["data", "DESC"]],
+      raw: true,
+      nest: true,
+    });
+
+    vendas.forEach((venda) => {
+      venda.data = moment(venda.data).format("DD/MM/YYYY");
+      venda.total_valor = venda.total_valor / 2;
+    });
+
+    const amountC = await Compra.findOne({
+      attributes: [sequelize.fn("sum", sequelize.col("valor"))],
+      raw: true,
+    });
+
+    const amountCompraV = Number(amountC["sum(`valor`)"]);
+    const amountCompra = amountCompraV.toLocaleString("pt-BR", {
+      style: "currency",
+      currency: "BRL",
+    });
+
+    const totalVendas = await Venda.count();
+
+    const contaCorrentes = await ContaCorrente.findAll({
+      where: {
+        obs: "Crédito referente a venda de gado",
+      },
+      attributes: ["valor"],
+    });
+
+    let totalVendaSum = 0;
+    contaCorrentes.forEach((conta) => {
+      totalVendaSum += parseFloat(conta.valor);
+    });
+
+    const contaCorrentesEntrada = await ContaCorrente.findAll({
+      where: {
+        category: "ENTRADA",
+      },
+      attributes: ["valor"],
+    });
+
+    let totalSumEntrada = 0;
+    contaCorrentesEntrada.forEach((entrada) => {
+      totalSumEntrada += parseFloat(entrada.valor);
+    });
+
+    const contaCorrentesRetirada = await ContaCorrente.findAll({
+      where: {
+        category: "RETIRADA",
+      },
+      attributes: ["valor"],
+    });
+
+    let totalSumRetirada = 0;
+    contaCorrentesRetirada.forEach((retirada) => {
+      totalSumRetirada += parseFloat(retirada.valor);
+    });
+
+    totalSumRetirada = Math.abs(totalSumRetirada); // Converte para valor absoluto
+
+    const mortes = await Morte.findAll({
+      attributes: ["valor"],
+      raw: true,
+    });
+
+    let sumMortes = 0;
+    mortes.forEach((morte) => {
+      sumMortes += parseFloat(morte.valor);
+    });
+
+    const Total =
+      totalSumEntrada - amountCompraV + totalVendaSum - totalSumRetirada;
+
+    res.render("admin/financeiro/contaCorrente/index", {
+      compras: compras,
+      vendas: vendas,
+      investidores: investidores,
+      contaCorrente: contaCorrente,
+      Total,
+      amountCompra,
+      totalVendaSum,
+      currentPage: page,
+      totalPages: totalPages,
+      startPage: startPage,
+      endPage: endPage,
+    });
+  } catch (error) {
+    next(error); // Propaga o erro para o middleware de tratamento de erros
+  }
 });
 
-totalSumRetirada = Math.abs(totalSumRetirada);  // Converte para valor absoluto
-
-          const mortes = await Morte.findAll({
-            attributes: ['valor'],
-           raw: true,
-          });
-        
-          let sumMortes = 0;
-          mortes.forEach(morte => {
-            sumMortes += parseFloat(morte.valor);
-          });
-          console.log(amountCompraV)
-console.log(totalSumEntrada)
-console.log(amountCompraV);
-console.log(totalVendaSum);
-console.log(totalSumRetirada)
-          
-const Total = (((totalSumEntrada - amountCompraV) + totalVendaSum) - totalSumRetirada);
-           res.render("admin/financeiro/contaCorrente/index", {
-             compras: compras,
-             vendas: vendas,
-             investidores: investidores,
-             contaCorrente: contaCorrente,
-             Total,amountCompra,totalVendaSum, 
-           });
-         });
-       });
-      })
-     });
-       });
-     });
 
 router.get("/admin/contaCorrente/new", adminAuth, (req, res) => {
   Investidor.findAll().then((investidores) => {
@@ -187,6 +215,7 @@ router.get("/admin/contaCorrente/new", adminAuth, (req, res) => {
 });
 
 router.post("/contaCorrente/save", adminAuth, async (req, res) => {
+  let action = req.body.action; // Capture the action value from the form
   const data = req.body.data;
   const category = req.body.category;
   const valor = req.body.valor;
@@ -204,7 +233,15 @@ router.post("/contaCorrente/save", adminAuth, async (req, res) => {
     obs: obs,
     investidoreId: investidor,
   }).then(() => {
-    res.redirect("/admin/contaCorrente");
+    // Handle the redirect or stay on the form based on the action
+    if (action === "exit") {
+      res.redirect("/admin/contaCorrente?success");
+    } else {
+      // Quando for "Salvar e Continuar"
+      res.redirect(
+        "/admin/contaCorrente/new?message=Registro salvo com sucesso!"
+      );
+    }
   });
 });
 

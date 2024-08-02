@@ -134,12 +134,15 @@
             </tbody>
           </table>
           <br />
-          <div class="row">
+         <div class="row">
             <div class="col"></div>
-            <div class="col-3">
-              <button class="btn btn-success form-control">Salvar</button>
-            </div>
-          </div>
+        <div class="col-3">
+    <button type="submit" class="btn btn-primary form-control" name="action" value="continue">Salvar e Continuar</button>
+  </div>
+        <div class="col-3">
+    <button type="submit" class="btn btn-success form-control" name="action" value="exit">Salvar e Sair</button>
+  </div>
+</div>
         </form>
       </div>
     </div>
@@ -157,6 +160,8 @@
   src="https://plentz.github.io/jquery-maskmoney/javascripts/jquery.maskMoney.min.js"
   type="text/javascript"
 ></script>
+
+
 
 <script>
   function formatCurrency(input) {
@@ -240,4 +245,27 @@
 
   // Chama a função inicialmente para verificar os valores iniciais
   updateCompraTable();
+</script>
+
+<script>
+  // Captura parâmetros da URL
+  const params = new URLSearchParams(window.location.search);
+
+  // Verifica se existe uma mensagem na URL
+  if (params.has('message')) {
+    const message = params.get('message');
+    
+    // Cria um elemento para exibir a mensagem
+    const messageElement = document.createElement('div');
+    messageElement.className = 'alert alert-success';
+    messageElement.innerText = message;
+
+    // Adiciona a mensagem no topo da página ou em um local específico
+    document.querySelector('.card-body').prepend(messageElement);
+
+    // Remove a mensagem após 5 segundos
+    setTimeout(() => {
+      messageElement.remove();
+    }, 2000); // 5000 milissegundos = 5 segundos
+  }
 </script>
