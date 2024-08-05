@@ -215,7 +215,7 @@
     // Adicionando um título com uma fonte maior e em negrito
     doc.setFontSize(18);
     doc.setFont('Helvetica', 'bold');
-    doc.text('Relatório Financeiro', 105, 20, null, null, 'center');
+    doc.text('Relatório', 105, 20, null, null, 'center');
 
     // Adicionando uma linha divisória abaixo do título
     doc.setLineWidth(0.5);
@@ -287,7 +287,7 @@
     doc.rect(5, 5, 200, 287); // Desenha um retângulo ao redor da página
 
     // Salvando o PDF
-    doc.save('Relatorio_Financeiro.pdf');
+    doc.save('Relatorio.pdf');
   });
 </script>
 
