@@ -6,7 +6,7 @@
       <hr />
       <h2>Conta Corrente</h2>
     <div class="row g-2">
-      <div class="col-3">
+      <div class="col-2">
         <div class="card text-center">
           <a class="btn btn-primary form-control" href="/admin/contaCorrente/new">Adicionar</a>
         </div>
@@ -31,7 +31,7 @@
     
         </div>
                 </div>
-                <div class="col-4">
+                <div class="col-3">
                   <div class="card">
                     <div class="dropdown">
                       <button class="btn dropdown-toggle form-control" type="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -55,7 +55,7 @@
                     </div>
                   </div>
                 </div>
-              <div class="col-3">
+              <div class="col-2">
         <div class="card">
           <!--Barra de Pesquisa-->
           <form class="form-search">
@@ -69,7 +69,16 @@
           </form>
         </div>
                 </div>
+                 <div class="col-3">
+        <div class="card">
+          <!--Barra de Pesquisa-->
+         <button class="btn btn-success form-control" id="btnCompartilhar">Compartilhar</button>
+
+        </div>
+                </div>
     </div>
+   <div id="investidorSelecionadoDiv" class="fixed-investidor">Parceria: <%= investidorNome %></div>
+
       <hr />
       <div class="row g-2">
        <hr />
@@ -179,6 +188,109 @@
 
 
 <%- include ("../../../partials/footer.ejs") %>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+  // Função para capturar o nome do investidor selecionado
+  const dropdownItems = document.querySelectorAll('.dropdown-item');
+  let nomeInvestidor = "<%= investidorNome %>"; // Valor inicial vindo do servidor
+
+  // Atualiza o nome do investidor no div ao clicar no item
+  dropdownItems.forEach(item => {
+    item.addEventListener('click', function () {
+      nomeInvestidor = this.textContent.trim(); // Captura o nome do investidor
+      document.getElementById('investidorSelecionadoDiv').textContent = `Parceria: ${nomeInvestidor}`; // Exibe o nome selecionado no div fixo
+    });
+  });
+
+  // Geração do PDF
+  document.getElementById('btnCompartilhar').addEventListener('click', function () {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+
+    // Definindo a fonte e tamanho padrão
+    doc.setFont('Helvetica', 'normal');
+    doc.setFontSize(12);
+
+    // Adicionando um título com uma fonte maior e em negrito
+    doc.setFontSize(18);
+    doc.setFont('Helvetica', 'bold');
+    doc.text('Relatório Financeiro', 105, 20, null, null, 'center');
+
+    // Adicionando uma linha divisória abaixo do título
+    doc.setLineWidth(0.5);
+    doc.line(10, 25, 200, 25);
+
+    // Adicionando o nome do investidor selecionado
+    doc.setFontSize(14);
+    doc.setFont('Helvetica', 'normal');
+    doc.text(`Parceria: ${nomeInvestidor}`, 10, 35);
+
+    // Adicionando uma tabela separada para as informações financeiras
+    let startY = 50;
+    const lineHeight = 10;
+    const sectionPadding = 5;
+    const sectionLineWidth = 0.5; // Largura da linha divisória
+
+    // Seções do relatório
+    const sections = [
+      {
+        title: 'Estoque',
+        data: [
+          { label: 'Estoque Atual', value: '<%= estoque %>' }
+        ]
+      },
+      {
+        title: 'Entradas',
+        data: [
+          { label: 'Número de Animais Comprados', value: '<%= compradosTotal %>' },
+          { label: 'Capital Investido em Compra', value: '<%= amountCompra %>' }
+        ]
+      },
+      {
+        title: 'Saídas',
+        data: [
+          { label: 'Mortes', value: '<%= morte %>' },
+          { label: 'Vendidos', value: '<%= vendidos %>' },
+          { label: 'Capital Retorno de Venda', value: new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format('<%= totalVendaSum %>') },
+          { label: 'Saldo', value: new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format('<%= Total %>') }
+        ]
+      }
+    ];
+
+    // Função para adicionar cada seção ao PDF
+    sections.forEach(section => {
+      doc.setFontSize(16);
+      doc.setFont('Helvetica', 'bold');
+      doc.text(section.title, 10, startY);
+      startY += lineHeight;
+
+      doc.setFontSize(12);
+      doc.setFont('Helvetica', 'normal');
+      section.data.forEach(item => {
+        doc.text(`${item.label}:`, 10, startY);
+        doc.text(`${item.value}`, 100, startY);  // Alinha o valor à direita
+        startY += lineHeight;
+      });
+
+      // Adiciona uma linha horizontal separadora
+      doc.setLineWidth(0.2);
+      doc.line(10, startY + sectionPadding, 200, startY + sectionPadding);
+
+      // Adiciona um espaço entre as seções
+      startY += sectionPadding + lineHeight;
+    });
+
+    // Adicionando bordas à página
+    doc.setDrawColor(0); // Define a cor da borda (preta)
+    doc.setLineWidth(1);
+    doc.rect(5, 5, 200, 287); // Desenha um retângulo ao redor da página
+
+    // Salvando o PDF
+    doc.save('Relatorio_Financeiro.pdf');
+  });
+</script>
+
 
 <script>
   //delete Script

@@ -183,9 +183,23 @@ router.get("/admin/contaCorrente", adminAuth, async (req, res, next) => {
     mortes.forEach((morte) => {
       sumMortes += parseFloat(morte.valor);
     });
+    let investidorNome = "Todos os Investidores"; // Valor padrão
 
     const Total =
       totalSumEntrada - amountCompraV + totalVendaSum - totalSumRetirada;
+
+    const compradosTotal = await Compra.count();
+
+    const amountQ = await Morte.findOne({
+      attributes: [sequelize.fn("sum", sequelize.col("quantidade"))],
+      raw: true,
+    });
+    const morte = Number(amountQ["sum(`quantidade`)"]);
+
+    //////////////////////vendidos
+    const vendidos = await Venda.count();
+
+      const estoque = compradosTotal - morte - vendidos;
 
     res.render("admin/financeiro/contaCorrente/index", {
       compras: compras,
@@ -199,6 +213,11 @@ router.get("/admin/contaCorrente", adminAuth, async (req, res, next) => {
       totalPages: totalPages,
       startPage: startPage,
       endPage: endPage,
+      investidorNome,
+      compradosTotal,
+      morte,
+      vendidos,
+      estoque,
     });
   } catch (error) {
     next(error); // Propaga o erro para o middleware de tratamento de erros

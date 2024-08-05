@@ -66,7 +66,6 @@ function formatValueOrArray(value) {
 }
 
 router.get("/admin/venda", adminAuth, async (req, res, next) => {
-
    const page = parseInt(req.query.page) || 1;
    const limit = 10; // número de itens por página
    const offset = (page - 1) * limit;
@@ -111,8 +110,28 @@ router.get("/admin/venda", adminAuth, async (req, res, next) => {
        venda.data = moment(venda.data).format("DD/MM/YYYY");
      });
 
-     
-const totalPages = Math.ceil(count / limit);
+   var vendidosTotal = await Venda.count();
+  
+const totalPages = Math.ceil(count / vendidosTotal);
+
+ const maxPagesToShow = 5;
+ let startPage, endPage;
+
+ if (totalPages <= maxPagesToShow) {
+   startPage = 1;
+   endPage = totalPages;
+ } else {
+   if (page <= Math.ceil(maxPagesToShow / 2)) {
+     startPage = 1;
+     endPage = maxPagesToShow;
+   } else if (page + Math.floor(maxPagesToShow / 2) >= totalPages) {
+     startPage = totalPages - maxPagesToShow + 1;
+     endPage = totalPages;
+   } else {
+     startPage = page - Math.floor(maxPagesToShow / 2);
+     endPage = page + Math.floor(maxPagesToShow / 2);
+   }
+ }
 
      Investidor.findAll().then(async (investidores) => {
        //////////////////////Quantidade
@@ -171,6 +190,8 @@ const totalPages = Math.ceil(count / limit);
          TotalVendaDolar,
          currentPage: page,
          totalPages: totalPages,
+         startPage: startPage,
+         endPage: endPage,
        });
      });
 });

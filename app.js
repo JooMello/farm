@@ -115,12 +115,37 @@ app.get("/compra/:id", adminAuth, async (req, res) => {
     order: [["data", "DESC"]],
     raw: true,
     nest: true,
-  })
+    limit: limit,
+    offset: offset,
+  });
     
       compras.forEach((compra) => {
         compra.data = moment(compra.data).format("DD/MM/YYYY");
       });
-      const totalPages = Math.ceil(count / limit);
+ var compradosTotal = await Compra.count({
+   where: {
+     investidoreId: id,
+   },
+ });
+ const totalPages = Math.ceil(count / compradosTotal);
+ const maxPagesToShow = 5;
+ let startPage, endPage;
+
+ if (totalPages <= maxPagesToShow) {
+   startPage = 1;
+   endPage = totalPages;
+ } else {
+   if (page <= Math.ceil(maxPagesToShow / 2)) {
+     startPage = 1;
+     endPage = maxPagesToShow;
+   } else if (page + Math.floor(maxPagesToShow / 2) >= totalPages) {
+     startPage = totalPages - maxPagesToShow + 1;
+     endPage = totalPages;
+   } else {
+     startPage = page - Math.floor(maxPagesToShow / 2);
+     endPage = page + Math.floor(maxPagesToShow / 2);
+   }
+ }
       Investidor.findAll().then(async (investidores) => {
         Historico.findAll({
           where: {
@@ -191,6 +216,8 @@ app.get("/compra/:id", adminAuth, async (req, res) => {
             CapitalInvestidoDolar,
             currentPage: page,
             totalPages: totalPages,
+            startPage: startPage,
+            endPage: endPage,
           });
         });
       });
@@ -237,13 +264,39 @@ app.get("/compra", adminAuth, async (req, res) => {
     order: [["data", "DESC"]],
     raw: true,
     nest: true,
-  })
+  });
   
       compras.forEach((compra) => {
         compra.data = moment(compra.data).format("DD/MM/YYYY");
       });
 
-      const totalPages = Math.ceil(count / limit);
+      var compradosTotal = await Compra.count({
+        where: {
+          data: {
+            [Op.between]: [start, end],
+          },
+        },
+      });
+      const totalPages = Math.ceil(count / compradosTotal);
+      const maxPagesToShow = 5;
+      let startPage, endPage;
+
+      if (totalPages <= maxPagesToShow) {
+        startPage = 1;
+        endPage = totalPages;
+      } else {
+        if (page <= Math.ceil(maxPagesToShow / 2)) {
+          startPage = 1;
+          endPage = maxPagesToShow;
+        } else if (page + Math.floor(maxPagesToShow / 2) >= totalPages) {
+          startPage = totalPages - maxPagesToShow + 1;
+          endPage = totalPages;
+        } else {
+          startPage = page - Math.floor(maxPagesToShow / 2);
+          endPage = page + Math.floor(maxPagesToShow / 2);
+        }
+      }
+
       Investidor.findAll().then(async (investidores) => {
         //////////////////////Quantidade
         var quantidade = await Compra.count({
@@ -316,6 +369,8 @@ app.get("/compra", adminAuth, async (req, res) => {
           CapitalInvestidoDolar,
           currentPage: page,
           totalPages: totalPages,
+          startPage: startPage,
+          endPage: endPage,
         });
       });
     })
@@ -364,12 +419,40 @@ app.get("/venda", adminAuth, async (req, res) => {
     order: [["data", "DESC"]],
     raw: true,
     nest: true,
-  })
+  });
       vendas.forEach((venda) => {
         venda.data = moment(venda.data).format("DD/MM/YYYY");
       });
 
-      const totalPages = Math.ceil(count / limit);
+ var vendidosTotal = await Venda.count({
+   where: {
+     data: {
+       [Op.between]: [start, end],
+     },
+   },
+ });
+
+ const totalPages = Math.ceil(count / vendidosTotal);
+
+ const maxPagesToShow = 5;
+ let startPage, endPage;
+
+ if (totalPages <= maxPagesToShow) {
+   startPage = 1;
+   endPage = totalPages;
+ } else {
+   if (page <= Math.ceil(maxPagesToShow / 2)) {
+     startPage = 1;
+     endPage = maxPagesToShow;
+   } else if (page + Math.floor(maxPagesToShow / 2) >= totalPages) {
+     startPage = totalPages - maxPagesToShow + 1;
+     endPage = totalPages;
+   } else {
+     startPage = page - Math.floor(maxPagesToShow / 2);
+     endPage = page + Math.floor(maxPagesToShow / 2);
+   }
+ }
+
       Investidor.findAll().then(async (investidores) => {
         //////////////////////Quantidade
         var quantidade = await Venda.count({
@@ -449,6 +532,8 @@ app.get("/venda", adminAuth, async (req, res) => {
           TotalVendaDolar,
           currentPage: page,
           totalPages: totalPages,
+          startPage: startPage,
+          endPage: endPage,
         });
       });
 });
@@ -494,11 +579,40 @@ app.get("/venda/:id", adminAuth, async (req, res) => {
     order: [["data", "DESC"]],
     raw: true,
     nest: true,
-  })
+    limit: limit,
+    offset: offset,
+  });
       vendas.forEach((venda) => {
         venda.data = moment(venda.data).format("DD/MM/YYYY");
       });
-      const totalPages = Math.ceil(count / limit);
+
+     var vendidosTotal = await Venda.count({
+       where: {
+         investidoreId: id,
+       },
+     });
+
+const totalPages = Math.ceil(count / vendidosTotal);
+
+const maxPagesToShow = 5;
+let startPage, endPage;
+
+if (totalPages <= maxPagesToShow) {
+  startPage = 1;
+  endPage = totalPages;
+} else {
+  if (page <= Math.ceil(maxPagesToShow / 2)) {
+    startPage = 1;
+    endPage = maxPagesToShow;
+  } else if (page + Math.floor(maxPagesToShow / 2) >= totalPages) {
+    startPage = totalPages - maxPagesToShow + 1;
+    endPage = totalPages;
+  } else {
+    startPage = page - Math.floor(maxPagesToShow / 2);
+    endPage = page + Math.floor(maxPagesToShow / 2);
+  }
+}
+
       Investidor.findAll().then(async (investidores) => {
         //////////////////////Quantidade
         //////////////////////Quantidade
@@ -570,6 +684,8 @@ app.get("/venda/:id", adminAuth, async (req, res) => {
           TotalVendaDolar,
           currentPage: page,
           totalPages: totalPages,
+          startPage: startPage,
+          endPage: endPage,
         });
       });
 });
@@ -577,178 +693,236 @@ app.get("/venda/:id", adminAuth, async (req, res) => {
 app.get("/contaCorrente/:id", adminAuth, async (req, res, next) => {
   var id = req.params.id;
 
-   const page = parseInt(req.query.page) || 1;
-   const limit = 10; // número de itens por página
-   const offset = (page - 1) * limit;
+  const page = parseInt(req.query.page) || 1;
+  const limit = 10; // número de itens por página
+  const offset = (page - 1) * limit;
 
-    const investidores = await Investidor.findAll({
-      raw: true,
-      nest: true,
-    });
+  const investidores = await Investidor.findAll({
+    raw: true,
+    nest: true,
+  });
+  const investidorNome = await Investidor.findOne({
+    where: {
+      id: id,
+    },
+    attributes: ["name"],
+    raw: true,
+    nest: true,
+  }).then((result) => result.name);
 
-    const { count, rows: contaCorrente } = await ContaCorrente.findAndCountAll({
-      where: {
-        investidoreId: id,
+  const { count, rows: contaCorrente } = await ContaCorrente.findAndCountAll({
+    where: {
+      investidoreId: id,
+    },
+    include: [
+      {
+        model: Investidor,
       },
-      include: [
-        {
-          model: Investidor,
-        },
-      ],
-      order: [["data", "DESC"]],
-      raw: true,
-      nest: true,
-    }) 
-    contaCorrente.forEach((conta) => {
-      conta.data = moment(conta.data).format("DD/MM/YYYY");
-    });
+    ],
+    order: [["data", "DESC"]],
+    raw: true,
+    nest: true,
+    limit: limit,
+    offset: offset,
+  });
+  contaCorrente.forEach((conta) => {
+    conta.data = moment(conta.data).format("DD/MM/YYYY");
+  });
+  var ContaCorrenteTotal = await ContaCorrente.count();
+  const totalPages = Math.ceil(count / 2);
+  const maxPagesToShow = 5;
+  let startPage, endPage;
 
-    const totalPages = Math.ceil(count / limit);
+  if (totalPages <= maxPagesToShow) {
+    startPage = 1;
+    endPage = totalPages;
+  } else {
+    if (page <= Math.ceil(maxPagesToShow / 2)) {
+      startPage = 1;
+      endPage = maxPagesToShow;
+    } else if (page + Math.floor(maxPagesToShow / 2) >= totalPages) {
+      startPage = totalPages - maxPagesToShow + 1;
+      endPage = totalPages;
+    } else {
+      startPage = page - Math.floor(maxPagesToShow / 2);
+      endPage = page + Math.floor(maxPagesToShow / 2);
+    }
+  }
 
-        const compras = await Compra.findAll({
-           where: {
-          investidoreId: id,
-        },
-      include: [
-        {
-          model: Investidor,
-        },
-      ],
-      attributes: [
-        "data",
-        "code",
-        "quantidade",
-        [sequelize.fn("SUM", sequelize.col("valor")), "total_valor"],
-        "dolar",
-        [sequelize.fn("SUM", sequelize.col("amount")), "total_amount"],
-        "obs",
-        "investidoreId",
-      ],
-      group: ["data", "code", "quantidade", "dolar", "obs", "investidoreId"],
-      order: [["data", "DESC"]],
-      raw: true,
-      nest: true,
-    });
+  const compras = await Compra.findAll({
+    where: {
+      investidoreId: id,
+    },
+    include: [
+      {
+        model: Investidor,
+      },
+    ],
+    attributes: [
+      "data",
+      "code",
+      "quantidade",
+      [sequelize.fn("SUM", sequelize.col("valor")), "total_valor"],
+      "dolar",
+      [sequelize.fn("SUM", sequelize.col("amount")), "total_amount"],
+      "obs",
+      "investidoreId",
+    ],
+    group: ["data", "code", "quantidade", "dolar", "obs", "investidoreId"],
+    order: [["data", "DESC"]],
+    raw: true,
+    nest: true,
+  });
 
-    compras.forEach((compra) => {
-      compra.data = moment(compra.data).format("DD/MM/YYYY");
-    });
+  compras.forEach((compra) => {
+    compra.data = moment(compra.data).format("DD/MM/YYYY");
+  });
 
-    const vendas = await Venda.findAll({
-        where: {
-            investidoreId: id,
-          },
-      include: [
-        {
-          model: Investidor,
-        },
-      ],
-      attributes: [
-        "data",
-        "code",
-        "quantidade",
-        [sequelize.fn("SUM", sequelize.col("valor")), "total_valor"],
-        "dolar",
-        [sequelize.fn("SUM", sequelize.col("amount")), "total_amount"],
-        "obs",
-        "investidoreId",
-      ],
-      group: ["data", "code", "quantidade", "dolar", "obs", "investidoreId"],
-      order: [["data", "DESC"]],
-      raw: true,
-      nest: true,
-    });
+  const vendas = await Venda.findAll({
+    where: {
+      investidoreId: id,
+    },
+    include: [
+      {
+        model: Investidor,
+      },
+    ],
+    attributes: [
+      "data",
+      "code",
+      "quantidade",
+      [sequelize.fn("SUM", sequelize.col("valor")), "total_valor"],
+      "dolar",
+      [sequelize.fn("SUM", sequelize.col("amount")), "total_amount"],
+      "obs",
+      "investidoreId",
+    ],
+    group: ["data", "code", "quantidade", "dolar", "obs", "investidoreId"],
+    order: [["data", "DESC"]],
+    raw: true,
+    nest: true,
+  });
 
-    vendas.forEach((venda) => {
-      venda.data = moment(venda.data).format("DD/MM/YYYY");
-      venda.total_valor = venda.total_valor / 2;
-    });
+  vendas.forEach((venda) => {
+    venda.data = moment(venda.data).format("DD/MM/YYYY");
+    venda.total_valor = venda.total_valor / 2;
+  });
 
-          var amountC = await Compra.findOne({
-            attributes: [sequelize.fn("sum", sequelize.col("valor"))],
-            where: {
-              investidoreId: id,
-            },
-            raw: true,
-          });
-          var amountCompra = Number(amountC["sum(`valor`)"]).toLocaleString(
-            "pt-BR",
-            {
-              style: "currency",
-              currency: "BRL",
-            }
-          );
+  var amountC = await Compra.findOne({
+    attributes: [sequelize.fn("sum", sequelize.col("valor"))],
+    where: {
+      investidoreId: id,
+    },
+    raw: true,
+  });
+  var amountCompra = Number(amountC["sum(`valor`)"]).toLocaleString("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+  });
 
-          const contaCorrentes = await ContaCorrente.findAll({
-            where: {
-              investidoreId: id,
-              obs: "Crédito referente a venda de gado",
-            },
-            attributes: ["valor"],
-          });
+  const contaCorrentes = await ContaCorrente.findAll({
+    where: {
+      investidoreId: id,
+      obs: "Crédito referente a venda de gado",
+    },
+    attributes: ["valor"],
+  });
 
-          let totalVendaSum = 0;
-          contaCorrentes.forEach((contaCorrente) => {
-            totalVendaSum += parseFloat(contaCorrente.valor);
-          });
+  let totalVendaSum = 0;
+  contaCorrentes.forEach((contaCorrente) => {
+    totalVendaSum += parseFloat(contaCorrente.valor);
+  });
 
-          const contaCorrentesEntrada = await ContaCorrente.findAll({
-            where: {
-              investidoreId: id,
-              category: "ENTRADA",
-            },
-            attributes: ["valor"],
-          });
+  const contaCorrentesEntrada = await ContaCorrente.findAll({
+    where: {
+      investidoreId: id,
+      category: "ENTRADA",
+    },
+    attributes: ["valor"],
+  });
 
-          let totalSumEntrada = 0;
-          contaCorrentesEntrada.forEach((contaCorrentesEntrada) => {
-            totalSumEntrada += parseFloat(contaCorrentesEntrada.valor);
-          });
-          const contaCorrentesRetirada = await ContaCorrente.findAll({
-            where: {
-              investidoreId: id,
-              category: "RETIRADA",
-            },
-            attributes: ["valor"],
-          });
+  let totalSumEntrada = 0;
+  contaCorrentesEntrada.forEach((contaCorrentesEntrada) => {
+    totalSumEntrada += parseFloat(contaCorrentesEntrada.valor);
+  });
+  const contaCorrentesRetirada = await ContaCorrente.findAll({
+    where: {
+      investidoreId: id,
+      category: "RETIRADA",
+    },
+    attributes: ["valor"],
+  });
 
-          let totalSumRetirada = 0;
-          contaCorrentesRetirada.forEach((contaCorrentesRetirada) => {
-            totalSumRetirada += parseFloat(contaCorrentesRetirada.valor);
-          });
+  let totalSumRetirada = 0;
+  contaCorrentesRetirada.forEach((contaCorrentesRetirada) => {
+    totalSumRetirada += parseFloat(contaCorrentesRetirada.valor);
+  });
 
-          totalSumRetirada = Math.abs(totalSumRetirada); // Converte para valor absoluto
+  totalSumRetirada = Math.abs(totalSumRetirada); // Converte para valor absoluto
 
-          const amountCompraV = Number(amountC["sum(`valor`)"]);
+  const amountCompraV = Number(amountC["sum(`valor`)"]);
 
-          const mortes = await Morte.findAll({
-            attributes: ["valor"],
-            where: {
-              investidoreId: id,
-            },
-            raw: true,
-          });
+  const mortes = await Morte.findAll({
+    attributes: ["valor"],
+    where: {
+      investidoreId: id,
+    },
+    raw: true,
+  });
 
-          let sumMortes = 0;
-          mortes.forEach((morte) => {
-            sumMortes += parseFloat(morte.valor);
-          });
+  let sumMortes = 0;
+  mortes.forEach((morte) => {
+    sumMortes += parseFloat(morte.valor);
+  });
 
-          const Total =
-            totalSumEntrada - amountCompraV + totalVendaSum - totalSumRetirada;
+  const Total =
+    totalSumEntrada - amountCompraV + totalVendaSum - totalSumRetirada;
 
-          res.render("admin/financeiro/contaCorrente/index", {
-            compras: compras,
-            vendas: vendas,
-            investidores: investidores,
-            contaCorrente: contaCorrente,
-            Total,
-            amountCompra,
-            totalVendaSum,
-            currentPage: page,
-            totalPages: totalPages,
-          });
-        });
+  var amountQ = await Morte.findOne({
+    attributes: [sequelize.fn("sum", sequelize.col("quantidade"))],
+    where: {
+      investidoreId: id,
+    },
+    raw: true,
+  });
+  var morte = Number(amountQ["sum(`quantidade`)"]);
+
+  var compradosTotal = await Compra.count({
+    attributes: [sequelize.fn("sum", sequelize.col("quantidade"))],
+    where: {
+      investidoreId: id,
+    },
+  });
+
+  var vendidos = await Venda.count({
+    attributes: [sequelize.fn("sum", sequelize.col("quantidade"))],
+    where: {
+      investidoreId: id,
+    },
+  });
+
+  //////////////////////estoque
+  var estoque = compradosTotal - morte - vendidos;
+
+  res.render("admin/financeiro/contaCorrente/index", {
+    compras: compras,
+    vendas: vendas,
+    investidores: investidores,
+    contaCorrente: contaCorrente,
+    Total,
+    amountCompra,
+    totalVendaSum,
+    currentPage: page,
+    totalPages: totalPages,
+    startPage: startPage,
+    endPage: endPage,
+    investidorNome,
+    compradosTotal,
+    morte,
+    vendidos,
+    estoque,
+  });
+});
 
 
 
@@ -758,6 +932,8 @@ app.get("/contaCorrente", adminAuth, async (req, res, next) => {
      const page = parseInt(req.query.page) || 1;
      const limit = 10; // número de itens por página
      const offset = (page - 1) * limit;
+
+      let investidorNome = "Todos os Investidores"; // Valor padrão
 
 
            const investidores = await Investidor.findAll({
@@ -784,8 +960,28 @@ app.get("/contaCorrente", adminAuth, async (req, res, next) => {
            contaCorrente.forEach((conta) => {
              conta.data = moment(conta.data).format("DD/MM/YYYY");
            });
+ var ContaCorrenteTotal = await ContaCorrente.count();
+ const totalPages = Math.ceil(count / 1);
+ console.log(totalPages);
+         const maxPagesToShow = 5;
+         let startPage, endPage;
 
-           const totalPages = Math.ceil(count / limit);
+         if (totalPages <= maxPagesToShow) {
+           startPage = 1;
+           endPage = totalPages;
+         } else {
+           if (page <= Math.ceil(maxPagesToShow / 2)) {
+             startPage = 1;
+             endPage = maxPagesToShow;
+           } else if (page + Math.floor(maxPagesToShow / 2) >= totalPages) {
+             startPage = totalPages - maxPagesToShow + 1;
+             endPage = totalPages;
+           } else {
+             startPage = page - Math.floor(maxPagesToShow / 2);
+             endPage = page + Math.floor(maxPagesToShow / 2);
+           }
+         }
+
 
            const compras = await Compra.findAll({
              where: {
@@ -915,6 +1111,39 @@ app.get("/contaCorrente", adminAuth, async (req, res, next) => {
 
           const Total = amountCompraV - totalVendaSum - sumMortes;
 
+          
+  var amountQ = await Morte.findOne({
+    attributes: [sequelize.fn("sum", sequelize.col("quantidade"))],
+    where: {
+      data: {
+        [Op.between]: [start, end],
+      },
+    },
+    raw: true,
+  });
+  var morte = Number(amountQ["sum(`quantidade`)"]);
+
+  var compradosTotal = await Compra.count({
+    attributes: [sequelize.fn("sum", sequelize.col("quantidade"))],
+    where: {
+      data: {
+        [Op.between]: [start, end],
+      },
+    },
+  });
+
+  var vendidos = await Venda.count({
+    attributes: [sequelize.fn("sum", sequelize.col("quantidade"))],
+    where: {
+      data: {
+        [Op.between]: [start, end],
+      },
+    },
+  });
+
+  //////////////////////estoque
+  var estoque = compradosTotal - morte - vendidos;
+
           res.render("admin/financeiro/contaCorrente/index", {
             compras: compras,
             vendas: vendas,
@@ -925,6 +1154,13 @@ app.get("/contaCorrente", adminAuth, async (req, res, next) => {
             totalVendaSum,
             currentPage: page,
             totalPages: totalPages,
+            startPage: startPage,
+            endPage: endPage,
+            investidorNome,
+            compradosTotal,
+            morte,
+            vendidos,
+            estoque,
           });
         });
 

@@ -110,6 +110,11 @@
               </tr>
             </thead>
             <tbody id="demo">
+                <% if (vendas.length === 0) { %>
+        <tr>
+          <td colspan="8" class="nenhuma">Nenhum registro</td>
+        </tr>
+      <% } else { %>
               <% vendas.forEach(venda=> { %>
                 <tr class="pesquisar" href="/<%= venda.id %>">
                   <td>
@@ -142,7 +147,8 @@
               </form>
                   </td>
                 </tr>
-                <% }) %>
+                 <% }) %>
+      <% } %>
             </tbody>
           </table>
 
@@ -156,7 +162,7 @@
             <span aria-hidden="true">Anterior</span>
           </a>
         </li>
-        <% for (let i = 1; i <= totalPages; i++) { %>
+        <% for (let i = startPage; i <= endPage; i++) { %>
           <li class="page-item <% if (i === currentPage) { %>active<% } %>">
             <a class="page-link" href="?page=<%= i %>"><%= i %></a>
           </li>
