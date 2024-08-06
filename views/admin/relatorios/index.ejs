@@ -1,6 +1,43 @@
 <%- include ("../../partials/header.ejs") %> <%- include
 ("../../partials/navbar.ejs") %>
 
+<style>
+
+  .fixed-investidor{
+    font-size: 24px;
+  }
+  /* Aumentar o tamanho da fonte das colunas */
+  .table-custom th, .table-custom td {
+    font-size: 1.3em; /* Aumente ou diminua conforme necessário */
+    border: 1px solid black; /* Ajuste a espessura conforme necessário */
+    font-weight: bold;
+  }
+
+  /* Deixar as linhas da tabela em negrito */
+  .table-custom th, .table-custom td {
+    font-weight: bold;
+  }
+
+  /* Deixar o cabeçalho da tabela mais destacado */
+  .thead-dark th {
+    font-size: 1.5em;
+    font-weight: bold;
+  }
+
+  .table-custom td.text-left {
+  white-space: nowrap; /* Impede quebra de linha */
+  overflow: hidden; /* Oculta qualquer conteúdo que ultrapasse a largura */
+}
+  
+
+    .table-custom td {
+  vertical-align: middle; /* Alinha o conteúdo ao meio verticalmente */
+}
+
+
+
+</style>
+
 <body>
   <div class="container">
     <hr />
@@ -49,7 +86,7 @@
     <br />
     <div class="row g-2">
       <div class="table-responsive">
-     <table class="table table-bordered text-center table-custom">
+     <table class="table text-center table-custom">
           <thead class="thead-dark">
             <tr>
               <th colspan="4">Estoques</th>
@@ -81,7 +118,7 @@
               <td class="text-right"><%= vendidos %></td>
             </tr>
             <tr>
-              <td class="text-left">Compras (Un)</td>
+              <td class=" text-left">Compras (Un)</td>
               <td class="text-left"><%= compradosTotal %></td>
               <td class="text-right">Vendas (R$) Bruta</td>
               <td class="text-right">
@@ -89,21 +126,19 @@
                 currency: 'BRL' }).format(totalVendaSum) %>
               </td>
             </tr>
-            <tr>
-              <td class="text-left">Compras (R$)</td>
-              <td class="text-left"><%= amountCompra %></td>
-              <td class="text-right">Retirada</td>
-              <td class="text-right">
-                <%= new Intl.NumberFormat('pt-BR', { style: 'currency',
-                currency: 'BRL' }).format(totalSumRetirada) %>
-              </td>
-            </tr>
-            <tr>
-              <td class="text-left"></td>
-              <td class="text-left"></td>
-              <td class="text-right">Morte</td>
-              <td class="text-right"><%= morte %></td>
-            </tr>
+           <tr>
+  <td class="text-left" rowspan="2">Compras (R$)</td>
+  <td class="text-left" rowspan="2"><%= amountCompra %></td>
+  <td class="text-right">Retirada</td>
+  <td class="text-right">
+    <%= new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(totalSumRetirada) %>
+  </td>
+</tr>
+<tr>
+  <td class="text-right">Morte</td>
+  <td class="text-right"><%= morte %></td>
+</tr>
+
             <tr class="bg-light">
               <th colspan="2" class="text-left">Média das compras</th>
               <th colspan="2" class="text-right">Média das vendas</th>
