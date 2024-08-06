@@ -2,91 +2,89 @@
 ("../../partials/navbar.ejs") %>
 
 <style>
+    .fixed-investidor {
+      font-size: 24px;
+    }
 
-  .fixed-investidor{
-    font-size: 24px;
-  }
-  /* Aumentar o tamanho da fonte das colunas */
-  .table-custom th, .table-custom td {
-    font-size: 1.3em; /* Aumente ou diminua conforme necessário */
-    border: 1px solid black; /* Ajuste a espessura conforme necessário */
-    font-weight: bold;
-  }
+    /* Ajustar o tamanho da fonte das colunas */
+    .table-custom th, .table-custom td {
+      font-size: 1.3em; /* Ajuste conforme necessário */
+      border: 1px solid black; /* Ajuste a espessura conforme necessário */
+      font-weight: bold;
+      text-align: center;
+    }
 
-  /* Deixar as linhas da tabela em negrito */
-  .table-custom th, .table-custom td {
-    font-weight: bold;
-  }
+    /* Deixar o cabeçalho da tabela mais destacado */
+    .thead-dark th {
+      font-size: 1.5em;
+      font-weight: bold;
+    }
 
-  /* Deixar o cabeçalho da tabela mais destacado */
-  .thead-dark th {
-    font-size: 1.5em;
-    font-weight: bold;
-  }
-
-  .table-custom td.text-left {
-  white-space: nowrap; /* Impede quebra de linha */
-  overflow: hidden; /* Oculta qualquer conteúdo que ultrapasse a largura */
-}
-  
+    .table-custom td.text-left {
+      white-space: nowrap; /* Impede quebra de linha */
+      overflow: hidden; /* Oculta qualquer conteúdo que ultrapasse a largura */
+    }
 
     .table-custom td {
-  vertical-align: middle; /* Alinha o conteúdo ao meio verticalmente */
-}
+      vertical-align: middle; /* Alinha o conteúdo ao meio verticalmente */
+    }
 
+    /* Ajuste do tamanho da fonte e do layout para dispositivos menores */
+    @media (max-width: 768px) {
+      .table-custom th, .table-custom td {
+        font-size: 1em;
+      }
 
+      .thead-dark th {
+        font-size: 1.2em;
+      }
 
-</style>
+      .fixed-investidor {
+        font-size: 18px;
+      }
+    }
 
-<body>
-  <div class="container">
+    /* Estilo para garantir que todo o conteúdo seja visível durante a captura */
+    .capture-area {
+      position: relative;
+      min-height: 100vh;
+    }
+  </style>
+ <div class="container">
     <hr />
     <h2>Relatório</h2>
     <br />
     <div class="row g-2">
-      <div class="col-3">
+      <div class="col-12 col-md-6 col-lg-3">
         <div class="card text-center">
           <div class="dropdown">
-            <button
-              class="btn dropdown-toggle form-control"
-              type="button"
-              data-bs-toggle="dropdown"
-              aria-expanded="false"
-            >
+            <button class="btn dropdown-toggle form-control" type="button" data-bs-toggle="dropdown" aria-expanded="false">
               Investidor
             </button>
             <ul class="dropdown-menu">
-              <li>
-                <a class="dropdown-item" href="/admin/relatorio">TODOS</a>
-              </li>
+              <li><a class="dropdown-item" href="/admin/relatorio">TODOS</a></li>
               <% investidores.forEach(investidor => { %>
-              <li>
-                <a class="dropdown-item" href="/relatorio/<%= investidor.id %>"
-                  ><%= investidor.name %></a
-                >
-              </li>
+              <li><a class="dropdown-item" href="/relatorio/<%= investidor.id %>"><%= investidor.name %></a></li>
               <% }) %>
             </ul>
           </div>
         </div>
       </div>
-      <div class="col-3">
+      <div class="col-12 col-md-6 col-lg-3">
         <div class="card">
-          <!-- Barra de Pesquisa -->
           <button class="btn btn-success form-control" id="btnCompartilhar">
             Compartilhar
           </button>
         </div>
       </div>
     </div>
-    <div id="img">
-    <div id="investidorSelecionadoDiv" class="fixed-investidor text-center">
-      <%= investidorNome %>
-    </div>
-    <br />
-    <div class="row g-2">
+    <div id="img" class="capture-area">
+      <div id="investidorSelecionadoDiv" class="fixed-investidor text-center">
+        <%= investidorNome %>
+      </div>
+      <br />
       <div class="table-responsive">
-     <table class="table text-center table-custom">
+        <table class="table table-custom">
           <thead class="thead-dark">
             <tr>
               <th colspan="4">Estoques</th>
@@ -99,8 +97,7 @@
           <tbody>
             <tr>
               <td colspan="2" class="text-nowrap">
-                <%= new Intl.NumberFormat('pt-BR', { style: 'currency',
-                currency: 'BRL' }).format(Total) %>
+                <%= new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Total) %>
               </td>
               <td colspan="2"><%= estoque %></td>
             </tr>
@@ -111,84 +108,79 @@
             <tr>
               <td class="text-left">Entrada</td>
               <td class="text-left">
-                <%= new Intl.NumberFormat('pt-BR', { style: 'currency',
-                currency: 'BRL' }).format(totalSumEntrada) %>
+                <%= new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(totalSumEntrada) %>
               </td>
               <td class="text-right">Vendas (Un)</td>
               <td class="text-right"><%= vendidos %></td>
             </tr>
             <tr>
-              <td class=" text-left">Compras (Un)</td>
+              <td class="text-left">Compras (Un)</td>
               <td class="text-left"><%= compradosTotal %></td>
               <td class="text-right">Vendas (R$) Bruta</td>
               <td class="text-right">
-                <%= new Intl.NumberFormat('pt-BR', { style: 'currency',
-                currency: 'BRL' }).format(totalVendaSum) %>
+                <%= new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(totalVendaSum) %>
               </td>
             </tr>
-           <tr>
-  <td class="text-left" rowspan="2">Compras (R$)</td>
-  <td class="text-left" rowspan="2"><%= amountCompra %></td>
-  <td class="text-right">Retirada</td>
-  <td class="text-right">
-    <%= new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(totalSumRetirada) %>
-  </td>
-</tr>
-<tr>
-  <td class="text-right">Morte</td>
-  <td class="text-right"><%= morte %></td>
-</tr>
-
+            <tr>
+              <td class="text-left" rowspan="2">Compras (R$)</td>
+              <td class="text-left" rowspan="2"><%= amountCompra %></td>
+              <td class="text-right">Retirada</td>
+              <td class="text-right">
+                <%= new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(totalSumRetirada) %>
+              </td>
+            </tr>
+            <tr>
+              <td class="text-right">Morte</td>
+              <td class="text-right"><%= morte %></td>
+            </tr>
             <tr class="bg-light">
               <th colspan="2" class="text-left">Média das compras</th>
               <th colspan="2" class="text-right">Média das vendas</th>
             </tr>
             <tr>
               <td colspan="2" class="text-left">
-                <%= new Intl.NumberFormat('pt-BR', { style: 'currency',
-                currency: 'BRL' }).format(MediaCompraPonderada) %>
+                <%= new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(MediaCompraPonderada) %>
               </td>
               <td colspan="2" class="text-right">
-                <%= new Intl.NumberFormat('pt-BR', { style: 'currency',
-                currency: 'BRL' }).format(mediaVenda) %>
+                <%= new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(mediaVenda) %>
               </td>
             </tr>
           </tbody>
         </table>
       </div>
-    </div>
-    <br />
+      <br />
     </div>
   </div>
   <br />
 
-  <br />
-</body>
+  <%- include("../../partials/footer.ejs") %>
 
-<%- include ("../../partials/footer.ejs") %>
-
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-
-
-<script>
-
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
+  <script>
     let nomeInvestidor = "<%= investidorNome %>"; // Valor inicial vindo do servidor
 
-  document.getElementById('btnCompartilhar').addEventListener('click', function () {
-    html2canvas(document.querySelector('#img')).then(canvas => {
-      // Cria um link temporário para download da imagem
-      const link = document.createElement('a');
+    document.getElementById('btnCompartilhar').addEventListener('click', function () {
+      html2canvas(document.querySelector('#img'), {
+        scrollX: 0,
+        scrollY: 0,
+        windowWidth: 2000,
+        windowHeight: 500,
+        useCORS: true
+      }).then(canvas => {
+        // Cria um link temporário para download da imagem
+        const link = document.createElement('a');
 
-          const hoje = new Date();
-    const dia = String(hoje.getDate()).padStart(2, '0');
-    const mes = String(hoje.getMonth() + 1).padStart(2, '0'); // Janeiro é 0!
-    const ano = hoje.getFullYear();
-    const dataFormatada = `${dia}-${mes}-${ano}`;
+        const hoje = new Date();
+        const dia = String(hoje.getDate()).padStart(2, '0');
+        const mes = String(hoje.getMonth() + 1).padStart(2, '0'); // Janeiro é 0!
+        const ano = hoje.getFullYear();
+        const dataFormatada = `${dia}-${mes}-${ano}`;
 
-      link.href = canvas.toDataURL('image/png');
-      link.download =`Relatório ${nomeInvestidor} ${dataFormatada}`; // Nome do arquivo de imagem
-      link.click();
+        link.href = canvas.toDataURL('image/png');
+        link.download = `Relatório ${nomeInvestidor} ${dataFormatada}`; // Nome do arquivo de imagem
+        link.click();
+      });
     });
-  });
-</script>
+  </script>
+</body>

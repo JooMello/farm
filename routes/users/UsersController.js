@@ -65,7 +65,7 @@ router.post("/authenticate", (req, res) => {
           id: user.id,
           email: user.email,
         };
-        res.redirect("/");
+        res.redirect("/admin/relatorio");
       } else {
         res.redirect("/login");
       }
