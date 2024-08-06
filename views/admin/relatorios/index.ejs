@@ -2,150 +2,158 @@
 ("../../partials/navbar.ejs") %>
 
 <body>
-    <div class="container">
-      <hr />
-      <h2>Relatórios</h2>
-  
-      <hr />
-      <div class="row g-2">
-        <div class="col-3">
-          <div class="card text-center">
-             <div class="dropdown">
-      <button class="btn dropdown-toggle form-control" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-      Investidor
-      </button>
-      <ul class="dropdown-menu">
-        <li >
-          <a class="dropdown-item"  href="/admin/relatorios">TODOS</a>
-        </li>
-        <% investidores.forEach(investidor => { %>
-      <li >
-        <a class="dropdown-item"  href="/relatorio/<%= investidor.id %>"><%= investidor.name %></a>
-      </li>
-       <% }) %>
-      </ul>
-      </div>
-      
-          </div>
-         </div>
-        <div class="col-4">
-          <div class="card">
-            <div class="dropdown">
-              <button class="btn dropdown-toggle form-control" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                Periodo
-              </button>
-              <ul class="dropdown-menu">
-                <li>
-                  <form action="/relatorio" method="get">
-                    <div class="mb-3">
-                      <label for="start" class="form-label">Data de início:</label>
-                      <input type="date" class="form-control" id="start" name="start">
-                    </div>
-                    <div class="mb-3">
-                      <label for="end" class="form-label">Data de fim:</label>
-                      <input type="date" class="form-control" id="end" name="end">
-                    </div>
-                    <button type="submit" class="btn btn-primary">Filtrar</button>
-                  </form>
-                </li>
-              </ul>
-            </div>
+  <div class="container">
+    <hr />
+    <h2>Relatório</h2>
+    <br />
+    <div class="row g-2">
+      <div class="col-3">
+        <div class="card text-center">
+          <div class="dropdown">
+            <button
+              class="btn dropdown-toggle form-control"
+              type="button"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+            >
+              Investidor
+            </button>
+            <ul class="dropdown-menu">
+              <li>
+                <a class="dropdown-item" href="/admin/relatorio">TODOS</a>
+              </li>
+              <% investidores.forEach(investidor => { %>
+              <li>
+                <a class="dropdown-item" href="/relatorio/<%= investidor.id %>"
+                  ><%= investidor.name %></a
+                >
+              </li>
+              <% }) %>
+            </ul>
           </div>
         </div>
-    </div>
-<hr/>
-<div  class="table-responsive-xxl">
-<div  class="table1 text-center">
-    <h2>Cálculo de Retorno de Investimento</h2>
-    <table id="tab" data-type="table-menu"  class="table table-hover table-bordered text-center">
-      <thead >   
-      <tr id="table-header">
-        <th>Nº de Animais Vendidos</th>
-        <th>Média Ponderada</th>
-        <th>Valor da Venda</th>
-        <th>Capital Investido</th>
-        <th>% Inv x Venda</th>
-        <th>Lucro/Inv</th>
-      </tr>
-    </thead>
-    <tbody id="demo">
-     
-        <tr class="pesquisar" >
-        <td><%= quantidade %></td>
-        <td><%= unitario %></td>
-        <td><%= amountV %></td>
-        <td><%= CapitalInvestido %></td>
-        <td><%= InvVenda %>%</td>
-        <td><%= Lucro %></td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-<hr/>
-<div  class="table2 text-center">
-    <h2>  Distribuição Contribuintes</h2>
-    <table id="tab" data-type="table-menu"  class="table table-hover table-bordered text-center">
-      <thead >
-          <tr>
-            <th>Nome</th>
-            <th>Lucro/Inv</th>
-            <th>Percentual %</th>
-          </tr>
-        </thead>
-          <tbody id="demo">
-          <tr class="pesquisar" >
-            <td>Fazenda</td>
-            <td><%= LucroF %></td>
-            <td><%= percentualF %>%</td>
-          </tr>
-          <tr class="pesquisar" >
-            <td>Investidor</td>
-            <td><%= LucroF %></td>
-            <td><%= percentualF %>%</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-</div>
       </div>
-      </body>
+      <div class="col-3">
+        <div class="card">
+          <!-- Barra de Pesquisa -->
+          <button class="btn btn-success form-control" id="btnCompartilhar">
+            Compartilhar
+          </button>
+        </div>
+      </div>
+    </div>
+    <div id="img">
+    <div id="investidorSelecionadoDiv" class="fixed-investidor text-center">
+      <%= investidorNome %>
+    </div>
+    <br />
+    <div class="row g-2">
+      <div class="table-responsive">
+     <table class="table table-bordered text-center table-custom">
+          <thead class="thead-dark">
+            <tr>
+              <th colspan="4">Estoques</th>
+            </tr>
+            <tr class="bg-light">
+              <th colspan="2">Saldo</th>
+              <th colspan="2">Animais</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td colspan="2" class="text-nowrap">
+                <%= new Intl.NumberFormat('pt-BR', { style: 'currency',
+                currency: 'BRL' }).format(Total) %>
+              </td>
+              <td colspan="2"><%= estoque %></td>
+            </tr>
+            <tr class="bg-light">
+              <th colspan="2" class="text-left">Entradas</th>
+              <th colspan="2" class="text-right">Saídas</th>
+            </tr>
+            <tr>
+              <td class="text-left">Entrada</td>
+              <td class="text-left">
+                <%= new Intl.NumberFormat('pt-BR', { style: 'currency',
+                currency: 'BRL' }).format(totalSumEntrada) %>
+              </td>
+              <td class="text-right">Vendas (Un)</td>
+              <td class="text-right"><%= vendidos %></td>
+            </tr>
+            <tr>
+              <td class="text-left">Compras (Un)</td>
+              <td class="text-left"><%= compradosTotal %></td>
+              <td class="text-right">Vendas (R$) Bruta</td>
+              <td class="text-right">
+                <%= new Intl.NumberFormat('pt-BR', { style: 'currency',
+                currency: 'BRL' }).format(totalVendaSum) %>
+              </td>
+            </tr>
+            <tr>
+              <td class="text-left">Compras (R$)</td>
+              <td class="text-left"><%= amountCompra %></td>
+              <td class="text-right">Retirada</td>
+              <td class="text-right">
+                <%= new Intl.NumberFormat('pt-BR', { style: 'currency',
+                currency: 'BRL' }).format(totalSumRetirada) %>
+              </td>
+            </tr>
+            <tr>
+              <td class="text-left"></td>
+              <td class="text-left"></td>
+              <td class="text-right">Morte</td>
+              <td class="text-right"><%= morte %></td>
+            </tr>
+            <tr class="bg-light">
+              <th colspan="2" class="text-left">Média das compras</th>
+              <th colspan="2" class="text-right">Média das vendas</th>
+            </tr>
+            <tr>
+              <td colspan="2" class="text-left">
+                <%= new Intl.NumberFormat('pt-BR', { style: 'currency',
+                currency: 'BRL' }).format(MediaCompraPonderada) %>
+              </td>
+              <td colspan="2" class="text-right">
+                <%= new Intl.NumberFormat('pt-BR', { style: 'currency',
+                currency: 'BRL' }).format(mediaVenda) %>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <br />
+    </div>
+  </div>
+  <br />
 
+  <br />
+</body>
 
 <%- include ("../../partials/footer.ejs") %>
 
 
-<!-- script dashboard   -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-<script>
-
-   const data = {
-  labels: [
-    'Red',
-    'Blue',
-    'Yellow'
-  ],
-  datasets: [{
-    label: 'My First Dataset',
-    data: [300, 50, 100],
-    backgroundColor: [
-      'rgb(255, 99, 132)',
-      'rgb(54, 162, 235)',
-      'rgb(255, 205, 86)'
-    ],
-    hoverOffset: 4
-  }]
-};
-
-
-   const config = {
-  type: 'doughnut',
-  data: data,
-};
-
- </script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
 
 <script>
-    const myChart = new Chart(document.getElementById("myChart"), config);
-  </script>
+
+    let nomeInvestidor = "<%= investidorNome %>"; // Valor inicial vindo do servidor
+
+  document.getElementById('btnCompartilhar').addEventListener('click', function () {
+    html2canvas(document.querySelector('#img')).then(canvas => {
+      // Cria um link temporário para download da imagem
+      const link = document.createElement('a');
+
+          const hoje = new Date();
+    const dia = String(hoje.getDate()).padStart(2, '0');
+    const mes = String(hoje.getMonth() + 1).padStart(2, '0'); // Janeiro é 0!
+    const ano = hoje.getFullYear();
+    const dataFormatada = `${dia}-${mes}-${ano}`;
+
+      link.href = canvas.toDataURL('image/png');
+      link.download =`Relatório ${nomeInvestidor} ${dataFormatada}`; // Nome do arquivo de imagem
+      link.click();
+    });
+  });
+</script>

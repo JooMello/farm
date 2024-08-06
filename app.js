@@ -904,6 +904,27 @@ app.get("/contaCorrente/:id", adminAuth, async (req, res, next) => {
   //////////////////////estoque
   var estoque = compradosTotal - morte - vendidos;
 
+  // Consultar o banco de dados para obter o último registro de Compra
+  const lastCompra = await Compra.findOne({
+    where: {
+      investidoreId: id,
+    },
+    order: [["createdAt", "DESC"]],
+  });
+  console.log(lastCompra);
+  let MediaCompraPonderada = 0;
+
+  // Verificar se lastCompra.mediaPonderada é nulo ou vazio
+  if (lastCompra === null || lastCompra === "") {
+    // Definir MediaCompraPonderada como 0
+    MediaCompraPonderada = 0;
+  } else {
+    // Obter o valor de mediaPonderada do último registro
+    MediaCompraPonderada = lastCompra.mediaPonderada;
+  }
+
+    mediaVenda = totalVendaSum / vendidos;
+
   res.render("admin/financeiro/contaCorrente/index", {
     compras: compras,
     vendas: vendas,
@@ -921,9 +942,12 @@ app.get("/contaCorrente/:id", adminAuth, async (req, res, next) => {
     morte,
     vendidos,
     estoque,
+    MediaCompraPonderada,
+    mediaVenda,
+    totalSumEntrada,
+    totalSumRetirada,
   });
 });
-
 
 
 //data-filter contaCorrente
@@ -1508,6 +1532,265 @@ app.get("/morte", adminAuth, async (req, res) => {
     .catch((err) => {
       res.redirect("admin/estoque/morte");
     });
+});
+
+app.get("/relatorio/:id", adminAuth, async (req, res, next) => {
+  var id = req.params.id;
+
+  const page = parseInt(req.query.page) || 1;
+  const limit = 10; // número de itens por página
+  const offset = (page - 1) * limit;
+
+  const investidores = await Investidor.findAll({
+    raw: true,
+    nest: true,
+  });
+  const investidorNome = await Investidor.findOne({
+    where: {
+      id: id,
+    },
+    attributes: ["name"],
+    raw: true,
+    nest: true,
+  }).then((result) => result.name);
+
+  const { count, rows: contaCorrente } = await ContaCorrente.findAndCountAll({
+    where: {
+      investidoreId: id,
+    },
+    include: [
+      {
+        model: Investidor,
+      },
+    ],
+    order: [["data", "DESC"]],
+    raw: true,
+    nest: true,
+    limit: limit,
+    offset: offset,
+  });
+  contaCorrente.forEach((conta) => {
+    conta.data = moment(conta.data).format("DD/MM/YYYY");
+  });
+  var ContaCorrenteTotal = await ContaCorrente.count();
+  const totalPages = Math.ceil(count / 2);
+  const maxPagesToShow = 5;
+  let startPage, endPage;
+
+  if (totalPages <= maxPagesToShow) {
+    startPage = 1;
+    endPage = totalPages;
+  } else {
+    if (page <= Math.ceil(maxPagesToShow / 2)) {
+      startPage = 1;
+      endPage = maxPagesToShow;
+    } else if (page + Math.floor(maxPagesToShow / 2) >= totalPages) {
+      startPage = totalPages - maxPagesToShow + 1;
+      endPage = totalPages;
+    } else {
+      startPage = page - Math.floor(maxPagesToShow / 2);
+      endPage = page + Math.floor(maxPagesToShow / 2);
+    }
+  }
+
+  const compras = await Compra.findAll({
+    where: {
+      investidoreId: id,
+    },
+    include: [
+      {
+        model: Investidor,
+      },
+    ],
+    attributes: [
+      "data",
+      "code",
+      "quantidade",
+      [sequelize.fn("SUM", sequelize.col("valor")), "total_valor"],
+      "dolar",
+      [sequelize.fn("SUM", sequelize.col("amount")), "total_amount"],
+      "obs",
+      "investidoreId",
+    ],
+    group: ["data", "code", "quantidade", "dolar", "obs", "investidoreId"],
+    order: [["data", "DESC"]],
+    raw: true,
+    nest: true,
+  });
+
+  compras.forEach((compra) => {
+    compra.data = moment(compra.data).format("DD/MM/YYYY");
+  });
+
+  const vendas = await Venda.findAll({
+    where: {
+      investidoreId: id,
+    },
+    include: [
+      {
+        model: Investidor,
+      },
+    ],
+    attributes: [
+      "data",
+      "code",
+      "quantidade",
+      [sequelize.fn("SUM", sequelize.col("valor")), "total_valor"],
+      "dolar",
+      [sequelize.fn("SUM", sequelize.col("amount")), "total_amount"],
+      "obs",
+      "investidoreId",
+    ],
+    group: ["data", "code", "quantidade", "dolar", "obs", "investidoreId"],
+    order: [["data", "DESC"]],
+    raw: true,
+    nest: true,
+  });
+
+  vendas.forEach((venda) => {
+    venda.data = moment(venda.data).format("DD/MM/YYYY");
+    venda.total_valor = venda.total_valor / 2;
+  });
+
+  var amountC = await Compra.findOne({
+    attributes: [sequelize.fn("sum", sequelize.col("valor"))],
+    where: {
+      investidoreId: id,
+    },
+    raw: true,
+  });
+  var amountCompra = Number(amountC["sum(`valor`)"]).toLocaleString("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+  });
+
+  const contaCorrentes = await ContaCorrente.findAll({
+    where: {
+      investidoreId: id,
+      obs: "Crédito referente a venda de gado",
+    },
+    attributes: ["valor"],
+  });
+
+  let totalVendaSum = 0;
+  contaCorrentes.forEach((contaCorrente) => {
+    totalVendaSum += parseFloat(contaCorrente.valor);
+  });
+
+  const contaCorrentesEntrada = await ContaCorrente.findAll({
+    where: {
+      investidoreId: id,
+      category: "ENTRADA",
+    },
+    attributes: ["valor"],
+  });
+
+  let totalSumEntrada = 0;
+  contaCorrentesEntrada.forEach((contaCorrentesEntrada) => {
+    totalSumEntrada += parseFloat(contaCorrentesEntrada.valor);
+  });
+  const contaCorrentesRetirada = await ContaCorrente.findAll({
+    where: {
+      investidoreId: id,
+      category: "RETIRADA",
+    },
+    attributes: ["valor"],
+  });
+
+  let totalSumRetirada = 0;
+  contaCorrentesRetirada.forEach((contaCorrentesRetirada) => {
+    totalSumRetirada += parseFloat(contaCorrentesRetirada.valor);
+  });
+
+  totalSumRetirada = Math.abs(totalSumRetirada); // Converte para valor absoluto
+
+  const amountCompraV = Number(amountC["sum(`valor`)"]);
+
+  const mortes = await Morte.findAll({
+    attributes: ["valor"],
+    where: {
+      investidoreId: id,
+    },
+    raw: true,
+  });
+
+  let sumMortes = 0;
+  mortes.forEach((morte) => {
+    sumMortes += parseFloat(morte.valor);
+  });
+
+  const Total =
+    totalSumEntrada - amountCompraV + totalVendaSum - totalSumRetirada;
+
+  var amountQ = await Morte.findOne({
+    attributes: [sequelize.fn("sum", sequelize.col("quantidade"))],
+    where: {
+      investidoreId: id,
+    },
+    raw: true,
+  });
+  var morte = Number(amountQ["sum(`quantidade`)"]);
+
+  var compradosTotal = await Compra.count({
+    attributes: [sequelize.fn("sum", sequelize.col("quantidade"))],
+    where: {
+      investidoreId: id,
+    },
+  });
+
+  var vendidos = await Venda.count({
+    attributes: [sequelize.fn("sum", sequelize.col("quantidade"))],
+    where: {
+      investidoreId: id,
+    },
+  });
+
+  //////////////////////estoque
+  var estoque = compradosTotal - morte - vendidos;
+
+  // Consultar o banco de dados para obter o último registro de Compra
+  const lastCompra = await Compra.findOne({
+    where: {
+      investidoreId: id,
+    },
+    order: [["createdAt", "DESC"]],
+  });
+  console.log(lastCompra);
+  let MediaCompraPonderada = 0;
+
+  // Verificar se lastCompra.mediaPonderada é nulo ou vazio
+  if (lastCompra === null || lastCompra === "") {
+    // Definir MediaCompraPonderada como 0
+    MediaCompraPonderada = 0;
+  } else {
+    // Obter o valor de mediaPonderada do último registro
+    MediaCompraPonderada = lastCompra.mediaPonderada;
+  }
+
+  mediaVenda = totalVendaSum / vendidos;
+
+  res.render("admin/relatorios/index", {
+    compras: compras,
+    vendas: vendas,
+    investidores: investidores,
+    contaCorrente: contaCorrente,
+    Total,
+    amountCompra,
+    totalVendaSum,
+    currentPage: page,
+    totalPages: totalPages,
+    startPage: startPage,
+    endPage: endPage,
+    investidorNome,
+    compradosTotal,
+    morte,
+    vendidos,
+    estoque,
+    MediaCompraPonderada,
+    mediaVenda,
+    totalSumEntrada,
+    totalSumRetirada,
+  });
 });
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

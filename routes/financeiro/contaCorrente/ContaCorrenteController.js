@@ -201,6 +201,22 @@ router.get("/admin/contaCorrente", adminAuth, async (req, res, next) => {
 
       const estoque = compradosTotal - morte - vendidos;
 
+      const lastCompra = await Compra.findOne({
+  order: [["createdAt", "DESC"]],
+});
+console.log(lastCompra)
+let MediaCompraPonderada = 0;
+
+    // Verificar se lastCompra.mediaPonderada é nulo ou vazio
+if (lastCompra=== null || lastCompra === "") {
+  // Definir MediaCompraPonderada como 0
+   MediaCompraPonderada = 0;
+} else {
+  // Obter o valor de mediaPonderada do último registro
+  MediaCompraPonderada = lastCompra.mediaPonderada;
+  mediaVenda = (totalVendaSum / vendidos);
+}
+console.log(MediaCompraPonderada);
     res.render("admin/financeiro/contaCorrente/index", {
       compras: compras,
       vendas: vendas,
@@ -218,6 +234,10 @@ router.get("/admin/contaCorrente", adminAuth, async (req, res, next) => {
       morte,
       vendidos,
       estoque,
+      MediaCompraPonderada,
+      mediaVenda,
+      totalSumEntrada,
+      totalSumRetirada,
     });
   } catch (error) {
     next(error); // Propaga o erro para o middleware de tratamento de erros

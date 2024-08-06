@@ -69,15 +69,9 @@
           </form>
         </div>
                 </div>
-                 <div class="col-3">
-        <div class="card">
-          <!--Barra de Pesquisa-->
-         <button class="btn btn-success form-control" id="btnCompartilhar">Compartilhar</button>
-
-        </div>
-                </div>
+                
     </div>
-   <div id="investidorSelecionadoDiv" class="fixed-investidor">Parceria: <%= investidorNome %></div>
+   <div id="investidorSelecionadoDiv" class="fixed-investidor text-center"> <%= investidorNome %></div>
 
       <hr />
       <div class="row g-2">
@@ -190,6 +184,7 @@
 <%- include ("../../../partials/footer.ejs") %>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
 <script>
   // Função para capturar o nome do investidor selecionado
   const dropdownItems = document.querySelectorAll('.dropdown-item');
@@ -210,26 +205,17 @@
 
     // Definindo a fonte e tamanho padrão
     doc.setFont('Helvetica', 'normal');
-    doc.setFontSize(12);
+    doc.setFontSize(14); // Tamanho da fonte padrão aumentado
 
     // Adicionando um título com uma fonte maior e em negrito
-    doc.setFontSize(18);
+    doc.setFontSize(22); // Tamanho da fonte para o título
     doc.setFont('Helvetica', 'bold');
-    doc.text('Relatório', 105, 20, null, null, 'center');
-
-    // Adicionando uma linha divisória abaixo do título
-    doc.setLineWidth(0.5);
-    doc.line(10, 25, 200, 25);
-
-    // Adicionando o nome do investidor selecionado
-    doc.setFontSize(14);
-    doc.setFont('Helvetica', 'normal');
-    doc.text(`Parceria: ${nomeInvestidor}`, 10, 35);
+    doc.text(`Relatório ${nomeInvestidor}`, 105, 20, null, null, 'center');
 
     // Adicionando uma tabela separada para as informações financeiras
-    let startY = 50;
-    const lineHeight = 10;
-    const sectionPadding = 5;
+    let startY = 40; // Ajuste a posição inicial Y
+    const lineHeight = 8; // Reduza o espaçamento entre linhas
+    const sectionPadding = 4; // Menos espaço entre seções
     const sectionLineWidth = 0.5; // Largura da linha divisória
 
     // Seções do relatório
@@ -237,44 +223,80 @@
       {
         title: 'Estoque',
         data: [
-          { label: 'Estoque Atual', value: '<%= estoque %>' }
+          { label: 'Saldo', value: new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format('<%= Total %>') },
+          { label: 'Animais', value: '<%= estoque %>' }
         ]
       },
       {
         title: 'Entradas',
         data: [
-          { label: 'Número de Animais Comprados', value: '<%= compradosTotal %>' },
-          { label: 'Capital Investido em Compra', value: '<%= amountCompra %>' }
+           { label: 'Entradas', value: new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format('<%= totalSumEntrada %>') },
+          { label: 'Compras (Un)', value: '<%= compradosTotal %>' },
+          { label: 'Compras (R$)', value: '<%= amountCompra %>' }
         ]
       },
       {
         title: 'Saídas',
         data: [
+          { label: 'Vendas (Un)', value: '<%= vendidos %>' },
+          { label: 'Vendas (R$) Bruta', value: new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format('<%= totalVendaSum %>') },
+          { label: 'Retirada', value: new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format('<%= totalSumRetirada %>') },
           { label: 'Mortes', value: '<%= morte %>' },
-          { label: 'Vendidos', value: '<%= vendidos %>' },
-          { label: 'Capital Retorno de Venda', value: new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format('<%= totalVendaSum %>') },
-          { label: 'Saldo', value: new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format('<%= Total %>') }
         ]
+      },
+      {
+        title: 'Médias',
+        data: [
+          { label: 'Média das compras', value: new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format('<%= MediaCompraPonderada %>') },
+          { label: 'Média das vendas', value: new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format('<%= mediaVenda %>') }
+          ]
       }
     ];
 
-    // Função para adicionar cada seção ao PDF
     sections.forEach(section => {
-      doc.setFontSize(16);
+      doc.setFontSize(18); // Tamanho da fonte do título da seção
       doc.setFont('Helvetica', 'bold');
-      doc.text(section.title, 10, startY);
+
+      // Centralizando o título
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const titleWidth = doc.getTextWidth(section.title);
+      const titlePosition = (pageWidth - titleWidth) / 2;
+
+      doc.text(section.title, titlePosition, startY);
       startY += lineHeight;
 
-      doc.setFontSize(12);
+      doc.setFontSize(14); // Tamanho da fonte para os dados
       doc.setFont('Helvetica', 'normal');
-      section.data.forEach(item => {
-        doc.text(`${item.label}:`, 10, startY);
-        doc.text(`${item.value}`, 100, startY);  // Alinha o valor à direita
-        startY += lineHeight;
-      });
+
+      if (section.title === 'Estoque') {
+        // Alinhando "Saldo" à esquerda e "Animais" à direita na mesma linha
+        const saldoLabel = section.data[0].label;
+        const saldoValue = section.data[0].value;
+        const animaisLabel = section.data[1].label;
+        const animaisValue = section.data[1].value;
+
+        // Definir o valor de Saldo e Animais na mesma linha, com os valores logo abaixo das labels
+        doc.text(saldoLabel, 10, startY); // "Saldo" à esquerda
+        doc.text(saldoValue, 10, startY + lineHeight); // Valor de "Saldo" abaixo do label
+
+        // Calcular a posição de "Animais" e seu valor, alinhando à direita
+        const textWidth = doc.getTextWidth(animaisLabel);
+        const xPos = pageWidth - textWidth - 10;
+
+        doc.text(animaisLabel, xPos, startY); // "Animais" alinhado à direita
+        doc.text(animaisValue, xPos, startY + lineHeight); // Valor de "Animais" abaixo do label
+
+        startY += lineHeight * 2; // Incrementa a posição vertical para a próxima linha
+      } else {
+        section.data.forEach(item => {
+          doc.text(`${item.label}:`, 10, startY);
+          doc.text(`${item.value}`, 100, startY); // Alinha os outros valores à direita
+          startY += lineHeight;
+        });
+      }
 
       // Adiciona uma linha horizontal separadora
-      doc.setLineWidth(0.2);
+      doc.setLineWidth(sectionLineWidth);
       doc.line(10, startY + sectionPadding, 200, startY + sectionPadding);
 
       // Adiciona um espaço entre as seções
@@ -286,10 +308,20 @@
     doc.setLineWidth(1);
     doc.rect(5, 5, 200, 287); // Desenha um retângulo ao redor da página
 
-    // Salvando o PDF
-    doc.save('Relatorio.pdf');
+    // Obtendo a data atual
+    const hoje = new Date();
+    const dia = String(hoje.getDate()).padStart(2, '0');
+    const mes = String(hoje.getMonth() + 1).padStart(2, '0'); // Janeiro é 0!
+    const ano = hoje.getFullYear();
+    const dataFormatada = `${dia}-${mes}-${ano}`;
+
+    // Salvando o PDF com o nome personalizado
+    const nomeArquivo = `Relatório ${nomeInvestidor} ${dataFormatada}.pdf`;
+    doc.save(nomeArquivo);
   });
 </script>
+
+
 
 
 <script>
