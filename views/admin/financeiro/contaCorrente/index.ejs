@@ -1,6 +1,30 @@
 <%- include ("../../../partials/header.ejs") %>
 <%- include("../../../partials/navbar.ejs") %>
 
+<style>
+
+  @media (max-width: 480px) {
+  .th, .td {
+    font-size: 12px; /* Diminui ainda mais o tamanho da fonte para telas pequenas */
+  }
+
+  .btn {
+    font-size: 14px; /* Diminui ainda mais o tamanho da fonte para telas pequenas */
+    white-space: nowrap; /* Evita quebra de linha */
+    padding: 5px 10px; /* Ajuste o padding conforme necessário */
+    margin: 0; /* Ajuste o margin para encaixar melhor */
+  }
+  .col-2{
+    width: 100%;
+  }
+
+  .th {
+    font-size: 12px; /* Diminui o tamanho da fonte do cabeçalho */
+  }
+
+}
+</style>
+
 <body>
     <div class="container">
       <hr />
@@ -184,143 +208,6 @@
 <%- include ("../../../partials/footer.ejs") %>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
-<script>
-  // Função para capturar o nome do investidor selecionado
-  const dropdownItems = document.querySelectorAll('.dropdown-item');
-  let nomeInvestidor = "<%= investidorNome %>"; // Valor inicial vindo do servidor
-
-  // Atualiza o nome do investidor no div ao clicar no item
-  dropdownItems.forEach(item => {
-    item.addEventListener('click', function () {
-      nomeInvestidor = this.textContent.trim(); // Captura o nome do investidor
-      document.getElementById('investidorSelecionadoDiv').textContent = `Parceria: ${nomeInvestidor}`; // Exibe o nome selecionado no div fixo
-    });
-  });
-
-  // Geração do PDF
-  document.getElementById('btnCompartilhar').addEventListener('click', function () {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-
-    // Definindo a fonte e tamanho padrão
-    doc.setFont('Helvetica', 'normal');
-    doc.setFontSize(14); // Tamanho da fonte padrão aumentado
-
-    // Adicionando um título com uma fonte maior e em negrito
-    doc.setFontSize(22); // Tamanho da fonte para o título
-    doc.setFont('Helvetica', 'bold');
-    doc.text(`Relatório ${nomeInvestidor}`, 105, 20, null, null, 'center');
-
-    // Adicionando uma tabela separada para as informações financeiras
-    let startY = 40; // Ajuste a posição inicial Y
-    const lineHeight = 8; // Reduza o espaçamento entre linhas
-    const sectionPadding = 4; // Menos espaço entre seções
-    const sectionLineWidth = 0.5; // Largura da linha divisória
-
-    // Seções do relatório
-    const sections = [
-      {
-        title: 'Estoque',
-        data: [
-          { label: 'Saldo', value: new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format('<%= Total %>') },
-          { label: 'Animais', value: '<%= estoque %>' }
-        ]
-      },
-      {
-        title: 'Entradas',
-        data: [
-           { label: 'Entradas', value: new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format('<%= totalSumEntrada %>') },
-          { label: 'Compras (Un)', value: '<%= compradosTotal %>' },
-          { label: 'Compras (R$)', value: '<%= amountCompra %>' }
-        ]
-      },
-      {
-        title: 'Saídas',
-        data: [
-          { label: 'Vendas (Un)', value: '<%= vendidos %>' },
-          { label: 'Vendas (R$) Bruta', value: new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format('<%= totalVendaSum %>') },
-          { label: 'Retirada', value: new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format('<%= totalSumRetirada %>') },
-          { label: 'Mortes', value: '<%= morte %>' },
-        ]
-      },
-      {
-        title: 'Médias',
-        data: [
-          { label: 'Média das compras', value: new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format('<%= MediaCompraPonderada %>') },
-          { label: 'Média das vendas', value: new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format('<%= mediaVenda %>') }
-          ]
-      }
-    ];
-
-    sections.forEach(section => {
-      doc.setFontSize(18); // Tamanho da fonte do título da seção
-      doc.setFont('Helvetica', 'bold');
-
-      // Centralizando o título
-      const pageWidth = doc.internal.pageSize.getWidth();
-      const titleWidth = doc.getTextWidth(section.title);
-      const titlePosition = (pageWidth - titleWidth) / 2;
-
-      doc.text(section.title, titlePosition, startY);
-      startY += lineHeight;
-
-      doc.setFontSize(14); // Tamanho da fonte para os dados
-      doc.setFont('Helvetica', 'normal');
-
-      if (section.title === 'Estoque') {
-        // Alinhando "Saldo" à esquerda e "Animais" à direita na mesma linha
-        const saldoLabel = section.data[0].label;
-        const saldoValue = section.data[0].value;
-        const animaisLabel = section.data[1].label;
-        const animaisValue = section.data[1].value;
-
-        // Definir o valor de Saldo e Animais na mesma linha, com os valores logo abaixo das labels
-        doc.text(saldoLabel, 10, startY); // "Saldo" à esquerda
-        doc.text(saldoValue, 10, startY + lineHeight); // Valor de "Saldo" abaixo do label
-
-        // Calcular a posição de "Animais" e seu valor, alinhando à direita
-        const textWidth = doc.getTextWidth(animaisLabel);
-        const xPos = pageWidth - textWidth - 10;
-
-        doc.text(animaisLabel, xPos, startY); // "Animais" alinhado à direita
-        doc.text(animaisValue, xPos, startY + lineHeight); // Valor de "Animais" abaixo do label
-
-        startY += lineHeight * 2; // Incrementa a posição vertical para a próxima linha
-      } else {
-        section.data.forEach(item => {
-          doc.text(`${item.label}:`, 10, startY);
-          doc.text(`${item.value}`, 100, startY); // Alinha os outros valores à direita
-          startY += lineHeight;
-        });
-      }
-
-      // Adiciona uma linha horizontal separadora
-      doc.setLineWidth(sectionLineWidth);
-      doc.line(10, startY + sectionPadding, 200, startY + sectionPadding);
-
-      // Adiciona um espaço entre as seções
-      startY += sectionPadding + lineHeight;
-    });
-
-    // Adicionando bordas à página
-    doc.setDrawColor(0); // Define a cor da borda (preta)
-    doc.setLineWidth(1);
-    doc.rect(5, 5, 200, 287); // Desenha um retângulo ao redor da página
-
-    // Obtendo a data atual
-    const hoje = new Date();
-    const dia = String(hoje.getDate()).padStart(2, '0');
-    const mes = String(hoje.getMonth() + 1).padStart(2, '0'); // Janeiro é 0!
-    const ano = hoje.getFullYear();
-    const dataFormatada = `${dia}-${mes}-${ano}`;
-
-    // Salvando o PDF com o nome personalizado
-    const nomeArquivo = `Relatório ${nomeInvestidor} ${dataFormatada}.pdf`;
-    doc.save(nomeArquivo);
-  });
-</script>
-
 
 
 

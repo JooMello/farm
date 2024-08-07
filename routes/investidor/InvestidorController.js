@@ -27,9 +27,7 @@ var app = express();
 router.get('/admin/investidor', adminAuth, (req, res, next) => {
 
   Investidor.findAll({
-    order: [
-      ["createdAt", "DESC"]
-    ],
+    order: [["name", "ASC"]] ,
      raw: true,
     nest: true,
   }).then((investidores) => {
@@ -40,11 +38,11 @@ router.get('/admin/investidor', adminAuth, (req, res, next) => {
 });
 
 router.get('/admin/investidor/new', adminAuth, (req, res, next) => {
-  Investidor.findAll().then((investidores) => {
-    res.render('admin/investidor/new', {
+  Investidor.findAll({ order: [["name", "ASC"]] }).then((investidores) => {
+    res.render("admin/investidor/new", {
       investidores,
     });
-  })
+  });
 })
 
 router.post('/investidor/save', adminAuth, (req, res, next) => {
@@ -163,6 +161,7 @@ router.get('/investidor/:id',adminAuth,  (req, res) => {
     var id = req.params.id;
     
         Investidor.findAll({
+         order: [["name", "ASC"]],
             where:{
           id: id,
         },
@@ -245,16 +244,14 @@ router.get('/admin/investidor/newR/:id', adminAuth, (req, res, next) => {
 
   var id = req.params.id;
 
-  Investidor.findAll().then((investidores) => {
-
-    Investidor.findByPk(id)
-    .then((investidor) => {
-    res.render('admin/investidor/newR', {
-      investidores: investidores,
-      investidor: investidor,
+  Investidor.findAll({ order: [["name", "ASC"]] }).then((investidores) => {
+    Investidor.findByPk(id).then((investidor) => {
+      res.render("admin/investidor/newR", {
+        investidores: investidores,
+        investidor: investidor,
+      });
     });
-  })
-  })
+  });
 })
 
 router.post('/saque/save', adminAuth,  (req, res) => {
@@ -278,30 +275,29 @@ router.post('/saque/save', adminAuth,  (req, res) => {
 //Investidores 
 router.get('/admin/investidor/saque/:id',adminAuth,  (req, res) => {
   var id = req.params.id;
-      Investidor.findAll().then((investidores) => {
+      Investidor.findAll({ order: [["name", "ASC"]] }).then((investidores) => {
         Saque.findAll({
-          where:{
+          where: {
             investidoreId: id,
           },
-          include: [{
-            model: Investidor,
-          }],
-          order: [
-            ["createdAt", "DESC"]
+          include: [
+            {
+              model: Investidor,
+            },
           ],
-           raw: true,
+          order: [["createdAt", "DESC"]],
+          raw: true,
           nest: true,
         }).then((saques) => {
-        Investidor.findByPk(id)
-.then( async (investidor) => {
-    res.render("admin/investidor/saque",{
-      investidores: investidores,
-      investidor: investidor,
-      saques: saques,
-    })
-})
-        })
-})
+          Investidor.findByPk(id).then(async (investidor) => {
+            res.render("admin/investidor/saque", {
+              investidores: investidores,
+              investidor: investidor,
+              saques: saques,
+            });
+          });
+        });
+      });
 });
 
 
@@ -312,12 +308,12 @@ router.get("/admin/investidor/editSaque/:id", adminAuth,  (req, res) => {
   .then((saque) => {
     if (saque != undefined) {
 
-      Investidor.findAll().then((investidores) => {
-        res.render('admin/investidor/editSaque', {
+      Investidor.findAll({ order: [["name", "ASC"]] }).then((investidores) => {
+        res.render("admin/investidor/editSaque", {
           saque: saque,
           investidores: investidores,
-        })
-      })
+        });
+      });
       } else{
         res.redirect('/admin/investidor/editSaque/:id');
       }

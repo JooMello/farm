@@ -70,107 +70,110 @@ router.get('/admin/estoque', adminAuth, async (req, res, next) => {
           },
         ],
       }).then((mortes) => {
-        Investidor.findAll().then(async (investidores) => {
-          //////////////////////Capital Investidor
-          var amountC = await Compra.findOne({
-            attributes: [sequelize.fn("sum", sequelize.col("valor"))],
-            where: {
-              status: "Em estoque",
-            },
-            raw: true,
-          });
+        Investidor.findAll({ order: [["name", "ASC"]] }).then(
+          async (investidores) => {
+            //////////////////////Capital Investidor
+            var amountC = await Compra.findOne({
+              attributes: [sequelize.fn("sum", sequelize.col("valor"))],
+              where: {
+                status: "Em estoque",
+              },
+              raw: true,
+            });
 
-          var amountV = await Venda.findOne({
-            attributes: [sequelize.fn("sum", sequelize.col("valor"))],
+            var amountV = await Venda.findOne({
+              attributes: [sequelize.fn("sum", sequelize.col("valor"))],
 
-            raw: true,
-          });
-           var TotalCompra = Number(amountC["sum(`valor`)"]);
-           var TotalV = Number(amountV["sum(`valor`)"]) /2;
-           const Totalf = (TotalCompra - TotalV);
-          var Total = Totalf.toLocaleString("pt-BR", {
-            style: "currency",
-            currency: "BRL",
-          });
+              raw: true,
+            });
+            var TotalCompra = Number(amountC["sum(`valor`)"]);
+            var TotalV = Number(amountV["sum(`valor`)"]) / 2;
+            const Totalf = TotalCompra - TotalV;
+            var Total = Totalf.toLocaleString("pt-BR", {
+              style: "currency",
+              currency: "BRL",
+            });
 
-          var capitalInvestido = await Compra.findOne({
-            attributes: [sequelize.fn("sum", sequelize.col("valor"))],
-            
-            raw: true,
-          });
-          var TotalcapitalInvestido = Number(capitalInvestido["sum(`valor`)"]);
-          var TotalC = TotalcapitalInvestido.toLocaleString("pt-BR", {
-            style: "currency",
-            currency: "BRL",
-          });
+            var capitalInvestido = await Compra.findOne({
+              attributes: [sequelize.fn("sum", sequelize.col("valor"))],
 
+              raw: true,
+            });
+            var TotalcapitalInvestido = Number(
+              capitalInvestido["sum(`valor`)"]
+            );
+            var TotalC = TotalcapitalInvestido.toLocaleString("pt-BR", {
+              style: "currency",
+              currency: "BRL",
+            });
 
+            // Consultar o banco de dados para obter o último registro de Compra
+            const lastCompra = await Compra.findOne({
+              order: [["createdAt", "DESC"]],
+            });
+            console.log(lastCompra);
+            let MediaCompraPonderada = 0;
 
+            // Verificar se lastCompra.mediaPonderada é nulo ou vazio
+            if (lastCompra === null || lastCompra === "") {
+              // Definir MediaCompraPonderada como 0
+              MediaCompraPonderada = 0;
+            } else {
+              // Obter o valor de mediaPonderada do último registro
+              MediaCompraPonderada = lastCompra.mediaPonderada;
+            }
 
- // Consultar o banco de dados para obter o último registro de Compra
- const lastCompra = await Compra.findOne({
-  order: [["createdAt", "DESC"]],
-});
-console.log(lastCompra)
-let MediaCompraPonderada = 0;
-
-    // Verificar se lastCompra.mediaPonderada é nulo ou vazio
-if (lastCompra=== null || lastCompra === "") {
-  // Definir MediaCompraPonderada como 0
-   MediaCompraPonderada = 0;
-} else {
-  // Obter o valor de mediaPonderada do último registro
-   MediaCompraPonderada = lastCompra.mediaPonderada;
-}
-        
             const compras = await Compra.findAll(); // Busca todas as compras
             const mortes = await Morte.findAll(); // Busca todas as compras
 
-            mortes.forEach(morte => {
+            mortes.forEach((morte) => {
               morteVal = parseFloat(morte.valor); // Converte o valor para um número
               morteQuant = parseFloat(morte.quantidade); // Converte a quantidade para um número
-
             });
-          
+
             let sumMortes = 0;
-            mortes.forEach(morte => {
+            mortes.forEach((morte) => {
               sumMortes += parseFloat(morte.valor);
             });
 
             const contaCorrentes = await ContaCorrente.findAll({
               where: {
                 obs: "Crédito referente a venda de gado",
-                
               },
-              attributes: ['valor']
+              attributes: ["valor"],
             });
-          
+
             let totalVendaSum = 0;
-            contaCorrentes.forEach(contaCorrente => {
+            contaCorrentes.forEach((contaCorrente) => {
               totalVendaSum += parseFloat(contaCorrente.valor);
             });
 
-            var CapitalEstoque = (TotalcapitalInvestido - totalVendaSum - sumMortes).toLocaleString("pt-BR", {
+            var CapitalEstoque = (
+              TotalcapitalInvestido -
+              totalVendaSum -
+              sumMortes
+            ).toLocaleString("pt-BR", {
               style: "currency",
               currency: "BRL",
             });
-          res.render("admin/estoque/index", {
-            compras: compras,
-            vendas: vendas,
-            mortes: mortes,
-            valor: valor,
-            Total,
-            MediaCompraPonderada,
-            CapitalEstoque,
-            investidores: investidores,
-            morte,
-            comprados,
-            compradosTotal,
-            vendidos,
-            estoque,
-            TotalC,
-          });
-        });
+            res.render("admin/estoque/index", {
+              compras: compras,
+              vendas: vendas,
+              mortes: mortes,
+              valor: valor,
+              Total,
+              MediaCompraPonderada,
+              CapitalEstoque,
+              investidores: investidores,
+              morte,
+              comprados,
+              compradosTotal,
+              vendidos,
+              estoque,
+              TotalC,
+            });
+          }
+        );
       });
     });
   });
@@ -201,8 +204,8 @@ router.get('/admin/estoque/newMorte', adminAuth, async (req, res) => {
     }
     }
   }).then((compras) => {
-    Investidor.findAll().then((investidores) => {
-      res.render('admin/estoque/newMorte', {
+    Investidor.findAll({ order: [["name", "ASC"]] }).then((investidores) => {
+      res.render("admin/estoque/newMorte", {
         compras: compras,
         investidores: investidores,
         MediaCompraPonderada,
@@ -318,15 +321,15 @@ router.get('/admin/estoque/morte', adminAuth, async (req, res, next) => {
         mortes.forEach((morte) => {
           morte.data = moment(morte.data).format('DD/MM/YYYY');
         });
-    Investidor.findAll().then((investidores) => {
-      res.render('admin/estoque/morte', {
+    Investidor.findAll({ order: [["name", "ASC"]] }).then((investidores) => {
+      res.render("admin/estoque/morte", {
         mortes: mortes,
         compras: compras,
         investidores: investidores,
         qmorte,
         qvalor,
       });
-    })
+    });
 })
 });
 })
@@ -359,12 +362,12 @@ Morte.findByPk(id)
 .then((morte) => {
   if (morte != undefined) {
 
-    Investidor.findAll().then((investidores) => {
-    res.render('admin/estoque/edit', {
-      morte: morte,
-      investidores: investidores,
-    })
-  })
+    Investidor.findAll({ order: [["name", "ASC"]] }).then((investidores) => {
+      res.render("admin/estoque/edit", {
+        morte: morte,
+        investidores: investidores,
+      });
+    });
   } else{
     res.redirect('/admin/estoque/morte');
   }

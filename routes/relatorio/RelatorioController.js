@@ -20,6 +20,7 @@ router.get("/admin/relatorio", adminAuth, async (req, res, next) => {
 
   try {
     const investidores = await Investidor.findAll({
+       order: [["name", "ASC"]],
       raw: true,
       nest: true,
     });

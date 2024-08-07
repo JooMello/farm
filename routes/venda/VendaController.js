@@ -133,67 +133,69 @@ const totalPages = Math.ceil(count / vendidosTotal);
    }
  }
 
-     Investidor.findAll().then(async (investidores) => {
-       //////////////////////Quantidade
-       var quantidade = await Venda.count();
+     Investidor.findAll({ order: [["name", "ASC"]] }).then(
+       async (investidores) => {
+         //////////////////////Quantidade
+         var quantidade = await Venda.count();
 
-       //////////////////////valor Venda
-       var amountT = await Venda.findOne({
-         attributes: [sequelize.fn("sum", sequelize.col("valor"))],
+         //////////////////////valor Venda
+         var amountT = await Venda.findOne({
+           attributes: [sequelize.fn("sum", sequelize.col("valor"))],
 
-         raw: true,
-       });
-       var ValorVenda = Number(amountT["sum(`valor`)"]).toLocaleString(
-         "pt-BR",
-         {
+           raw: true,
+         });
+         var ValorVenda = Number(amountT["sum(`valor`)"]).toLocaleString(
+           "pt-BR",
+           {
+             style: "currency",
+             currency: "BRL",
+           }
+         );
+
+         //////////////////////valor Venda em dolar
+         var amountD = await Venda.findOne({
+           attributes: [sequelize.fn("sum", sequelize.col("amount"))],
+
+           raw: true,
+         });
+         var TotalVendaDolar = Number(amountD["sum(`amount`)"]).toLocaleString(
+           "en-US",
+           { style: "currency", currency: "USD" }
+         );
+
+         var amountU = await Venda.findOne({
+           attributes: [
+             [
+               sequelize.fn(
+                 "avg",
+                 sequelize.fn("DISTINCT", sequelize.col("valor"))
+               ),
+               "media",
+             ],
+           ],
+           distinct: true,
+           raw: true,
+         });
+
+         var mediaVenda = Number(amountU["media"]).toLocaleString("pt-BR", {
            style: "currency",
            currency: "BRL",
-         }
-       );
+         });
 
-       //////////////////////valor Venda em dolar
-       var amountD = await Venda.findOne({
-         attributes: [sequelize.fn("sum", sequelize.col("amount"))],
-
-         raw: true,
-       });
-       var TotalVendaDolar = Number(amountD["sum(`amount`)"]).toLocaleString(
-         "en-US",
-         { style: "currency", currency: "USD" }
-       );
-
-       var amountU = await Venda.findOne({
-         attributes: [
-           [
-             sequelize.fn(
-               "avg",
-               sequelize.fn("DISTINCT", sequelize.col("valor"))
-             ),
-             "media",
-           ],
-         ],
-         distinct: true,
-         raw: true,
-       });
-
-       var mediaVenda = Number(amountU["media"]).toLocaleString("pt-BR", {
-         style: "currency",
-         currency: "BRL",
-       });
-
-       res.render("admin/venda/index", {
-         vendas: vendas,
-         investidores: investidores,
-         mediaVenda,
-         quantidade,
-         ValorVenda,
-         TotalVendaDolar,
-         currentPage: page,
-         totalPages: totalPages,
-         startPage: startPage,
-         endPage: endPage,
-       });
-     });
+         res.render("admin/venda/index", {
+           vendas: vendas,
+           investidores: investidores,
+           mediaVenda,
+           quantidade,
+           ValorVenda,
+           TotalVendaDolar,
+           currentPage: page,
+           totalPages: totalPages,
+           startPage: startPage,
+           endPage: endPage,
+         });
+       }
+     );
 });
 
 router.get("/admin/venda/view/:code", adminAuth, async (req, res, next) => {
@@ -215,78 +217,83 @@ router.get("/admin/venda/view/:code", adminAuth, async (req, res, next) => {
     vendas.forEach((venda) => {
       venda.data = moment(venda.data).format("DD/MM/YYYY");
     });
-    Investidor.findAll().then(async (investidores) => {
-      //////////////////////Quantidade
-      var quantidadeVenda = await Venda.findOne({
-        where: {
-          code: code, // Condição para encontrar a venda específica
-        },
-        attributes: ["quantidade"], // Substitua 'quantidade' pelo nome correto do campo na tabela venda
-        raw: true,
-      });
+    Investidor.findAll({ order: [["name", "ASC"]] }).then(
+      async (investidores) => {
+        //////////////////////Quantidade
+        var quantidadeVenda = await Venda.findOne({
+          where: {
+            code: code, // Condição para encontrar a venda específica
+          },
+          attributes: ["quantidade"], // Substitua 'quantidade' pelo nome correto do campo na tabela venda
+          raw: true,
+        });
 
-      const quantidade = quantidadeVenda ? quantidadeVenda.quantidade : null;
-      //////////////////////Capital Investidor
-      var amountT = await Venda.findOne({
-        where: {
-          code: code,
-        },
-        attributes: [sequelize.fn("sum", sequelize.col("valor"))],
+        const quantidade = quantidadeVenda ? quantidadeVenda.quantidade : null;
+        //////////////////////Capital Investidor
+        var amountT = await Venda.findOne({
+          where: {
+            code: code,
+          },
+          attributes: [sequelize.fn("sum", sequelize.col("valor"))],
 
-        raw: true,
-      });
-      var ValorVenda = Number(amountT["sum(`valor`)"]).toLocaleString("pt-BR", {
-        style: "currency",
-        currency: "BRL",
-      });
+          raw: true,
+        });
+        var ValorVenda = Number(amountT["sum(`valor`)"]).toLocaleString(
+          "pt-BR",
+          {
+            style: "currency",
+            currency: "BRL",
+          }
+        );
 
-      //////////////////////Capital Investidor em dolar
-      var amountD = await Venda.findOne({
-        where: {
-          code: code,
-        },
-        attributes: [sequelize.fn("sum", sequelize.col("amount"))],
+        //////////////////////Capital Investidor em dolar
+        var amountD = await Venda.findOne({
+          where: {
+            code: code,
+          },
+          attributes: [sequelize.fn("sum", sequelize.col("amount"))],
 
-        raw: true,
-      });
-      var TotalVendaDolar = Number(amountD["sum(`amount`)"]).toLocaleString(
-        "en-US",
-        {
-          style: "currency",
-          currency: "USD",
-        }
-      );
+          raw: true,
+        });
+        var TotalVendaDolar = Number(amountD["sum(`amount`)"]).toLocaleString(
+          "en-US",
+          {
+            style: "currency",
+            currency: "USD",
+          }
+        );
 
-      var amountU = await Venda.findOne({
-        where: {
-          code: code,
-        },
-        attributes: [
-          [
-            sequelize.fn(
-              "avg",
-              sequelize.fn("DISTINCT", sequelize.col("valor"))
-            ),
-            "media",
+        var amountU = await Venda.findOne({
+          where: {
+            code: code,
+          },
+          attributes: [
+            [
+              sequelize.fn(
+                "avg",
+                sequelize.fn("DISTINCT", sequelize.col("valor"))
+              ),
+              "media",
+            ],
           ],
-        ],
-        distinct: true,
-        raw: true,
-      });
-      var mediaVenda = Number(amountU["media"]).toLocaleString("pt-BR", {
-        style: "currency",
-        currency: "BRL",
-      });
-      console.log(vendas);
-      res.render("admin/venda/view", {
-        vendas: vendas,
-        investidores: investidores,
-        quantidade,
-        mediaVenda,
-        ValorVenda,
-        TotalVendaDolar,
-      });
-    });
+          distinct: true,
+          raw: true,
+        });
+        var mediaVenda = Number(amountU["media"]).toLocaleString("pt-BR", {
+          style: "currency",
+          currency: "BRL",
+        });
+        console.log(vendas);
+        res.render("admin/venda/view", {
+          vendas: vendas,
+          investidores: investidores,
+          quantidade,
+          mediaVenda,
+          ValorVenda,
+          TotalVendaDolar,
+        });
+      }
+    );
   });
 });
 
@@ -300,7 +307,7 @@ router.get("/admin/venda/new", adminAuth, (req, res) => {
       status: "Em estoque",
     },
   }).then((compras) => {
-    Investidor.findAll().then((investidores) => {
+    Investidor.findAll({ order: [["name", "ASC"]] }).then((investidores) => {
       res.render("admin/venda/new", {
         compras: compras,
         investidores: investidores,
@@ -486,12 +493,14 @@ router.get("/admin/venda/edit/:id", adminAuth, (req, res) => {
   Venda.findByPk(id)
     .then((venda) => {
       if (venda != undefined) {
-        Investidor.findAll().then((investidores) => {
-          res.render("admin/venda/edit", {
-            venda: venda,
-            investidores: investidores,
-          });
-        });
+        Investidor.findAll({ order: [["name", "ASC"]] }).then(
+          (investidores) => {
+            res.render("admin/venda/edit", {
+              venda: venda,
+              investidores: investidores,
+            });
+          }
+        );
       } else {
         res.redirect("/admin/venda");
       }

@@ -26,6 +26,7 @@ router.get("/admin/contaCorrente", adminAuth, async (req, res, next) => {
 
   try {
     const investidores = await Investidor.findAll({
+       order: [["name", "ASC"]],
       raw: true,
       nest: true,
     });
@@ -246,7 +247,7 @@ console.log(MediaCompraPonderada);
 
 
 router.get("/admin/contaCorrente/new", adminAuth, (req, res) => {
-  Investidor.findAll().then((investidores) => {
+  Investidor.findAll({ order: [["name", "ASC"]] }).then((investidores) => {
     res.render("admin/financeiro/contaCorrente/new", {
       investidores: investidores,
     });
@@ -290,12 +291,14 @@ router.get("/admin/contaCorrente/edit/:id", adminAuth, (req, res) => {
   ContaCorrente.findByPk(id)
     .then((contaCorrente) => {
       if (contaCorrente != undefined) {
-        Investidor.findAll().then((investidores) => {
-          res.render("admin/financeiro/contaCorrente/edit", {
-            contaCorrente: contaCorrente,
-            investidores: investidores,
-          });
-        });
+        Investidor.findAll({ order: [["name", "ASC"]] }).then(
+          (investidores) => {
+            res.render("admin/financeiro/contaCorrente/edit", {
+              contaCorrente: contaCorrente,
+              investidores: investidores,
+            });
+          }
+        );
       } else {
         res.redirect("/admin/contaCorrente");
       }

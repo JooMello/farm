@@ -3,20 +3,26 @@
 
 <style>
     .fixed-investidor {
-      font-size: 24px;
+      font-size: 35px;
     }
+
+    .table-custom {
+  width: 100%;
+  table-layout: fixed; /* Garante que todas as células tenham o mesmo tamanho */
+}
 
     /* Ajustar o tamanho da fonte das colunas */
     .table-custom th, .table-custom td {
       font-size: 1.3em; /* Ajuste conforme necessário */
-      border: 1px solid black; /* Ajuste a espessura conforme necessário */
+      border: 2px solid black; /* Ajuste a espessura conforme necessário */
       font-weight: bold;
       text-align: center;
+      background-color: aliceblue;
     }
 
     /* Deixar o cabeçalho da tabela mais destacado */
     .thead-dark th {
-      font-size: 1.5em;
+      font-size: 1.6em;
       font-weight: bold;
     }
 
@@ -43,6 +49,21 @@
         font-size: 18px;
       }
     }
+
+    /* Ajuste para dispositivos ainda menores (como telefones) */
+@media (max-width: 480px) {
+  .table-custom th, .table-custom td {
+    font-size: 0.6em; /* Diminui ainda mais o tamanho da fonte para telas pequenas */
+  }
+
+  .thead-dark th {
+    font-size: 0.8em; /* Diminui o tamanho da fonte do cabeçalho */
+  }
+
+  .fixed-investidor {
+    font-size: 16px; /* Ajuste para o tamanho da fonte do investidor */
+  }
+}
 
     /* Estilo para garantir que todo o conteúdo seja visível durante a captura */
     .capture-area {
@@ -93,20 +114,24 @@
               <th colspan="2">Saldo</th>
               <th colspan="2">Animais</th>
             </tr>
+       
           </thead>
-          <tbody>
+          <tbody class="thead-dark">
             <tr>
               <td colspan="2" class="text-nowrap">
                 <%= new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Total) %>
               </td>
               <td colspan="2"><%= estoque %></td>
             </tr>
+                   <tr>
+              <th colspan="4">Resumo</th>
+            </tr>
             <tr class="bg-light">
               <th colspan="2" class="text-left">Entradas</th>
               <th colspan="2" class="text-right">Saídas</th>
             </tr>
             <tr>
-              <td class="text-left">Entrada</td>
+              <td class="text-left">Entrada de Capital</td>
               <td class="text-left">
                 <%= new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(totalSumEntrada) %>
               </td>
@@ -116,7 +141,7 @@
             <tr>
               <td class="text-left">Compras (Un)</td>
               <td class="text-left"><%= compradosTotal %></td>
-              <td class="text-right">Vendas (R$) Bruta</td>
+              <td class="text-right">Vendas Líquidas Parceiro</td>
               <td class="text-right">
                 <%= new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(totalVendaSum) %>
               </td>
@@ -134,8 +159,8 @@
               <td class="text-right"><%= morte %></td>
             </tr>
             <tr class="bg-light">
-              <th colspan="2" class="text-left">Média das compras</th>
-              <th colspan="2" class="text-right">Média das vendas</th>
+              <th colspan="2" class="text-left">Média das Compras</th>
+              <th colspan="2" class="text-right">Média das Vendas Líquida Parceiro</th>
             </tr>
             <tr>
               <td colspan="2" class="text-left">
@@ -164,7 +189,7 @@
       html2canvas(document.querySelector('#img'), {
         scrollX: 0,
         scrollY: 0,
-        windowWidth: 2000,
+        windowWidth: 2200,
         windowHeight: 500,
         useCORS: true
       }).then(canvas => {
