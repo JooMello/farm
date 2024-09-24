@@ -841,6 +841,10 @@ app.get("/contaCorrente/:id", adminAuth, async (req, res, next) => {
     totalVendaSum += parseFloat(contaCorrente.valor);
   });
 
+  if (id == 6) {
+    totalVendaSum = totalVendaSum + 0.04;
+  }
+
   const contaCorrentesEntrada = await ContaCorrente.findAll({
     where: {
       investidoreId: id,
@@ -883,8 +887,16 @@ app.get("/contaCorrente/:id", adminAuth, async (req, res, next) => {
     sumMortes += parseFloat(morte.valor);
   });
 
-  const Total =
+  let Total =
     totalSumEntrada - amountCompraV + totalVendaSum - totalSumRetirada;
+
+    if (id == 8) {
+      Total = Total - 80746.26;
+    }
+
+    if (id == 6) {
+      Total = Total - 201515.18;
+    }
 
   var amountQ = await Morte.findOne({
     attributes: [sequelize.fn("sum", sequelize.col("quantidade"))],
@@ -919,7 +931,6 @@ app.get("/contaCorrente/:id", adminAuth, async (req, res, next) => {
     },
     order: [["createdAt", "DESC"]],
   });
-  console.log(lastCompra);
   let MediaCompraPonderada = 0;
 
   // Verificar se lastCompra.mediaPonderada é nulo ou vazio
@@ -1176,6 +1187,7 @@ app.get("/contaCorrente", adminAuth, async (req, res, next) => {
 
   //////////////////////estoque
   var estoque = compradosTotal - morte - vendidos;
+  
 
           res.render("admin/financeiro/contaCorrente/index", {
             compras: compras,
@@ -1345,7 +1357,7 @@ app.get("/estoque/:id", adminAuth, async (req, res) => {
                 },
                 order: [["createdAt", "DESC"]],
               });
-              console.log(lastCompra);
+
               let MediaCompraPonderada = 0;
 
               // Verificar se lastCompra.mediaPonderada é nulo ou vazio
@@ -1367,6 +1379,14 @@ app.get("/estoque/:id", adminAuth, async (req, res) => {
 
               //////////////////////estoque
               var estoque = compradosTotal - morte - vendidos;
+
+              // Verifica se o investidoreId é 8 e ajusta o estoque para ter 46 animais a menos
+              if (id == 8) {
+                estoque += 49;
+              }
+              if (id == 6) {
+                estoque += 126;
+              }
 
               const mortes = await Morte.findAll({
                 attributes: ["valor"],
@@ -1694,6 +1714,10 @@ app.get("/relatorio/:id", adminAuth, async (req, res, next) => {
   contaCorrentes.forEach((contaCorrente) => {
     totalVendaSum += parseFloat(contaCorrente.valor);
   });
+if (id == 6) {
+  totalVendaSum = totalVendaSum + 0.04;
+}
+
 
   const contaCorrentesEntrada = await ContaCorrente.findAll({
     where: {
@@ -1737,8 +1761,17 @@ app.get("/relatorio/:id", adminAuth, async (req, res, next) => {
     sumMortes += parseFloat(morte.valor);
   });
 
-  const Total =
+  let Total =
     totalSumEntrada - amountCompraV + totalVendaSum - totalSumRetirada;
+  // Verifica se o investidoreId é 8 e ajusta o estoque para ter 46 animais a menos
+if (id == 8) {
+  Total = (Total - 80746.26);
+}
+
+if (id == 6) {
+  Total = Total - 201515.18;
+}
+
 
   var amountQ = await Morte.findOne({
     attributes: [sequelize.fn("sum", sequelize.col("quantidade"))],
@@ -1766,6 +1799,14 @@ app.get("/relatorio/:id", adminAuth, async (req, res, next) => {
   //////////////////////estoque
   var estoque = compradosTotal - morte - vendidos;
 
+  // Verifica se o investidoreId é 8 e ajusta o estoque para ter 46 animais a menos
+  if (id == 8) {
+    estoque += 49;
+  }
+    if (id == 6) {
+      estoque += 126;
+    }
+
   // Consultar o banco de dados para obter o último registro de Compra
   const lastCompra = await Compra.findOne({
     where: {
@@ -1773,7 +1814,6 @@ app.get("/relatorio/:id", adminAuth, async (req, res, next) => {
     },
     order: [["createdAt", "DESC"]],
   });
-  console.log(lastCompra);
   let MediaCompraPonderada = 0;
 
   // Verificar se lastCompra.mediaPonderada é nulo ou vazio
