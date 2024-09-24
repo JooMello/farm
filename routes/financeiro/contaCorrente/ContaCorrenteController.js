@@ -130,11 +130,7 @@ router.get("/admin/contaCorrente", adminAuth, async (req, res, next) => {
     });
 
     const amountCompraV = Number(amountC["sum(`valor`)"]);
-    const amountCompra = amountCompraV.toLocaleString("pt-BR", {
-      style: "currency",
-      currency: "BRL",
-    });
-
+  let amountCompra = Number(amountC["sum(`valor`)"]);
     const totalVendas = await Venda.count();
 
     const contaCorrentes = await ContaCorrente.findAll({

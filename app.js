@@ -823,10 +823,14 @@ app.get("/contaCorrente/:id", adminAuth, async (req, res, next) => {
     },
     raw: true,
   });
-  var amountCompra = Number(amountC["sum(`valor`)"]).toLocaleString("pt-BR", {
-    style: "currency",
-    currency: "BRL",
-  });
+  let amountCompra = Number(amountC["sum(`valor`)"]);
+     if (id == 8) {
+       amountCompra = amountCompra + 91488.61;
+     }
+     if (id == 6) {
+       amountCompra = amountCompra + 132684.7;
+     }
+
 
   const contaCorrentes = await ContaCorrente.findAll({
     where: {
@@ -1343,13 +1347,23 @@ app.get("/estoque/:id", adminAuth, async (req, res) => {
                 },
                 raw: true,
               });
-              var TotalcapitalInvestido = Number(
+              let TotalcapitalInvestido = Number(
                 capitalInvestido["sum(`valor`)"]
               );
+
+                     if (id == 8) {
+                       TotalcapitalInvestido = TotalcapitalInvestido + 91488.61;
+                     }
+                     if (id == 6) {
+                       TotalcapitalInvestido = TotalcapitalInvestido + 132684.7;
+                     }
+                     
               var TotalC = TotalcapitalInvestido.toLocaleString("pt-BR", {
                 style: "currency",
                 currency: "BRL",
               });
+
+           
               // Consultar o banco de dados para obter o último registro de Compra
               const lastCompra = await Compra.findOne({
                 where: {
@@ -1377,16 +1391,16 @@ app.get("/estoque/:id", adminAuth, async (req, res) => {
                 },
               });
 
+                     if (id == 8) {
+                       compradosTotal = compradosTotal + 49;
+                     }
+                     if (id == 6) {
+                       compradosTotal = compradosTotal + 126;
+                     }
               //////////////////////estoque
               var estoque = compradosTotal - morte - vendidos;
 
-              // Verifica se o investidoreId é 8 e ajusta o estoque para ter 46 animais a menos
-              if (id == 8) {
-                estoque += 49;
-              }
-              if (id == 6) {
-                estoque += 126;
-              }
+
 
               const mortes = await Morte.findAll({
                 attributes: ["valor"],
@@ -1697,10 +1711,16 @@ app.get("/relatorio/:id", adminAuth, async (req, res, next) => {
     },
     raw: true,
   });
-  var amountCompra = Number(amountC["sum(`valor`)"]).toLocaleString("pt-BR", {
-    style: "currency",
-    currency: "BRL",
-  });
+
+    let amountCompra = Number(amountC["sum(`valor`)"]);
+
+    if (id == 8) {
+      amountCompra = amountCompra + 91488.61;
+    }
+    
+    if (id == 6) {
+      amountCompra = amountCompra + 132684.7;
+    }
 
   const contaCorrentes = await ContaCorrente.findAll({
     where: {
@@ -1731,6 +1751,15 @@ if (id == 6) {
   contaCorrentesEntrada.forEach((contaCorrentesEntrada) => {
     totalSumEntrada += parseFloat(contaCorrentesEntrada.valor);
   });
+
+    if (id == 8) {
+      totalSumEntrada = totalSumEntrada + 10762.35;
+    }
+
+  if (id == 6) {
+    totalSumEntrada = totalSumEntrada - 67730.48;
+  }
+
   const contaCorrentesRetirada = await ContaCorrente.findAll({
     where: {
       investidoreId: id,
@@ -1765,11 +1794,11 @@ if (id == 6) {
     totalSumEntrada - amountCompraV + totalVendaSum - totalSumRetirada;
   // Verifica se o investidoreId é 8 e ajusta o estoque para ter 46 animais a menos
 if (id == 8) {
-  Total = (Total - 80746.26);
+  Total = (Total - 91508.61);
 }
 
 if (id == 6) {
-  Total = Total - 201515.18;
+  Total = (Total - 133784.7);
 }
 
 
@@ -1782,12 +1811,21 @@ if (id == 6) {
   });
   var morte = Number(amountQ["sum(`quantidade`)"]);
 
-  var compradosTotal = await Compra.count({
+  let compradosTotal = await Compra.count({
     attributes: [sequelize.fn("sum", sequelize.col("quantidade"))],
     where: {
       investidoreId: id,
     },
   });
+
+  if (id == 8) {
+    compradosTotal = compradosTotal + 49;
+  }
+
+  if (id == 6) {
+    compradosTotal = compradosTotal + 126;
+  }
+
 
   var vendidos = await Venda.count({
     attributes: [sequelize.fn("sum", sequelize.col("quantidade"))],
@@ -1799,13 +1837,6 @@ if (id == 6) {
   //////////////////////estoque
   var estoque = compradosTotal - morte - vendidos;
 
-  // Verifica se o investidoreId é 8 e ajusta o estoque para ter 46 animais a menos
-  if (id == 8) {
-    estoque += 49;
-  }
-    if (id == 6) {
-      estoque += 126;
-    }
 
   // Consultar o banco de dados para obter o último registro de Compra
   const lastCompra = await Compra.findOne({

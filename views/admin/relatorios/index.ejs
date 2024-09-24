@@ -148,7 +148,8 @@
             </tr>
             <tr>
               <td class="text-left" rowspan="2">Compras (R$)</td>
-              <td class="text-left" rowspan="2"><%= amountCompra %></td>
+              <td class="text-left" rowspan="2">
+               <%= new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(amountCompra) %></td>
               <td class="text-right">Retirada</td>
               <td class="text-right">
                 <%= new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(totalSumRetirada) %>
