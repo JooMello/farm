@@ -151,10 +151,13 @@ router.get("/admin/relatorio", adminAuth, async (req, res, next) => {
     });
 
        
-    let totalSumEntrada = 0;
-    contaCorrentesEntrada.forEach((entrada) => {
-      totalSumEntrada += parseFloat(entrada.valor) - 56968.13;
-    });
+let totalSumEntrada = 0;
+contaCorrentesEntrada.forEach((entrada) => {
+  totalSumEntrada += parseFloat(entrada.valor);
+});
+
+// Subtrai o valor total uma vez, após somar tudo
+totalSumEntrada = totalSumEntrada - 56968.13;
      
 
 
@@ -183,7 +186,7 @@ router.get("/admin/relatorio", adminAuth, async (req, res, next) => {
     });
     let investidorNome = "Todos os Investidores"; // Valor padrão
 
-    const Total = totalSumEntrada - amountCompra + totalVendaSum - totalSumRetirada - 225293.31;
+    const Total = totalSumEntrada - amountCompra + totalVendaSum - totalSumRetirada - 1120.79;
       
 
     const compradosTotal = (await Compra.count()) + 175;

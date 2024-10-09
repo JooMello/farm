@@ -33,7 +33,7 @@ router.get('/admin/estoque', adminAuth, async (req, res, next) => {
   });
   
     //////////////////////comprados
-    var compradosTotal = await Compra.count();
+    var compradosTotal = (await Compra.count()) + 175;
 
 
   var comprados = await Compra.count({
@@ -99,9 +99,11 @@ router.get('/admin/estoque', adminAuth, async (req, res, next) => {
 
               raw: true,
             });
-            var TotalcapitalInvestido = Number(
+            let TotalcapitalInvestido = Number(
               capitalInvestido["sum(`valor`)"]
             );
+            TotalcapitalInvestido = TotalcapitalInvestido + 224173.31;
+
             var TotalC = TotalcapitalInvestido.toLocaleString("pt-BR", {
               style: "currency",
               currency: "BRL",

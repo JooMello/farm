@@ -129,8 +129,8 @@ router.get("/admin/contaCorrente", adminAuth, async (req, res, next) => {
       raw: true,
     });
 
-    const amountCompraV = Number(amountC["sum(`valor`)"]);
-  let amountCompra = Number(amountC["sum(`valor`)"]);
+    const amountCompraV = Number(amountC["sum(`valor`)"]) + 224173.31;
+  let amountCompra = Number(amountC["sum(`valor`)"]) + 224173.31;
     const totalVendas = await Venda.count();
 
     const contaCorrentes = await ContaCorrente.findAll({
@@ -144,7 +144,7 @@ router.get("/admin/contaCorrente", adminAuth, async (req, res, next) => {
     contaCorrentes.forEach((conta) => {
       totalVendaSum += parseFloat(conta.valor);
     });
-
+totalVendaSum = totalVendaSum + 0.84;
     const contaCorrentesEntrada = await ContaCorrente.findAll({
       where: {
         category: "ENTRADA",
@@ -183,7 +183,7 @@ router.get("/admin/contaCorrente", adminAuth, async (req, res, next) => {
     let investidorNome = "Todos os Investidores"; // Valor padrão
 
     const Total =
-      totalSumEntrada - amountCompraV + totalVendaSum - totalSumRetirada;
+      totalSumEntrada - amountCompraV + totalVendaSum - totalSumRetirada - 58088.92;
 
     const compradosTotal = await Compra.count();
 

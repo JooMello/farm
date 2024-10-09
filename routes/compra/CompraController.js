@@ -137,7 +137,7 @@ router.get("/admin/compra", adminAuth, async (req, res, next) => {
     async (investidores) => {
       Historico.findAll().then(async (historico) => {
         //////////////////////Quantidade
-        var quantidade = await Compra.count();
+        var quantidade = (await Compra.count()) + 175;
 
         //////////////////////Capital Investidor
         var amountT = await Compra.findOne({
@@ -145,13 +145,12 @@ router.get("/admin/compra", adminAuth, async (req, res, next) => {
 
           raw: true,
         });
-        var CapitalInvestido = Number(amountT["sum(`valor`)"]).toLocaleString(
-          "pt-BR",
-          {
-            style: "currency",
-            currency: "BRL",
-          }
-        );
+        var CapitalInvestido = (
+          Number(amountT["sum(`valor`)"]) + 224173.31
+        ).toLocaleString("pt-BR", {
+          style: "currency",
+          currency: "BRL",
+        });
 
         //////////////////////Capital Investidor em dolar
         var amountD = await Compra.findOne({
