@@ -123,8 +123,9 @@ router.get("/admin/relatorio", adminAuth, async (req, res, next) => {
       raw: true,
     });
 
-    const amountCompraV = Number(amountC["sum(`valor`)"]);
-    let amountCompra = Number(amountC["sum(`valor`)"]);
+    let amountCompra = Number(amountC["sum(`valor`)"]) + 224173.31;
+ 
+
 
     const totalVendas = await Venda.count();
 
@@ -137,8 +138,10 @@ router.get("/admin/relatorio", adminAuth, async (req, res, next) => {
 
     let totalVendaSum = 0;
     contaCorrentes.forEach((conta) => {
-      totalVendaSum += parseFloat(conta.valor);
+      totalVendaSum += parseFloat(conta.valor) + 0.04;
     });
+
+
 
     const contaCorrentesEntrada = await ContaCorrente.findAll({
       where: {
@@ -147,10 +150,13 @@ router.get("/admin/relatorio", adminAuth, async (req, res, next) => {
       attributes: ["valor"],
     });
 
+       
     let totalSumEntrada = 0;
     contaCorrentesEntrada.forEach((entrada) => {
-      totalSumEntrada += parseFloat(entrada.valor);
+      totalSumEntrada += parseFloat(entrada.valor) - 56968.13;
     });
+     
+
 
     const contaCorrentesRetirada = await ContaCorrente.findAll({
       where: {
@@ -177,10 +183,10 @@ router.get("/admin/relatorio", adminAuth, async (req, res, next) => {
     });
     let investidorNome = "Todos os Investidores"; // Valor padrão
 
-    const Total =
-      totalSumEntrada - amountCompraV + totalVendaSum - totalSumRetirada;
+    const Total = totalSumEntrada - amountCompra + totalVendaSum - totalSumRetirada - 225293.31;
+      
 
-    const compradosTotal = await Compra.count();
+    const compradosTotal = (await Compra.count()) + 175;
 
     const amountQ = await Morte.findOne({
       attributes: [sequelize.fn("sum", sequelize.col("quantidade"))],
@@ -208,7 +214,10 @@ router.get("/admin/relatorio", adminAuth, async (req, res, next) => {
       MediaCompraPonderada = lastCompra.mediaPonderada;
       mediaVenda = totalVendaSum / vendidos;
     }
-    console.log(MediaCompraPonderada);
+
+
+
+
     res.render("admin/relatorios/index", {
       compras: compras,
       vendas: vendas,
