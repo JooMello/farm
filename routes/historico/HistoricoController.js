@@ -24,26 +24,8 @@ Number.prototype.toLocaleFixed = function (n) {
   });
 };
 
-// https://docs.awesomeapi.com.br/
-
-const moedas = "USD-BRL";
-
-// request{options, callback}
-
-const options = {
-  url: `https://economia.awesomeapi.com.br/last/${moedas}`,
-  method: "GET",
-  headers: {
-    Accept: "application/json",
-    "Accept-Charset": "utf-8",
-  },
-};
-
-const callback_dolar = function (erro, res, body) {
-  let json = JSON.parse(body);
-  cotacao = json.USDBRL["bid"];
-};
-const Dolar = request(options, callback_dolar);
+// Importar módulo da API do dólar
+const { getCotacao } = require('../../modules/api_dolar');
 
 // Função para formatar um valor monetário (R$)
 function formatCurrency(value) {
@@ -256,7 +238,7 @@ router.get("/admin/compra/view/:code", adminAuth, async (req, res, next) => {
 });
 
 router.get("/admin/compra/new", adminAuth, (req, res) => {
-  var cotacaoDolar = Number(cotacao).toLocaleString("en-US", {
+  var cotacaoDolar = Number(getCotacao()).toLocaleString("en-US", {
     style: "currency",
     currency: "USD",
   });
@@ -264,8 +246,8 @@ router.get("/admin/compra/new", adminAuth, (req, res) => {
   Investidor.findAll({ order: [["name", "ASC"]] }).then((investidores) => {
     res.render("admin/compra/new", {
       investidores: investidores,
-      cotacao: cotacao,
-      cotacaoDolar: cotacaoDolar,
+          cotacao: getCotacao(),
+    cotacaoDolar: cotacaoDolar,
     });
   });
 });
