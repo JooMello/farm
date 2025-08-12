@@ -68,7 +68,45 @@ app.use("/", vendaRouter);
 app.use("/", relatorioRouter);
 app.use("/", estoqueRouter);
 app.use("/", contaCorrenteRouter);
-app.use("/", userRouter);;
+app.use("/", userRouter);
+
+// Endpoint para gerenciar cotação do dólar
+app.get("/api/dolar", adminAuth, (req, res) => {
+  const info = dolar.getInfoAtualizacao();
+  res.json({
+    cotacao: info.cotacao,
+    ultimaAtualizacao: info.ultimaAtualizacao,
+    tentativas: info.tentativas,
+    isUpdating: info.isUpdating,
+    queueLength: info.queueLength
+  });
+});
+
+app.post("/api/dolar/update", adminAuth, (req, res) => {
+  dolar.updateCotacao();
+  res.json({ message: "Atualização da cotação iniciada" });
+});
+
+app.post("/api/dolar/set", adminAuth, (req, res) => {
+  const { valor } = req.body;
+  if (dolar.setCotacaoManual(parseFloat(valor))) {
+    res.json({ 
+      success: true, 
+      message: "Cotação atualizada manualmente", 
+      cotacao: dolar.getCotacao() 
+    });
+  } else {
+    res.status(400).json({ 
+      success: false, 
+      message: "Valor inválido. Use um número maior que zero." 
+    });
+  }
+});
+
+// Rota para a página de administração do dólar
+app.get("/admin/dolar", adminAuth, (req, res) => {
+  res.render("admin/dolar");
+});
 
 connection
   .authenticate()
